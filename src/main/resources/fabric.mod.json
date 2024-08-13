@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "gooeyeditor",
+  "version": "${version}",
+  "name": "GooeyEditor",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/shado/GooeyEditor"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/gooeyeditor/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.shadowmaster435.gooeyeditor.client.GooeyEditorClient"
+    ],
+    "main": [
+      "org.shadowmaster435.gooeyeditor.GooeyEditor"
+    ]
+  },
+  "mixins": [
+    "gooeyeditor.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

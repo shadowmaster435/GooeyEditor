@@ -16,7 +16,7 @@ public class ArrayWidget<W extends GuiElement> extends ParentableWidgetBase {
 
     public ArrayWidget(int x, int y, boolean editMode, W... preset) {
         super(x, y, editMode);
-        widgets.addAll(Arrays.stream(preset).toList());
+        addElements(preset);
     }
 
     public int getEntryOffset() {
@@ -43,5 +43,10 @@ public class ArrayWidget<W extends GuiElement> extends ParentableWidgetBase {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         super.preTransform(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public int getHeight() {
+        return super.getHeight();
     }
 }

@@ -24,11 +24,9 @@ public class VectorMath {
 
     public static Vec3d project(Vec3d pos, Vec3d planeNormal) {
         return planeNormal.multiply(pos.dotProduct(planeNormal) / planeNormal.lengthSquared());
-
     }
 
     public static Vec3d directionTo(Vec3d from, Vec3d to) {
-
         return to.subtract(from).normalize();
     }
 }

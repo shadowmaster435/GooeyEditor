@@ -20,7 +20,14 @@ public class SpinboxWidget extends TextField {
     private final TextButtonWidget sub;
 
 
+    @Override
+    public Property[] getProperties() {
+        var min_value = new Property("Min Value", "min_value", "min_value", Integer.class);
+        var max_value = new Property("Max Value", "max_value", "max_value", Integer.class);
 
+        var placeholder = new Property("Placeholder Text", "setPlaceholder", "getPlaceholder", String.class);
+        return new Property[]{min_value, max_value, placeholder};
+    }
     public SpinboxWidget(int x, int y, int w, int h, TextRenderer textRenderer, boolean editMode) {
         super(x, y, w, h, textRenderer, editMode);
         this.textPredicate = chr -> {
@@ -36,8 +43,8 @@ public class SpinboxWidget extends TextField {
         sub = new TextButtonWidget(x + ((w - 2) - ((mw + pw) + 1)), y + (h / 4), Text.of("-"), editMode);
         add.setPressFunction(this::add);
         sub.setPressFunction(this::sub);
-        widgets.add(sub);
-        widgets.add(add);
+        addElement(sub);
+        addElement(add);
 
     }
 
@@ -56,8 +63,8 @@ public class SpinboxWidget extends TextField {
         sub = new TextButtonWidget(x + ((14) - ((mw + pw) + 1)), y + (4), Text.of("-"), editMode);
         add.setPressFunction(this::add);
         sub.setPressFunction(this::sub);
-        widgets.add(sub);
-        widgets.add(add);
+        addElement(sub);
+        addElement(add);
     }
 
     public void add(GuiButton button) {

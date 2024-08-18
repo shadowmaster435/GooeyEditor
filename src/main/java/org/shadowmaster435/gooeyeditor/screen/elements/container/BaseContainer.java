@@ -1,6 +1,7 @@
 package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
+import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
 
@@ -33,14 +34,34 @@ public abstract class BaseContainer extends ParentableWidgetBase {
         return element_spacing;
     }
 
-    public void addElement(GuiElement element) {
-        widgets.add(element);
+    public void addElement(GuiElement... element) {
+        super.addElements(element);
     }
     public void removeElement(int index) {
-        widgets.remove(index);
+        super.removeElement(index);
     }
     public void removeElement(GuiElement element) {
-        widgets.remove(element);
+        super.removeElement(element);
+    }
+    public Vector2i getCollectiveChildSize(int spacing_x, int spacing_y) {
+        var width = 0;
+        var height = 0;
+        for (GuiElement element : this) {
+            width += element.getWidth() + spacing_x;
+            height += element.getHeight() + spacing_y;
+        }
+        width -= spacing_x;
+        height -= spacing_y;
+
+        return new Vector2i(Math.max(width, 0), Math.max(height, 0));
+    }
+
+    public int getCollectiveChildHeight(int spacing) {
+        return getCollectiveChildSize(0, spacing).y;
+    }
+
+    public int getCollectiveChildWidth(int spacing) {
+        return getCollectiveChildSize(spacing, 0).x;
     }
 
     public boolean isChildHoverable(int mouseX, int mouseY, GuiElement element) {

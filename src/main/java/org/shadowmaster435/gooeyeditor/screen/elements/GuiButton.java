@@ -1,13 +1,17 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class GuiButton extends GuiElement {
 
     public Consumer<GuiButton> pressFunction;
+    public BiConsumer<GuiButton, Object[]> dataPressFunction;
+    private Object[] pressFunctionData = new Object[]{};
     public boolean pressed = false;
     public boolean toggle_mode = false;
 
@@ -20,12 +24,14 @@ public abstract class GuiButton extends GuiElement {
     public GuiButton(int x, int y, boolean editMode) {
         super(x, y, editMode);
     }
-    public <B extends GuiButton> void setPressFunction(Consumer<GuiButton> func) {
+
+    public <B extends GuiButton> void setPressFunction(@Nullable Consumer<GuiButton> func) {
         this.pressFunction = func;
     }
 
-    public Vector2i getSize() {
-        return new Vector2i(getWidth(), getHeight());
+    public <B extends GuiButton> void setDataPressFunction(BiConsumer<GuiButton, Object[]> func, Object... data) {
+        this.dataPressFunction = func;
+        pressFunctionData = data;
     }
 
     @Override
@@ -47,8 +53,13 @@ public abstract class GuiButton extends GuiElement {
                 pressed = true;
             }
         }
-        if (isMouseOver(mouseX, mouseY) && pressFunction != null) {
-            pressFunction.accept(this);
+        if (isMouseOver(mouseX, mouseY) && pressFunction != null && button == 0) {
+            if (dataPressFunction != null) {
+                dataPressFunction.accept(this, pressFunctionData);
+            } else {
+                pressFunction.accept(this);
+
+            }
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }

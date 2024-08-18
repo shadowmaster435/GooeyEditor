@@ -16,8 +16,7 @@ public class NinePatchTexture extends GuiElement {
 
 
     public NinePatchTexture(int x, int y, int w, int h, NinePatchTextureData data, boolean editMode) {
-        super(x, y, editMode);
-        getRect().setBounds(x, y, w, h);
+        super(x, y, w, h, editMode);
         this.edge_thickness = data.edge_thickness();
         this.texture = data.texture();
         this.texture_width = data.texture_width();

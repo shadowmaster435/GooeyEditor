@@ -13,7 +13,11 @@ import java.util.function.Supplier;
 public class TextButtonWidget extends GuiButton {
 
     public Text message = Text.of("");
+    public TextButtonWidget(int x, int y, String message, boolean editMode) {
+        super(x, y, 0, 0, editMode);
 
+        this.message = Text.of(message);
+    }
 
     public TextButtonWidget(int x, int y, Text message, boolean editMode) {
         super(x, y, 0, 0, editMode);

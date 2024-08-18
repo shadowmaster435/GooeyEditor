@@ -6,16 +6,22 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.lwjgl.glfw.GLFW;
+import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.ElementList;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.IdentifierWidget;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.PropertyEditor;
+import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.WidgetTree;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
+import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
-import java.util.ArrayList;
+import java.util.*;
+
+import static org.shadowmaster435.gooeyeditor.GooeyEditor.warn;
 
 public class GuiEditorScreen extends Screen implements EditorUtil {
 
@@ -34,10 +40,15 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public final ArrayList<GuiElement> toAdd = new ArrayList<>();
     private ElementList elementList;
     private SpinboxWidget displayed_layer;
-    private TextureButtonWidget layer_editing;
+    public TextureButtonWidget layer_editing;
+    private ContextPopupWidget contextMenu;
+    private TextButtonWidget contextEditButton;
+    private TextButtonWidget contextDeleteButton;
+    private TextButtonWidget contextAddButton;
+    public WidgetTree tree;
+    public static final int EDITOR_LAYERS_START = 512;
 
     public GuiEditorScreen(Screen screen) {
-
         super(Text.empty());
         this.parent = screen;
 //        if (GooeyEditorClient.hsv == null) {
@@ -48,6 +59,19 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 //            GooeyEditorClient.hsv = arr;
 //        }
     }
+
+
+    public void loadScreen(String name) {
+        try {
+            var clazz = GooeyEditor.getClassForDisplayName(name).getConstructor();
+            var obj = clazz.newInstance();
+            toAdd.addAll(obj.getEditableElements());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public void close() {
@@ -76,29 +100,51 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        var hoveringPropertyEditor = propertyEditor.editorRect.contains(mouseX, mouseY);
+        if (elementList.isOpen()) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+        if (contextMenu.isOpen()) {
+            contextMenu.tryClose((int) mouseX, (int) mouseY);
+        } else {
+            if (button == 1) {
+                contextMenu.removeElement(contextDeleteButton);
+                contextMenu.removeElement(contextEditButton);
+
+                contextMenu.list.arrange();
+                contextMenu.open((int) mouseX, (int) mouseY);
+            }
+        }
         if (selected_element == null) {
             for (Element element1 : children()) {
                 if (element1 instanceof GuiElement element2) {
                     if (element2.isMouseOver(mouseX, mouseY) && element2.isEditMode() && isElementLayerVisible(element2)) {
-                        selected_element = element2;
-                        selected_element.selected = true;
-                        propertyEditor.loadProperties(element2);
+                        selectElement(element2);
 
                         return super.mouseClicked(mouseX, mouseY, button);
                     }
                 }
             }
         } else {
-            if (selected_element.isMouseOver(mouseX, mouseY) && selected_element.selected && selected_element.isEditMode() && isElementLayerVisible(selected_element)) {
-                if (button == 1) {
-                    propertyEditor.renderText(true);
-                }
+            if ( !hoveringPropertyEditor && selected_element.isMouseOver(mouseX, mouseY) && selected_element.selected && selected_element.isEditMode() && isElementLayerVisible(selected_element)) {
+
                 if (button == 0) {
                     selected_element.startTransform((int) mouseX, (int) mouseY);
                 }
-              //  propertyEditor.loadProperties(selected_element);
+                if (button == 1 && selected_element.isMouseOver(mouseX, mouseY)) {
+
+                    contextMenu.removeElement(contextAddButton);
+                    contextMenu.addElement(contextEditButton);
+                    contextMenu.addElement(contextAddButton);
+                    contextMenu.addElement(contextDeleteButton);
+                    contextMenu.list.arrange();
+
+                    contextMenu.open((int) mouseX, (int) mouseY);
+                }
+              //  propertyEditor.renderText(true); propertyEditor.loadProperties(selected_element);
 
             } else {
+
                 for (Element element1 : children()) {
                     if (element1 instanceof GuiElement element2) {
 
@@ -106,16 +152,13 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
                             if (element2 == selected_element) {
                                 return super.mouseClicked(mouseX, mouseY, button);
                             }
-                            selected_element.selected = false;
-                            selected_element = element2;
-                            selected_element.selected = true;
-                            propertyEditor.loadProperties(selected_element);
+                            selectElement(element2);
 
                             return super.mouseClicked(mouseX, mouseY, button);
                         }
                     }
                 }
-                if (!propertyEditor.hoveringProperty((int) mouseX, (int) mouseY)) {
+                if ((!propertyEditor.editorRect.contains(mouseX, mouseY) || !propertyEditor.shouldRenderText) && !contextMenu.isMouseOver(mouseX, mouseY)) {
                     propertyEditor.unloadProperties();
 
                     selected_element.selected = false;
@@ -124,6 +167,19 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    /**
+     * Sets selection to provided element and marks previously selected element (if any) as unselected.
+     * @param element Element you want selected.
+     */
+    public void selectElement(GuiElement element) {
+        if (selected_element != null) { // unselect previous if not null
+            selected_element.selected = false;
+        }
+        selected_element = element;
+        selected_element.selected = true;
+        propertyEditor.loadProperties(selected_element);
     }
 
     private boolean isElementLayerVisible(GuiElement element) {
@@ -137,13 +193,16 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
             element1.keyPressed(keyCode, scanCode, modifiers);
         }
         if (selected_element != null && (keyCode == GLFW.GLFW_KEY_DELETE || keyCode == GLFW.GLFW_KEY_BACKSPACE) && !propertyEditor.isPropertyFocused()) {
-            remove(selected_element);
-            selected_element = null;
-            propertyEditor.unloadProperties();
+            deleteSelectedElement(null);
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
+    public void deleteSelectedElement(GuiButton button) {
+        remove(selected_element);
+        selected_element = null;
+        propertyEditor.unloadProperties();
+    }
 
     @Override
     public boolean charTyped(char chr, int modifiers) {
@@ -151,7 +210,8 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
             element1.charTyped(chr, modifiers);
         }
         if (InputHelper.isMiddleMouseHeld) {
-            System.out.println(getExportString("Test"));
+           loadScreen("Test");
+           // System.out.println(getExportString("Test"));
         }
         return super.charTyped(chr, modifiers);
     }
@@ -163,14 +223,22 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 //
 //        }
 //        element.rotation += 1f;
+        propertyEditor.hoveringContextMenu = contextMenu.isMouseOver(mouseX, mouseY) && contextMenu.isOpen();
+        propertyEditor.screen = this;
         var element_found = false;
         for (Element element1 : children()) {
             if (element1 instanceof GuiElement element2) {
                 if (element2.isMouseOver(mouseX, mouseY) && isElementLayerVisible(element2)) {
-                    if (element2 instanceof ElementList || element2 instanceof PropertyEditor) {
+                    if (!element2.isEditMode()) {
                         continue;
                     }
-                    element2.setCursorType(mouseX, mouseY);
+                    if (element2.selected && (!propertyEditor.editorRect.contains(mouseX, mouseY) || !propertyEditor.shouldRenderText) && (!contextMenu.isMouseOver(mouseX, mouseY) && !contextMenu.isOpen())) {
+                        element2.setCursorType(mouseX, mouseY);
+
+                    } else {
+                        GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
+
+                    }
                     element_found = true;
                     break;
                 }
@@ -218,6 +286,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         addDrawableChild(editor);
         this.propertyEditor = editor;
         initTopBar();
+        initContextMenu();
     }
 
     private void initTopBar() {
@@ -259,12 +328,36 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         addDefaultElements();
     }
 
+    private void initContextMenu() {
+
+        var contextMenu = new ContextPopupWidget(128, 96, false);
+        contextMenu.layer = 600;
+        this.contextMenu = contextMenu;
+        addDrawableChild(contextMenu);
+        var edit = new TextButtonWidget(0,0,Text.of("Edit"), false);
+        edit.setPressFunction((a) -> {propertyEditor.renderText(true); contextMenu.close();});
+        contextMenu.addElement(edit);
+        this.contextEditButton = edit;
+        var add = new TextButtonWidget(0,0,Text.of("Add"), false);
+        add.setPressFunction((a) -> {openElementList(a); contextMenu.close();});
+        contextMenu.addElement(add);
+        this.contextAddButton = add;
+        var delete = new TextButtonWidget(0,0,Text.of("Delete"), false);
+        delete.setPressFunction((a) -> {deleteSelectedElement(a); contextMenu.close();});
+        contextMenu.addElement(delete);
+        this.contextDeleteButton = delete;
+
+    }
+
+
     private void addDefaultElements() {
         elementList.registerElement("Nine Patch Texture", this::createNinePatch);
         elementList.registerElement("Texture", this::createTexture);
+        elementList.registerElement("Range Texture", this::createRangeTexture);
+        elementList.registerElement("Radial Texture", this::createRadialTexture);
+        elementList.registerElement("Spinbox", this::createSpinbox);
         elementList.registerElement("Item Display", this::createItemDisplay);
         elementList.registerElement("Color Picker", this::createColorPicker);
-
         elementList.registerElement("Scrollbar", this::createScrollbar);
         elementList.registerElement("Text Field", this::createTextField);
         elementList.registerElement("Text", this::createText);
@@ -272,6 +365,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
 
     private <W extends GuiButton> void openElementList(W widget) {
+        propertyEditor.unloadProperties();
         elementList.open();
     }
 
@@ -287,7 +381,11 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         addDrawableChild(file);
         addDrawableChild(save);
     }
-
+    private void initWidgetTree() {
+        var tree = new WidgetTree(4,16, 128, MinecraftClient.getInstance().getWindow().getScaledHeight() - 16, false);
+        addDrawableChild(tree);
+        this.tree = tree;
+    }
 
     public static <W extends GuiButton> void tstfunc(W widget) {
         System.out.println("yep");
@@ -297,24 +395,30 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     private final String fieldAssignerText = "\t\tvar %1$s = new %2$s(%3$s);\n\t\t%4$s\n\t\tthis.%1$s = %1$s;\n\n";
     private final String initText = "\t@Override\n\tpublic void initElements() {\n%s\t}\n";
     private final String getText = "\n\t@Override\n\tpublic GuiElement[] getElements() {\n\t\treturn new GuiElement[]{%s};\n\t}\n";
+
     private final String elementImport = "import org.shadowmaster435.gooeyeditor.screen.elements.*;\n";
     private final String jomlImport = "import org.joml.*;\n";
-    private final String identifierImport = "import net.minecraft.util.Identifier;\n";
+    private final String identifierImport = "import " + Identifier.class.getCanonicalName() + ";\n";
     private final String guiScreenImport = "import org.shadowmaster435.gooeyeditor.screen.GuiScreen;\n";
-
-    private final String classString = "\npublic class %s extends GuiScreen {\n";
+    private final String classString = "\npublic class %1$s extends GuiScreen {\n\n\t//This default init function is required if you want to load this screen in the editor\n\t//will throw an exception if excluded\n\tpublic %1$s() {\n\t\tsuper();\n\t}\n";
 
     public String getExportString(String className) {
+        if (children().isEmpty()) {
+            return "";
+        }
         return  elementImport +
                 jomlImport +
                 identifierImport +
                 guiScreenImport +
                 String.format(classString, className) +
-                "\n" +
                 getContentsExportString() + "}";
     }
 
+    private final HashMap<String, Integer> usedNames = new HashMap<>();
+
     public String getContentsExportString() {
+
+        usedNames.clear();
         StringBuilder fields = new StringBuilder();
         StringBuilder assigners = new StringBuilder();
         StringBuilder getters = new StringBuilder();
@@ -322,15 +426,28 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         for (Element element1 : children()) {
             if (element1 instanceof GuiElement guiElement) {
                 if (guiElement.isEditMode()) {
-                    fields.append(String.format(fieldText, guiElement.getClass().getSimpleName() + " " + guiElement.name));
-                    assigners.append(String.format(fieldAssignerText, guiElement.name, guiElement.getClass().getSimpleName(), guiElement.getAssignerInitInputString(), guiElement.getAssignerSetterString()));
-                    getters.append("this.").append(guiElement.name).append(", ");
+                    var actual_name = guiElement.name;
+                    if (usedNames.containsKey(guiElement.name)) {
+                        actual_name = guiElement.name + usedNames.getOrDefault(guiElement.name, 1);
+                        usedNames.put(guiElement.name, usedNames.getOrDefault(guiElement.name, 1) + 1);
+                        warn(1, guiElement, guiElement.name, actual_name);
+                    } else if (guiElement.name.isEmpty()) {
+                        warn(0, guiElement);
+                        continue;
+                    } else {
+
+                        usedNames.put(guiElement.name, 0);
+                    }
+                    fields.append(String.format(fieldText, guiElement.getClass().getSimpleName() + " " + actual_name));
+                    assigners.append(String.format(fieldAssignerText, actual_name, guiElement.getClass().getSimpleName(), guiElement.getAssignerInitInputString(), guiElement.getAssignerSetterString()));
+                    getters.append("this.").append(actual_name).append(", ");
                 }
             }
         }
         getters.replace(getters.length() - 2, getters.length(), "");
         return result.append(fields).append("\n").append(String.format(initText, assigners)).append(String.format(getText, getters)).toString();
     }
+
 
 
 }

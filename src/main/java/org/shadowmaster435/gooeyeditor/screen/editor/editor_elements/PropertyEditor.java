@@ -6,10 +6,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.joml.*;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
+import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.ScrollableContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.ScrollbarWidgetData;
+import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
 import java.util.ArrayList;
@@ -22,7 +24,10 @@ public class PropertyEditor extends ParentableWidgetBase {
     private HashMap<GuiElement.Property, GuiElement> properties = new HashMap<>();
     private ScrollableContainer listContainer;
     private ScrollbarWidget scrollbar;
-    private boolean shouldRenderText = false;
+    public boolean shouldRenderText = false;
+    public Rect2 editorRect = new Rect2();
+    public boolean hoveringContextMenu = false;
+    public GuiEditorScreen screen = null;
 
     public PropertyEditor(int x, int y, boolean editMode) {
         super(MinecraftClient.getInstance().getWindow().getScaledWidth() - 64, 32, 32, 128, editMode);
@@ -33,12 +38,20 @@ public class PropertyEditor extends ParentableWidgetBase {
         var scrollbar = new ScrollbarWidget(MinecraftClient.getInstance().getWindow().getScaledWidth() - 128, 0, 16,  MinecraftClient.getInstance().getWindow().getScaledHeight() , getTextureData(), false);
         var container = new ScrollableContainer(MinecraftClient.getInstance().getWindow().getScaledWidth() - 128, getY(), getWidth(), getHeight(), MinecraftClient.getInstance().getWindow().getScaledHeight(), scrollbar, 12, false);
         this.listContainer = container;
-        widgets.add(container);
+        addElement(container);
         this.scrollbar = scrollbar;
         scrollbar.layer = 513;
-        widgets.add(scrollbar);
+        addElement(scrollbar);
     }
 
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!hoveringContextMenu) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        } else {
+            return false;
+        }
+    }
 
     private ScrollbarWidgetData getTextureData() {
         var tdata = new NinePatchTextureData(16,16,5,Identifier.of(GooeyEditor.id, "textures/gui/slot.png"));
@@ -58,6 +71,7 @@ public class PropertyEditor extends ParentableWidgetBase {
             listContainer.render(context, mouseX,mouseY, delta);
             push(context);
             context.getMatrices().translate(0,0,512);
+            editorRect.setRect(context.getScaledWindowWidth() - 128, 0, context.getScaledWindowWidth(), context.getScaledWindowHeight());
             context.fill(context.getScaledWindowWidth() - 128, 0, context.getScaledWindowWidth(), context.getScaledWindowHeight(), ColorHelper.Argb.getArgb(127, 127, 127));
 
             for (Property property : properties.keySet()) {
@@ -72,11 +86,14 @@ public class PropertyEditor extends ParentableWidgetBase {
         properties.clear();
         var props = new ArrayList<>(Arrays.stream(element.getDefaultProperties()).toList());
         props.addAll(Arrays.asList(element.getProperties()));
-        listContainer.widgets.clear();
+        listContainer.orphanizeChildren();
+        if (element instanceof ParentableWidgetBase base) {
+            screen.tree.createTreeForElement(base);
+        }
         for (GuiElement.Property prop : props) {
             var elem = widgetForType(prop.aClass());
             properties.put(prop, elem);
-            listContainer.widgets.add(elem);
+            listContainer.addElement(elem);
             elem.layer = 513;
         }
     }
@@ -87,7 +104,7 @@ public class PropertyEditor extends ParentableWidgetBase {
     }
 
     public void unloadProperties() {
-        listContainer.widgets.clear();
+        listContainer.orphanizeChildren();
         shouldRenderText = false;
     }
 

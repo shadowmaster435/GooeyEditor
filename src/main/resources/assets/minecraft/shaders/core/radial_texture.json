@@ -4,12 +4,16 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "minecraft:hue_gradient",
-  "fragment": "minecraft:hue_gradient",
+  "vertex": "minecraft:radial_texture",
+  "fragment": "minecraft:radial_texture",
   "attributes": [ "Position" ],
-  "samplers": [],
+  "samplers": [
+    { "name": "Sampler0" }
+  ],
   "uniforms": [
-    { "name": "Hue",         "type": "float",     "count": 1,  "values": [ 0.0 ] },
+    { "name": "Angle",         "type": "float",     "count": 1,  "values": [ 0.0 ] },
+    { "name": "Pixelate",         "type": "int",     "count": 1,  "values": [1] },
+
     { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
     { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] }
   ]

@@ -18,23 +18,23 @@ public class IdentifierWidget extends ParentableWidgetBase {
     public void createFields(int x, int y, int w, int field_height, int field_spacing) {
         var id = new TextField(x, y, w, field_height, MinecraftClient.getInstance().textRenderer, false);
         var path = new TextField(x, y + (field_height + field_spacing), w, field_height, MinecraftClient.getInstance().textRenderer, false);
-        widgets.add(id);
-        widgets.add(path);
+        addElement(id);
+        addElement(path);
         id.setMaxLength(1000);
         path.setMaxLength(1000);
         getRect().height += (field_height + field_spacing) * 2;
     }
 
     public Identifier getValue() {
-        return Identifier.of(((TextField) widgets.get(0)).getText(), ((TextField) widgets.get(1)).getText());
+        return Identifier.of(((TextField) getElement(0)).getText(), ((TextField) getElement(1)).getText());
     }
 
     public void setText(Identifier identifier) {
         if (identifier == null) {
             return;
         }
-        ((TextField)(widgets.get(0))).setText(identifier.getNamespace());
-        ((TextField)(widgets.get(1))).setText(identifier.getPath());
+        ((TextField)(getElement(0))).setText(identifier.getNamespace());
+        ((TextField)(getElement(1))).setText(identifier.getPath());
 
     }
     @Override

@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
+import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 
 public interface EditorUtil {
@@ -24,29 +25,59 @@ public interface EditorUtil {
         return new ColorPicker(32, 32, 32, 32, true);
     }
 
+    default SpinboxWidget createSpinbox() {
+        var tex = new SpinboxWidget(32,32,true);
+        tex.name = "spinbox";
+        return tex;
+    }
+
+    default GuiRadialTexture createRadialTexture() {
+        var tex = new GuiRadialTexture(Identifier.of(GooeyEditor.id, "textures/gui/progress_circle.png"), 32, 32, 32, 32, true);
+        tex.name = "rangeTexture";
+        return tex;
+    }
+
+    default GuiRangeTexture createRangeTexture() {
+        var tex = new GuiRangeTexture(Identifier.of(GooeyEditor.id, "textures/gui/progress_arrow.png"), 32, 32, 44, 32, 22, 16, true);
+        tex.name = "rangeTexture";
+        return tex;
+    }
+
     default GuiTexture createTexture() {
-        return new GuiTexture(32, 32, 32, 32, Identifier.of("minecraft", "textures/block/dirt.png"), 16, 16, true);
+        var tex = new GuiTexture(32, 32, 32, 32, Identifier.of("minecraft", "textures/block/dirt.png"), 16, 16, true);
+        tex.name = "texture";
+        return tex;
     }
 
     default NinePatchTexture createNinePatch() {
-        return new NinePatchTexture(32, 32, 32, 32, NinePatchTexture.GUI_PANEL, true);
+        var nine_patch = new NinePatchTexture(32, 32, 32, 32, NinePatchTexture.GUI_PANEL, true);
+        nine_patch.name = "ninePatch";
+        return nine_patch;
     }
 
     default ScrollbarWidget createScrollbar() {
-        return new ScrollbarWidget(32, 32, 32, 12, ScrollbarWidget.DEFAULT_SCROLLBAR, true);
+        var scrollbar = new ScrollbarWidget(32, 32, 32, 12, ScrollbarWidget.DEFAULT_SCROLLBAR, true);
+        scrollbar.name = "scrollBar";
+        return scrollbar;
     }
 
     default TextField createTextField() {
-        return new TextField(32, 32, 32, 12, MinecraftClient.getInstance().textRenderer, true);
+        var field = new TextField(32, 32, 32, 12, MinecraftClient.getInstance().textRenderer, true);
+        field.name = "textField";
+        return field;
     }
 
     default ItemDisplayWidget createItemDisplay() {
-        return new ItemDisplayWidget(32, 32, 32, 32, true);
+        var display = new ItemDisplayWidget(32, 32, 32, 32, true);
+        display.name = "itemDisplay";
+        return display;
     }
 
 
     default TextWidget createText() {
-        return new TextWidget(32, 32, true);
+        var text = new TextWidget(32, 32, true);
+        text.name = "text";
+        return text;
     }
 
 }

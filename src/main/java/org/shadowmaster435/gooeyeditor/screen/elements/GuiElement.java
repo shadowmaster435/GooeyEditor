@@ -4,6 +4,7 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 //region Imports
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
@@ -34,6 +35,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 //endregion
 
 // Class of nightmarish proportions.
@@ -70,11 +72,11 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     public int origin_x = 0;
     public int origin_y = 0;
     private final int resize_border_padding = 5;
-
+    public GuiElement parent = null;
     //endregion
     //region bools
     public boolean center_origin = false;
-    private final boolean editMode;
+    private boolean editMode;
     public boolean selected = false;
     private boolean active = true;
     private boolean visible = true;
@@ -210,7 +212,7 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-        return rect.contains(mouseX, mouseY) && active;
+        return getRect().contains(mouseX, mouseY) && active;
     }
 
     @Override
@@ -304,11 +306,23 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         defaultRenderSequence(context, mouseX, mouseY, delta);
     }
     //endregion
-    //region Getters And Setters
+    //region Getters, Setters, And Consumers.
+
+    public void forEachParent(Consumer<GuiElement> consumer) {
+        while (parent instanceof GuiElement element) {
+            consumer.accept(element);
+        }
+    }
+
+
     public boolean isHoveringResizeBorder(int mouseX, int mouseY) {
         var inner_rect = new Rect2(getX() + resize_border_padding, getY() + resize_border_padding, getWidth() - resize_border_padding * 2, getHeight() - resize_border_padding * 2);
         var outer_rect = new Rect2(getX(), getY(), getWidth(), getHeight());
         return outer_rect.contains(mouseX, mouseY) && !inner_rect.contains(mouseX, mouseY);
+    }
+
+    public void setEditMode(boolean value) {
+        editMode = value;
     }
 
     public void setScissor(int x1, int y1, int x2, int y2) {
@@ -619,6 +633,9 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         }
         return list.toArray(new Property[]{});
     }
+
+
+
 
     @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
     public record Property(String display_name, String setterMethodOrFieldName, String getterMethodOrFieldName, Class<?> aClass) {
@@ -933,6 +950,27 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
         drawCenter(context, rect, texture, edge_thickness, texture_width, texture_height);
         drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
+    }
+
+
+    /**
+     * Draws a texture with the supplied shader over the entire element.
+     */
+    public void drawShaderTexture(DrawContext context, Identifier texture, int x, int y, Supplier<ShaderProgram> shader) {
+        var width = getWidth();
+        var height = getHeight();
+        RenderSystem.setShader(shader);
+        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.disableCull();
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y, (float) layer).texture(0, 0).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, (float)layer).texture(0, 1).color(1f, 1f, 1f, 1f);;
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, (float)layer).texture(1, 1).color(1f, 1f, 1f, 1f);;
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, (float)layer).texture(1, 0).color(1f, 1f, 1f, 1f);;
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        RenderSystem.disableBlend();
     }
 
 

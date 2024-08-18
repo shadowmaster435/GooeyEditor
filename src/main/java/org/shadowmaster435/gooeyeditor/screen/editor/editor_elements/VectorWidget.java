@@ -78,9 +78,9 @@ public class VectorWidget extends ParentableWidgetBase {
 
     private void updateNumbers(int index) {
         switch (type) {
-            case I -> elements.set(index, ((NumberFieldWidget) widgets.get(index)).getInt());
-            case D -> elements.set(index, ((NumberFieldWidget) widgets.get(index)).getDouble());
-            case F -> elements.set(index, ((NumberFieldWidget) widgets.get(index)).getFloat());
+            case I -> elements.set(index, ((NumberFieldWidget) getElement(index)).getInt());
+            case D -> elements.set(index, ((NumberFieldWidget) getElement(index)).getDouble());
+            case F -> elements.set(index, ((NumberFieldWidget) getElement(index)).getFloat());
         }
     }
 
@@ -114,13 +114,13 @@ public class VectorWidget extends ParentableWidgetBase {
 
     public <V> void setText(V vec) {
         var elements = convertVector(vec);
-        ((NumberFieldWidget) (widgets.get(0))).setText(String.valueOf(elements[0]));
-        ((NumberFieldWidget) (widgets.get(1))).setText(String.valueOf(elements[1]));
+        ((NumberFieldWidget) (getElement(0))).setText(String.valueOf(elements[0]));
+        ((NumberFieldWidget) (getElement(1))).setText(String.valueOf(elements[1]));
         if (element_count > 2) {
-            ((NumberFieldWidget) (widgets.get(2))).setText(String.valueOf(elements[2]));
+            ((NumberFieldWidget) (getElement(2))).setText(String.valueOf(elements[2]));
         }
         if (element_count > 3) {
-            ((NumberFieldWidget) (widgets.get(3))).setText(String.valueOf(elements[3]));
+            ((NumberFieldWidget) (getElement(3))).setText(String.valueOf(elements[3]));
         }
     }
 
@@ -133,8 +133,8 @@ public class VectorWidget extends ParentableWidgetBase {
         y_field.setPlaceholder(Text.of("y"));
         x_field.setChangedListener((a) -> updateNumbers(0));
         y_field.setChangedListener((a) -> updateNumbers(1));
-        widgets.add(x_field);
-        widgets.add(y_field);
+        addElement(x_field);
+        addElement(y_field);
         getRect().height += (field_height + 2) * 2;
         if (element_count > 2) {
             var z_field = new NumberFieldWidget(x, y + ((field_height + field_spacing) * 2), w, field_height, MinecraftClient.getInstance().textRenderer, false);
@@ -147,7 +147,7 @@ public class VectorWidget extends ParentableWidgetBase {
 
             z_field.setChangedListener((a) -> updateNumbers(2));
             getRect().height += (field_height + field_spacing);
-            widgets.add(z_field);
+            addElement(z_field);
         }
         if (element_count > 3) {
             var w_field = new NumberFieldWidget(x, y + ((field_height + field_spacing) * 3), w, field_height, MinecraftClient.getInstance().textRenderer, false);
@@ -160,7 +160,7 @@ public class VectorWidget extends ParentableWidgetBase {
 
             w_field.setChangedListener((a) -> updateNumbers(3));
             getRect().height += (field_height + field_spacing);
-            widgets.add(w_field);
+            addElement(w_field);
         }
         getRect().height -= field_spacing;
     }

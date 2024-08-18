@@ -12,13 +12,12 @@ public class GuiTexture extends GuiElement {
 
 
     public GuiTexture(int x, int y, int w, int h, Identifier texture, int texture_width, int texture_height, boolean editMode) {
-        super(x, y, editMode);
-        getRect().setBounds(x, y, w, h);
+        super(x, y, w, h, editMode);
         this.texture = texture;
         this.texture_width = texture_width;
         this.texture_height = texture_height;
-
     }
+
     public GuiTexture(int x, int y, boolean editMode) {
         super(x, y, editMode);
     }

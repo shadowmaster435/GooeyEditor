@@ -58,7 +58,7 @@ public class WidgetTree extends ScrollableListContainer {
             if (element.parent != null && element != rootElement && element.parent != element && element.parent != rootElement.parent && element instanceof ParentableWidgetBase e) {
                 var button = new DraggableElementReferenceButton(0,0, element.name, e, this, screen, false);
                 var currY = y.getAndAdd(1);
-                button.setY((currY * 10) - getY());
+                button.setY((currY * 10));
                 button.setX((d * 8) - getX());
                 genericContainer.addElement(button);
                 button.layer = 516;

@@ -33,7 +33,7 @@ public class PropertyEditor extends ParentableWidgetBase {
 
     public void initScrollStuff() {
         var scrollbar = new ScrollbarWidget(MinecraftClient.getInstance().getWindow().getScaledWidth() - 128, 0, 16,  MinecraftClient.getInstance().getWindow().getScaledHeight() , getTextureData(), false);
-        var container = new ScrollableContainer(MinecraftClient.getInstance().getWindow().getScaledWidth() - 110, -getGlobalY() + 12, getWidth(), getHeight(), MinecraftClient.getInstance().getWindow().getScaledHeight(), scrollbar, 12, false);
+        var container = new ScrollableContainer(MinecraftClient.getInstance().getWindow().getScaledWidth() - 110, 12, getWidth(), getHeight(), MinecraftClient.getInstance().getWindow().getScaledHeight(), scrollbar, 12, false);
         this.listContainer = container;
         addElement(container);
         this.scrollbar = scrollbar;
@@ -72,6 +72,7 @@ public class PropertyEditor extends ParentableWidgetBase {
 
             for (Property property : properties.keySet()) {
                 context.drawText(MinecraftClient.getInstance().textRenderer,property.display_name(), properties.get(property).getGlobalX(), properties.get(property).getGlobalY() - 8, ColorHelper.Argb.getArgb(255,255,255), true);
+
             }
             pop(context);
         }
@@ -198,11 +199,10 @@ public class PropertyEditor extends ParentableWidgetBase {
     public void organizePropertyElements() {
         var current_y = 0;
         for (GuiElement prop : listContainer) {
-            prop.setX(listContainer.getX() + 18);
             if (!(prop instanceof TextureButtonWidget)) {
                 prop.setWidth(100);
             }
-            prop.setY(current_y + getY());
+            prop.setY(current_y);
             current_y += prop.getHeight() + 12;
 
         }

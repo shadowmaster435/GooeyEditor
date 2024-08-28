@@ -34,6 +34,10 @@ public abstract class GuiButton extends ParentableWidgetBase {
         pressFunctionData = data;
     }
 
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return super.isMouseOver(mouseX, mouseY);
+    }
 
     @Override
     public Property[] getProperties() {

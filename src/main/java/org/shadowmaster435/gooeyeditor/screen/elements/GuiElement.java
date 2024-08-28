@@ -241,8 +241,6 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
     @Override
     public void setX(int x) {
-        int parentOffset = (parent != null && (offsetByParent || !showsParentOffsetButton)) ? parent_offset_x : 0;
-
         if (offset) {
             if (x + offset_x == getX()) {
                 return;
@@ -255,7 +253,6 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
     @Override
     public void setY(int y) {
-        int parentOffset = (parent != null && (offsetByParent || !showsParentOffsetButton)) ? parent_offset_y : 0;
         if (offset) {
             if (y + offset_y == getY()) {
                 return;
@@ -884,13 +881,13 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
                     setWidth(rect.width);
                 }
                 if (type.x > 0) {
-                    setWidth(Math.abs(getGlobalX() - mouseX) + Math.abs(mouseRelClickX - pre_transform_size_x));
+                    setWidth(Math.abs(getGlobalX() - mouseX) + Math.abs((mouseRelClickX - parent_offset_x) - pre_transform_size_x));
                 }
                 if (type.y < 0) {
                     setHeight(rect.height);
                 }
                 if (type.y > 0) {
-                    setHeight(Math.abs(getGlobalY() - mouseY) + Math.abs(mouseRelClickY - pre_transform_size_y));
+                    setHeight(Math.abs(getGlobalY() - mouseY) + Math.abs((mouseRelClickY - parent_offset_y) - pre_transform_size_y));
                 }
             }
             else if (dragging) {

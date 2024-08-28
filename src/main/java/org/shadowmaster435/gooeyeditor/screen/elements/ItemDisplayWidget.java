@@ -19,7 +19,7 @@ public class ItemDisplayWidget extends ParentableWidgetBase {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         try {
-            drawItem(context, new ItemStack(Registries.ITEM.get(item), count), getX(), getY(), getWidth(), getHeight());
+            drawItem(context, new ItemStack(Registries.ITEM.get(item), count), getGlobalX(), getGlobalY(), getWidth(), getHeight());
         } catch (Exception ignored) {}
         super.preTransform(context, mouseX, mouseY, delta);
     }

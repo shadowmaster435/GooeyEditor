@@ -52,6 +52,7 @@ public class IdentifierWidget extends ParentableWidgetBase {
     @Override
     public boolean isFocused() {
         for (GuiElement element : this) {
+
             if (element.isFocused()) {
                 return true;
             }

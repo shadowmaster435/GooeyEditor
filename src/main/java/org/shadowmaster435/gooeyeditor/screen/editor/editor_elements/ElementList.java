@@ -18,12 +18,14 @@ public class ElementList extends GenericContainer implements EditorUtil {
     private GenericContainer clip_box;
 
     private ScrollableListContainer button_list;
-    private HashMap<TextButtonWidget, Supplier<? extends GuiElement>> entries = new HashMap<>();
+    private final HashMap<TextButtonWidget, Supplier<? extends GuiElement>> entries = new HashMap<>();
     private TextButtonWidget close_button;
     private ScrollbarWidget scrollbar;
     private NinePatchTexture bg;
     private boolean open = false;
-    private GuiEditorScreen screen;
+    private final GuiEditorScreen screen;
+    public GuiElement childToAddTo = null;
+
 
     public ElementList(int x, int y, int w, int h, GuiEditorScreen screen, boolean editMode) {
         super(x, y, w, h, editMode);
@@ -45,6 +47,7 @@ public class ElementList extends GenericContainer implements EditorUtil {
         push(context);
         context.getMatrices().translate(0,0,515);
         pop(context);
+
         super.render(context, mouseX, mouseY, delta);
 
     }
@@ -54,7 +57,11 @@ public class ElementList extends GenericContainer implements EditorUtil {
 
         var entry = entries.get(widget).get();
         entry.layer = screen.getCurrentLayer();
-        screen.toAdd.add(entry);
+        if (childToAddTo != null && childToAddTo instanceof ParentableWidgetBase a) {
+            screen.toAddToChild.put(entry, a);
+        } else {
+            screen.toAdd.add(entry);
+        }
     }
 
     private <W extends GuiButton> void close(W widget) {
@@ -75,9 +82,9 @@ public class ElementList extends GenericContainer implements EditorUtil {
     private void init() {
         PopupContainer popup = new PopupContainer(getWidth(), getHeight(), false);
         ScrollbarWidget scrollbar = new ScrollbarWidget(getX() + getWidth() - 13, getY() + 5, 8, getHeight() - 11, false);
-        ScrollableListContainer button_list = new ScrollableListContainer(getX() + 16, getY() + 16, getWidth() - 12, getHeight() - 24, scrollbar, 4, false);
+        ScrollableListContainer button_list = new ScrollableListContainer(16, 16, getWidth() - 12, getHeight() - 4, scrollbar, 4, false);
         button_list.scissor(true);
-        TextButtonWidget close_button = new TextButtonWidget(getX() + 8, getY() + 8, Text.of("X"), false);
+        TextButtonWidget close_button = new TextButtonWidget(8, 8, Text.of("X"), false);
         NinePatchTexture bg = new NinePatchTexture(getX(), getY(), getWidth(), getHeight(), NinePatchTexture.GUI_BOX, false);
         addElement(popup);
         popup.addElement(scrollbar);

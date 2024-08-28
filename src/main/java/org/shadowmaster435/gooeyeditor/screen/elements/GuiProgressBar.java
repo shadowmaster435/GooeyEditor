@@ -4,7 +4,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
-public class GuiProgressBar extends GuiRangeTexture{
+public class GuiProgressBar extends GuiRangeTexture {
 
     public Identifier empty_texture;
 

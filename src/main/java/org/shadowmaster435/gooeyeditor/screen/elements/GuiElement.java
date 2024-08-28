@@ -54,6 +54,8 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     private int mouseRelClickY = 0;
     private int prevMouseX = 0;
     private int prevMouseY = 0;
+    public int parent_offset_x = 0;
+    public int parent_offset_y = 0;
     private int pre_transform_x = 0;
     private int pre_transform_y = 0;
     private int mouseClickX = 0;
@@ -76,6 +78,8 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     //endregion
     //region bools
     public boolean center_origin = false;
+    public boolean offsetByParent = true;
+    public boolean showsParentOffsetButton = true;
     private boolean editMode;
     public boolean selected = false;
     private boolean active = true;
@@ -89,7 +93,6 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     private boolean resizing = false;
     private boolean rotating = false;
     private boolean focused = false;
-
     //endregion
 
 
@@ -212,7 +215,7 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-        return getRect().contains(mouseX, mouseY) && active;
+        return getGlobalRect().contains(mouseX, mouseY) && active;
     }
 
     @Override
@@ -238,26 +241,42 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
     @Override
     public void setX(int x) {
+        int parentOffset = (parent != null && (offsetByParent || !showsParentOffsetButton)) ? parent_offset_x : 0;
+
         if (offset) {
             if (x + offset_x == getX()) {
                 return;
             }
-            rect.x = x + offset_x;
+            rect.x = x + offset_x ;
         } else {
-            rect.x = x;
+            rect.x = x ;
         }
     }
 
     @Override
     public void setY(int y) {
+        int parentOffset = (parent != null && (offsetByParent || !showsParentOffsetButton)) ? parent_offset_y : 0;
         if (offset) {
             if (y + offset_y == getY()) {
                 return;
             }
+
             rect.y = y + offset_y;
         } else {
             rect.y = y;
         }
+    }
+
+    public Vector2i getGlobalPosition() {
+        return new Vector2i(getGlobalX(), getGlobalY());
+    }
+
+    public int getGlobalX() {
+        return getX() + parent_offset_x;
+    }
+
+    public int getGlobalY() {
+        return getY() + parent_offset_y;
     }
 
     @Override
@@ -309,15 +328,19 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     //region Getters, Setters, And Consumers.
 
     public void forEachParent(Consumer<GuiElement> consumer) {
-        while (parent instanceof GuiElement element) {
-            consumer.accept(element);
+        var actualParent = parent;
+        while (actualParent instanceof GuiElement element) {
+            if (element.parent != null) {
+                consumer.accept(element.parent);
+            }
+            actualParent = element.parent;
         }
     }
 
 
     public boolean isHoveringResizeBorder(int mouseX, int mouseY) {
-        var inner_rect = new Rect2(getX() + resize_border_padding, getY() + resize_border_padding, getWidth() - resize_border_padding * 2, getHeight() - resize_border_padding * 2);
-        var outer_rect = new Rect2(getX(), getY(), getWidth(), getHeight());
+        var inner_rect = new Rect2(getGlobalX() + resize_border_padding, getGlobalY() + resize_border_padding, getWidth() - resize_border_padding * 2, getHeight() - resize_border_padding * 2);
+        var outer_rect = new Rect2(getGlobalX(), getGlobalY(), getWidth(), getHeight());
         return outer_rect.contains(mouseX, mouseY) && !inner_rect.contains(mouseX, mouseY);
     }
 
@@ -442,6 +465,10 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         } else {
             GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
         }
+    }
+
+    public Rect2 getGlobalRect() {
+        return new Rect2(getGlobalX(), getGlobalY(), getWidth(), getHeight());
     }
 
     public int getOffsetX() {
@@ -612,6 +639,8 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         var scale = new Property("Scale", "setScale", "getScale", Vector2f.class);
         var origin = new Property("Origin", "setOrigin", "getOrigin", Vector2i.class);
         var center_origin = new Property("Center Origin", "center_origin", "center_origin", Boolean.class);
+        var offsetByParent = new Property("Localize Position", "offsetByParent", "offsetByParent", Boolean.class);
+
         var rotation = new Property("Rotation", "rotation", "rotation", Float.class);
         var layer = new Property("Layer", "layer", "layer", Integer.class);
         return new Property[]{name, pos, size, scale, rotation, layer, origin, center_origin};
@@ -796,7 +825,7 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
     public void drawSelectionBox(DrawContext context) {
         if (selected) {
-            context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), layer - 1, ColorHelper.Argb.getArgb(100,255,255,255));
+            context.fill(getGlobalX(), getGlobalY(), getGlobalX() + getWidth(), getGlobalY() + getHeight(), layer - 1, ColorHelper.Argb.getArgb(100,255,255,255));
         }
     }
 
@@ -806,7 +835,7 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         if (childWidget != null) {
             var widget = (Widget) childWidget;
 
-            context.getMatrices().translate(getX() + origin_x, getY() + origin_y, 0);
+            context.getMatrices().translate(getGlobalX() + origin_x, getGlobalY() + origin_y, 0);
             context.getMatrices().multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotation));
             context.getMatrices().scale(scale_x, scale_y, 1);
 
@@ -814,10 +843,10 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
             childWidget.render(context, mouseX, mouseY, delta);
         } else  {
-            context.getMatrices().translate(origin_x + getX(), origin_y + getY(), layer);
+            context.getMatrices().translate(origin_x + getGlobalX(), origin_y + getGlobalY(), layer);
             context.getMatrices().scale(scale_x, scale_y, 1);
             context.getMatrices().multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotation));
-            context.getMatrices().translate(-getX() - origin_x, -getY() - origin_y, layer);
+            context.getMatrices().translate(-getGlobalX() - origin_x, -getGlobalY() - origin_y, layer);
 
         }
         preTransform(context, mouseX, mouseY, delta);
@@ -855,13 +884,13 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
                     setWidth(rect.width);
                 }
                 if (type.x > 0) {
-                    setWidth(Math.abs(getX() - mouseX) + Math.abs(mouseRelClickX - pre_transform_size_x));
+                    setWidth(Math.abs(getGlobalX() - mouseX) + Math.abs(mouseRelClickX - pre_transform_size_x));
                 }
                 if (type.y < 0) {
                     setHeight(rect.height);
                 }
                 if (type.y > 0) {
-                    setHeight(Math.abs(getY() - mouseY) + Math.abs(mouseRelClickY - pre_transform_size_y));
+                    setHeight(Math.abs(getGlobalY() - mouseY) + Math.abs(mouseRelClickY - pre_transform_size_y));
                 }
             }
             else if (dragging) {
@@ -899,9 +928,9 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
             } else {
                 dragging = true;
             }
-            pre_transform_x = getX();
-            pre_transform_y = getY();
-            pre_transform_rect = getRect();
+            pre_transform_x = getGlobalX();
+            pre_transform_y = getGlobalY();
+            pre_transform_rect = getGlobalRect();
             mouseClickX = mouseX;
             mouseClickY = mouseY;
             mouseRelClickX = Math.abs(mouseX - getX());
@@ -914,6 +943,18 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
             var matrices = context.getMatrices();
             BakedModel bakedModel = MinecraftClient.getInstance().getItemRenderer().getModel(stack, null, null, 0);
             matrices.push();
+            if (stack.getCount() != 1) {
+                context.getMatrices().push();
+                String string = String.valueOf(stack.getCount());
+                context.getMatrices().translate(x , y - h, 8.0F);
+
+                context.getMatrices().scale(w / 16f, h / 16f, 2f);
+                context.getMatrices().translate(-w, -h, 1.0F);
+
+                context.drawText(MinecraftClient.getInstance().textRenderer, String.valueOf(stack.getCount()), w - MinecraftClient.getInstance().textRenderer.getWidth(string) + 16, (h - 10) + 35, 16777215, true);
+                context.getMatrices().pop();
+            }
+
             matrices.translate(x + (w / 2f), y + (h / 2f), layer + 0.9);
             matrices.scale(w, -h, 16f);
             try {
@@ -966,9 +1007,9 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         RenderSystem.disableCull();
         BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
         bufferBuilder.vertex(matrix4f, (float)x, (float)y, (float) layer).texture(0, 0).color(1f, 1f, 1f, 1f);
-        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, (float)layer).texture(0, 1).color(1f, 1f, 1f, 1f);;
-        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, (float)layer).texture(1, 1).color(1f, 1f, 1f, 1f);;
-        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, (float)layer).texture(1, 0).color(1f, 1f, 1f, 1f);;
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, (float)layer).texture(0, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, (float)layer).texture(1, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, (float)layer).texture(1, 0).color(1f, 1f, 1f, 1f);
         BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
@@ -979,8 +1020,8 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     }
 
     public void drawTextureColored(DrawContext context, Identifier texture, int r, int g, int b, int a) {
-        var x = getX();
-        var y = getY();
+        var x = getGlobalX();
+        var y = getGlobalY();
         var width = getWidth();
         var height = getHeight();
         RenderSystem.setShaderTexture(0, texture);
@@ -998,20 +1039,20 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
      * Draws a full texture over the entire element.
      */
     public void drawTexture(DrawContext context, Identifier texture, int width, int height) {
-        context.drawTexture(texture, getX(), getY(), getWidth(), getHeight(),0, 0, width, height, width, height);
+        context.drawTexture(texture, getGlobalX(), getGlobalY(), getWidth(), getHeight(),0, 0, width, height, width, height);
     }
 
     /**
      * Draws a tiled texture over the entire element.
      */
     public void drawTiledTexture(DrawContext context, Identifier texture, int width, int height) {
-        context.drawTexture(texture, getX(), getY(),0, 0, getWidth(), getHeight(), width, height);
+        context.drawTexture(texture, getGlobalX(), getGlobalY(),0, 0, getWidth(), getHeight(), width, height);
     }
     /**
      * Draws a full texture with the given size position relative to the element's.
      */
     public void drawTexture(DrawContext context, Identifier texture, int x, int y, int width, int height) {
-        context.drawTexture(texture, getX() + x, getY() + y, 0,0,width,height);
+        context.drawTexture(texture, getGlobalX() + x, getGlobalY() + y, 0,0,width,height);
     }
 
     private void drawEdges(DrawContext context, Rect2 rect, Identifier texture, int edge_thickness, int texture_width, int texture_height) {

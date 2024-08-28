@@ -5,6 +5,8 @@ import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Base class for containers
  * Any elements added via {@link BaseContainer#addElement(GuiElement)} are will be rendered here.
@@ -15,6 +17,7 @@ public abstract class BaseContainer extends ParentableWidgetBase {
 
     public BaseContainer(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);
+        showsParentOffsetButton = false;
     }
 
 
@@ -43,26 +46,7 @@ public abstract class BaseContainer extends ParentableWidgetBase {
     public void removeElement(GuiElement element) {
         super.removeElement(element);
     }
-    public Vector2i getCollectiveChildSize(int spacing_x, int spacing_y) {
-        var width = 0;
-        var height = 0;
-        for (GuiElement element : this) {
-            width += element.getWidth() + spacing_x;
-            height += element.getHeight() + spacing_y;
-        }
-        width -= spacing_x;
-        height -= spacing_y;
 
-        return new Vector2i(Math.max(width, 0), Math.max(height, 0));
-    }
-
-    public int getCollectiveChildHeight(int spacing) {
-        return getCollectiveChildSize(0, spacing).y;
-    }
-
-    public int getCollectiveChildWidth(int spacing) {
-        return getCollectiveChildSize(spacing, 0).x;
-    }
 
     public boolean isChildHoverable(int mouseX, int mouseY, GuiElement element) {
         return this.isMouseOver(mouseX, mouseY) && element.isMouseOver(mouseX, mouseY);

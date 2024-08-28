@@ -7,6 +7,7 @@ uniform sampler2D Sampler0;
 out vec4 fragColor;
 in lowp vec2 texCoord;
 
+
 uniform float Angle;
 uniform int Pixelate;
 
@@ -35,6 +36,8 @@ vec2 getPixelPos(vec2 uv) {
     float y = floor(uv.y * float(res.y)) / float(res.y);
     return vec2(x, y);
 }
+
+
 
 void main() {
     vec4 col = texture(Sampler0, getPixelPos(texCoord));

@@ -3,7 +3,7 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.ColorHelper;
 
-public class GuiColorRect extends GuiElement {
+public class GuiColorRect extends ParentableWidgetBase {
 
     private int rgb = ColorHelper.Argb.getArgb(255,255,255,255);
 

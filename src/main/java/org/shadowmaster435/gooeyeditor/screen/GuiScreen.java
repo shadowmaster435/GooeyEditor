@@ -13,7 +13,6 @@ public abstract class GuiScreen extends Screen {
 
     private final HashMap<String, GuiElement> elements = new HashMap<>();
 
-
     protected GuiScreen() {
         super(Text.of(""));
         initElements();

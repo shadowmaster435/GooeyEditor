@@ -82,7 +82,7 @@ public class TextField extends ParentableWidgetBase {
         if (this.isVisible()) {
             if (this.drawsBackground()) {
                 Identifier identifier = TEXTURES.get(this.isNarratable(), this.isFocused());
-                context.drawGuiTexture(identifier, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                context.drawGuiTexture(identifier, this.getGlobalX(), this.getGlobalY(), this.getWidth(), this.getHeight());
             }
 
             int i = this.editable ? this.editableColor : this.uneditableColor;
@@ -90,13 +90,13 @@ public class TextField extends ParentableWidgetBase {
             String string = this.textRenderer.trimToWidth(this.text.substring(this.firstCharacterIndex), this.getInnerWidth());
             boolean bl = j >= 0 && j <= string.length();
             boolean bl2 = this.isFocused() && (Util.getMeasuringTimeMs() - this.lastSwitchFocusTime) / 300L % 2L == 0L && bl;
-            int k = this.drawsBackground ? this.getX() + 4 : this.getX();
-            int l = this.drawsBackground ? this.getY() + (this.getHeight() - 8) / 2 : this.getY();
+            int k = this.drawsBackground ? this.getGlobalX() + 4 : this.getGlobalX();
+            int l = this.drawsBackground ? this.getGlobalY() + (this.getHeight() - 8) / 2 : this.getGlobalY();
             int m = k;
             int n = MathHelper.clamp(this.selectionEnd - this.firstCharacterIndex, 0, string.length());
             if (!string.isEmpty()) {
                 String string2 = bl ? string.substring(0, j) : string;
-                m = context.drawTextWithShadow(this.textRenderer, (OrderedText)this.renderTextProvider.apply(string2, this.firstCharacterIndex), k, l, i);
+                m = context.drawTextWithShadow(this.textRenderer, this.renderTextProvider.apply(string2, this.firstCharacterIndex), k, l, i);
             }
 
             boolean bl3 = this.selectionStart < this.text.length() || this.text.length() >= this.getMaxLength();
@@ -109,7 +109,7 @@ public class TextField extends ParentableWidgetBase {
             }
 
             if (!string.isEmpty() && bl && j < string.length()) {
-                context.drawTextWithShadow(this.textRenderer, (OrderedText)this.renderTextProvider.apply(string.substring(j), this.selectionStart), m, l, i);
+                context.drawTextWithShadow(this.textRenderer, this.renderTextProvider.apply(string.substring(j), this.selectionStart), m, l, i);
             }
 
             if (this.placeholder != null && string.isEmpty() && !this.isFocused()) {
@@ -422,7 +422,7 @@ public class TextField extends ParentableWidgetBase {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!isEditMode()) {
-            int i = MathHelper.floor(mouseX) - this.getX();
+            int i = MathHelper.floor(mouseX) - this.getGlobalX();
             if (this.drawsBackground) {
                 i -= 4;
             }
@@ -450,12 +450,12 @@ public class TextField extends ParentableWidgetBase {
             y2 = i;
         }
 
-        if (x2 > this.getX() + this.getWidth()) {
-            x2 = this.getX() + this.getWidth();
+        if (x2 > this.getGlobalX() + this.getWidth()) {
+            x2 = this.getGlobalX() + this.getWidth();
         }
 
-        if (x1 > this.getX() + this.getWidth()) {
-            x1 = this.getX() + this.getWidth();
+        if (x1 > this.getGlobalX() + this.getWidth()) {
+            x1 = this.getGlobalX() + this.getWidth();
         }
 
         context.fill(RenderLayer.getGuiTextHighlight(), x1, y1, x2, y2, Colors.BLUE);
@@ -551,7 +551,7 @@ public class TextField extends ParentableWidgetBase {
     }
 
     public int getCharacterX(int index) {
-        return index > this.text.length() ? this.getX() : this.getX() + this.textRenderer.getWidth(this.text.substring(0, index));
+        return index > this.text.length() ? this.getGlobalX() : this.getGlobalX() + this.textRenderer.getWidth(this.text.substring(0, index));
     }
     public void setPlaceholder(String placeholder) {
         this.placeholder = Text.of(placeholder);

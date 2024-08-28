@@ -15,8 +15,8 @@ public class ListContainer extends BaseContainer {
     public void arrange() {
         var y_offset = 0;
         for (GuiElement element : this) {
-            element.setX(getX());
-            element.setY(getY() + y_offset);
+            element.setX(0);
+            element.setY(y_offset );
             y_offset += getElementSpacing() + element.getHeight();
         }
         listHeight = y_offset - getElementSpacing();

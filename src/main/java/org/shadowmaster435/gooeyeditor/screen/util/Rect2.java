@@ -1,5 +1,7 @@
 package org.shadowmaster435.gooeyeditor.screen.util;
 
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.math.ColorHelper;
 import org.joml.Vector2i;
 import org.joml.Vector4i;
 
@@ -50,10 +52,29 @@ public class Rect2 extends Rectangle {
         this.width = bounds.z;
         this.height = bounds.w;
     }
-
+    public Rect2(Rect2 copy) {
+        setRect(copy);
+    }
 
 
     //endregion
+
+
+    public void fillColor(DrawContext context, int r, int g, int b, int a) {
+        context.fill(x, y, x + width, y + height, ColorHelper.Argb.getArgb(a, r, g, b));
+    }
+
+    public Vector2i getCornerPos(RectangleCorner corner) {
+        double x = 0;
+        double y = 0;
+        switch (corner) {
+            case TOPLEFT -> {x = this.x; y = this.y;}
+            case TOPRIGHT -> {x = this.x + width; y = this.y;}
+            case BOTTOMLEFT -> {x = this.x; y = this.y + height;}
+            case BOTTOMRIGHT -> {x = this.x + width; y = this.y + height;}
+        }
+        return new Vector2i((int) x, (int) y);
+    }
 
     public Vector2i getRelativePos(int x, int y) {
         return new Vector2i(x - this.x, y - this.y);
@@ -139,6 +160,16 @@ public class Rect2 extends Rectangle {
         }
         return new Rect2(x, y, w, h);
     }
+
+    public enum RectangleCorner {
+        TOPLEFT,
+        TOPRIGHT,
+        BOTTOMLEFT,
+        BOTTOMRIGHT
+
+
+    }
+
     public enum NinePatchRegion {
         NONE,
         CENTER,

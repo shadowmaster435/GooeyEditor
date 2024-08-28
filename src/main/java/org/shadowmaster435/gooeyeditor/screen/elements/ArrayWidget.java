@@ -30,7 +30,7 @@ public class ArrayWidget<W extends GuiElement> extends ParentableWidgetBase {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (InputHelper.isCtrlHeld && InputHelper.isShiftHeld && button == 0) {
-            removeChild(getHoveredChild((int) mouseX, (int) mouseY));
+            removeElement(getHoveredChild((int) mouseX, (int) mouseY));
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }

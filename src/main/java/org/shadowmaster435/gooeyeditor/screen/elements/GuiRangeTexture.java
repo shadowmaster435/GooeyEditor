@@ -7,7 +7,7 @@ import org.shadowmaster435.gooeyeditor.screen.util.Range;
 
 import java.lang.constant.Constable;
 
-public class GuiRangeTexture extends GuiElement {
+public class GuiRangeTexture extends ParentableWidgetBase {
 
     public Identifier texture;
     public float delta = 0;

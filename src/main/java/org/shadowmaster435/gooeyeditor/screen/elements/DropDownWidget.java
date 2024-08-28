@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class DropDownWidget extends TextButtonWidget {
 
     private int spacing = 0;
-    private ArrayList<TextButtonWidget> entries = new ArrayList<>();
+    private final ArrayList<TextButtonWidget> entries = new ArrayList<>();
 
     public DropDownWidget(int x, int y, Text message, boolean editMode) {
         super(x, y, message, editMode);

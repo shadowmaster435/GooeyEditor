@@ -55,12 +55,16 @@ public class PopupContainer extends BaseContainer {
 
     public void open(int x, int y) {
         is_open = true;
+        renderChildren = true;
+        updateChildren = true;
         setX(x);
         setY(y);
     }
 
     public void close() {
         is_open = false;
+        renderChildren = false;
+        updateChildren = false;
     }
 
     @Override

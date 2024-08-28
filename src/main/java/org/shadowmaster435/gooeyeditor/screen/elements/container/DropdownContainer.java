@@ -22,12 +22,20 @@ public class DropdownContainer extends CollapsableContainer {
         return (new Vector2i((int) getChildBounds().getWidth(), (int) getChildBounds().getHeight()));
     }
 
+    @Override
+    public int getHeight() {
+        int y_offset = 0;
 
+        for (GuiElement element : this) {
+            y_offset += getElementSpacing() + element.getHeight();
+        }
+        return y_offset;
+    }
 
     @Override
     public void arrange() {
-        var y_offset = 0;
-        var first = true;
+        int y_offset = 0;
+        boolean first = true;
         for (GuiElement element : this) {
             if (first) {
                 element.setX(getX());
@@ -38,6 +46,7 @@ public class DropdownContainer extends CollapsableContainer {
             element.setY(getY() + y_offset);
             y_offset += getElementSpacing() + element.getHeight();
         }
+
     }
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -54,7 +63,6 @@ public class DropdownContainer extends CollapsableContainer {
                 element.render(context, mouseX, mouseY, delta);
             }
         }
-
         super.preTransform(context, mouseX, mouseY, delta);
     }
 

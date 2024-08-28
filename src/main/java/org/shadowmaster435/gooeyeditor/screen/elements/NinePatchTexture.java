@@ -5,7 +5,7 @@ import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 
-public class NinePatchTexture extends GuiElement {
+public class NinePatchTexture extends ParentableWidgetBase {
 
     public int edge_thickness = 0;
     public Identifier texture = Identifier.of("minecraft:textures/block/dirt.png");
@@ -13,6 +13,7 @@ public class NinePatchTexture extends GuiElement {
     public int texture_height = 16;
     public static final NinePatchTextureData GUI_PANEL = new NinePatchTextureData(16, 16, 5, Identifier.of(GooeyEditor.id, "textures/gui/gui_panel.png"));
     public static final NinePatchTextureData GUI_BOX = new NinePatchTextureData(16, 16, 6, Identifier.of(GooeyEditor.id, "textures/gui/gui_box.png"));
+    public static final NinePatchTextureData GUI_SLOT = new NinePatchTextureData(16, 16, 6, Identifier.of(GooeyEditor.id, "textures/gui/slot.png"));
 
 
     public NinePatchTexture(int x, int y, int w, int h, NinePatchTextureData data, boolean editMode) {
@@ -28,6 +29,7 @@ public class NinePatchTexture extends GuiElement {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         drawNinePatchTexture(context, getRect(), texture, edge_thickness, texture_width, texture_height);
+        super.preTransform(context, mouseX, mouseY, delta);
     }
 
     @Override

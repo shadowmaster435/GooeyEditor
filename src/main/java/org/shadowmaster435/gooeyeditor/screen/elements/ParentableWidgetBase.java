@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -27,17 +28,28 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
 
     public ParentableWidgetBase(int x, int y, boolean editMode) {
         super(x, y, editMode);
+        updateChildren = true;
+        renderChildren = true;
     }
 
     public ParentableWidgetBase(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);
+        updateChildren = true;
+        renderChildren = true;
     }
 
     public void addElements(GuiElement... element) {
         widgets.addAll(Arrays.stream(element).toList());
     }
 
+    public ArrayList<GuiElement> getElements() {
+        return new ArrayList<>(widgets);
+    }
+
     public void addElement(GuiElement element) {
+        if (element == this) { // if this don't
+            return;
+        }
         widgets.add(element);
         element.parent = this;
     }
@@ -48,23 +60,81 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         widgets.remove(element);
     }
     public GuiElement getElement(int index) {
-        return widgets.get(index);
+        GuiElement element = null;
+        try {element = widgets.get(index);} catch (Exception ignored) {}
+        return element;
     }
-    public void orphanizeChildren() {
+    public void clearChildren() {
         widgets.clear();
     }
 
-    public boolean isChildOfElementBranch(ParentableWidgetBase rootElement) {
-        var currentParent = parent;
-        while (currentParent instanceof ParentableWidgetBase widgetBase) {
-            if (widgetBase.parent == rootElement) {
+    public Vector2i getCollectiveChildSize(int spacing_x, int spacing_y) {
+        AtomicInteger width = new AtomicInteger();
+        AtomicInteger height = new AtomicInteger();
+        forEachInBranch((elem, par, d) -> {
+            width.addAndGet(elem.getWidth() + spacing_x);
+            height.addAndGet(elem.getHeight() + spacing_y);
+        }, 0);
+
+        width.addAndGet(-spacing_x);
+        height.addAndGet(-spacing_y);
+
+        return new Vector2i(Math.max(width.get(), 0), Math.max(height.get(), 0));
+    }
+
+    /**
+     * Removes element from its parent if possible.
+     */
+    public void orphanize() {
+        if (this.parent instanceof ParentableWidgetBase p) {
+            p.removeElement(this);
+            this.parent = null;
+        }
+    }
+
+    public void reparent(ParentableWidgetBase element) {
+        orphanize();
+        element.addElement(this);
+        parent = element;
+    }
+
+    public int getCollectiveChildHeight(int spacing) {
+        return getCollectiveChildSize(0, spacing).y;
+    }
+
+    public int getCollectiveChildWidth(int spacing) {
+        return getCollectiveChildSize(spacing, 0).x;
+    }
+
+    public boolean isChildOfElementBranch(ParentableWidgetBase root) { // needs some touchups but is functional enough for now. expect bug reports.
+        var result = false;
+        ParentableWidgetBase current = this;
+        boolean firstChecked = false;
+        int failSafeBreakCounter = 0;
+        ArrayList<ParentableWidgetBase> checkedElements = new ArrayList<>();
+        while (current.parent instanceof ParentableWidgetBase widget) {
+            if (failSafeBreakCounter > 50) {
                 return true;
+            }
+            failSafeBreakCounter += 1;
+            if (current == root || (firstChecked && current == this)) {
+                result = true;
+                break;
             } else {
-                currentParent = widgetBase.parent;
+                firstChecked = true;
+                if (checkedElements.contains(current)) {
+                    return true;
+                } else {
+                    checkedElements.add(current);
+                }
+                current = widget;
             }
         }
-        return false;
+        return result;
     }
+
+
+
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -73,8 +143,25 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
 
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
+
         if (renderChildren) {
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
+                var px = (parent != null) ? getGlobalX() - getX() - parent_offset_x: 0;
+                var py = (parent != null) ? getGlobalY() - getY() - parent_offset_y : 0;
+                var px2 = (parent != null) ? parent_offset_x : 0;
+                var py2 = (parent != null) ? parent_offset_y : 0;
+//                if (parent != null) {
+//                    px = px - parent.getX();
+//                    py = py - parent.parent_offset_y;
+//
+//                }
+
+
+                element.parent_offset_x = getGlobalX() - px;
+                element.parent_offset_y = getGlobalY() - py;
                 element.render(context, mouseX, mouseY, delta);
             }
         }
@@ -88,7 +175,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
      */
     public void forEachInBranch(TriConsumer<GuiElement, GuiElement, Integer> consumer, int depth) {
         widgets.forEach((widget -> {
-            consumer.accept(widget, widget.parent, depth + 1);
+            if (widget != this) {
+                consumer.accept(widget, widget.parent, depth + 1);
+            }
             if (widget instanceof ParentableWidgetBase widgetBase) {
                 widgetBase.forEachInBranch(consumer, depth + 1);
             }
@@ -124,6 +213,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
     public boolean changed() {
         if (updateChildren) {
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 if (element.changed()) {
                     return true;
                 }
@@ -137,6 +229,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 element.mouseMoved(mouseX, mouseY);
             }
         }
@@ -148,6 +243,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 element.mouseClicked(mouseX, mouseY, button);
             }
         }
@@ -159,6 +257,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 element.mouseReleased(mouseX, mouseY, button);
             }
         }
@@ -170,6 +271,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
             }
         }
@@ -181,6 +285,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 element.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
             }
         }
@@ -192,6 +299,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 element.keyPressed(keyCode, scanCode, modifiers);
 
             }
@@ -204,6 +314,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
             for (GuiElement element : widgets) {
+                if (element == this) {
+                    continue;
+                }
                 element.keyReleased(keyCode, scanCode, modifiers);
             }
         }
@@ -215,6 +328,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
         if (updateChildren) {
 
         for (GuiElement element : widgets) {
+            if (element == this) {
+                continue;
+            }
             element.charTyped(chr, modifiers);
         }
         }
@@ -231,6 +347,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
         for (GuiElement element : widgets) {
+            if (element == this) {
+                continue;
+            }
             element.isMouseOver(mouseX, mouseY);
         }
         return super.isMouseOver(mouseX, mouseY);
@@ -239,6 +358,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
     @Override
     public void setFocused(boolean focused) {
         for (GuiElement element : widgets) {
+            if (element == this) {
+                continue;
+            }
             element.setFocused(focused);
         }
 
@@ -249,6 +371,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
 
     public GuiElement getHoveredChild(int mouseX, int mouseY) {
         for (GuiElement element : this) {
+            if (element == this) {
+                continue;
+            }
             if (element.isMouseOver(mouseX, mouseY)) {
                 return element;
             }
@@ -260,10 +385,6 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
 
     public void removeChildAt(int index) {
         widgets.remove(index);
-    }
-
-    public void removeChild(GuiElement element) {
-        widgets.remove(element);
     }
 
     @Override

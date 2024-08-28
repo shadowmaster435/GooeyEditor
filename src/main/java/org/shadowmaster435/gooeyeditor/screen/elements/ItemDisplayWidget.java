@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
-public class ItemDisplayWidget extends GuiElement {
+public class ItemDisplayWidget extends ParentableWidgetBase {
 
     public Identifier item = Identifier.of("minecraft:dirt");
     public int count = 1;

@@ -3,6 +3,7 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.ScrollableContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.TextureButtonData;
 
 public class TextureButtonWidget extends GuiButton {
@@ -36,7 +37,6 @@ public class TextureButtonWidget extends GuiButton {
     }
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
-
         if (isMouseOver(mouseX, mouseY)) {
             if (pressed) {
                 drawTexture(context, on_hovered, getWidth(), getHeight());
@@ -50,7 +50,6 @@ public class TextureButtonWidget extends GuiButton {
                 drawTexture(context, off, getWidth(), getHeight());
             }
         }
-
         super.preTransform(context, mouseX, mouseY, delta);
     }
 

@@ -53,7 +53,7 @@ public final class SimpleTreeMap<K, V> {
             }
         }
     }
-    public final void clear() {
+    public void clear() {
         tree.clear();
     }
 
@@ -66,7 +66,7 @@ public final class SimpleTreeMap<K, V> {
      */
     @SafeVarargs
     public final void put(V value, K first_key, K... key_sequence) {
-        if (key_sequence.length == 0) {
+        if (key_sequence.length == 0 || tree.get(first_key) == null) {
             tree.put(first_key, new SimpleTreeEntry<>(null, first_key, value));
         } else {
             var current = tree.get(first_key).get_sub_map();
@@ -80,7 +80,33 @@ public final class SimpleTreeMap<K, V> {
                     current = new_map;
                 }
             }
-            current.put(key_sequence[key_sequence.length - 1], value);
+            if (current != null) {
+                current.put(key_sequence[key_sequence.length - 1], value);
+
+            }
+        }
+    }
+
+    @SafeVarargs
+    public final void putIfAbsent(V value, K first_key, K... key_sequence) {
+        if (key_sequence.length == 0 || tree.get(first_key) == null) {
+            tree.putIfAbsent(first_key, new SimpleTreeEntry<>(null, first_key, value));
+        } else {
+            var current = tree.get(first_key).get_sub_map();
+            for (int i = 0; i < key_sequence.length - 1; ++i) {
+                assert current != null;
+                if (current.containsKey(key_sequence[i])) {
+                    current = (HashMap) current.get(key_sequence[i]);
+                } else {
+                    HashMap<K, SimpleTreeEntry<HashMap, K, V>> new_map = new HashMap<>();
+                    current.putIfAbsent(key_sequence[i], new_map);
+                    current = new_map;
+                }
+            }
+            if (current != null) {
+                current.putIfAbsent(key_sequence[key_sequence.length - 1], value);
+
+            }
         }
     }
 

@@ -37,15 +37,17 @@ public class ScrollableContainer extends BaseContainer {
     public void arrange() {
         var max_y = 0;
         for (GuiElement element : this) {
+            element.setX(0);
             element.offset(true);
             element.setOffsetY(scroll_offset);
             max_y += element.getHeight() + element_spacing;
 
         }
-        setHeight((max_y - max_length) + getY());
+        setHeight((max_y - max_length));
     }
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
+
         if (scrollbar != null) {
             var scroll_delta = scrollbar.getGrabberDelta();
             scrollbar.render(context, mouseX, mouseY, delta);

@@ -11,7 +11,7 @@ public class InputHelper {
     public static boolean isMiddleMouseHeld = false;
     public static boolean isShiftHeld = false;
     public static boolean isCtrlHeld = false;
-    private static boolean callbackRegistered = false;
+    private static final boolean callbackRegistered = false;
 
     public static void mouseCallback( long window, int button, int action, int mods) {
 

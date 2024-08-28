@@ -33,9 +33,13 @@ public class ScrollableListContainer extends ListContainer {
     @Override
     public void arrange() {
         var y_offset = 0;
+
         for (GuiElement element : this) {
-            element.setX(getX());
-            element.setY(getY() + y_offset + scroll_offset);
+            if (element instanceof ScrollbarWidget) {
+                continue;
+            }
+            element.setX(0);
+            element.setY(y_offset + scroll_offset);
             y_offset += getElementSpacing() + element.getHeight();
         }
         listHeight = y_offset - getElementSpacing();

@@ -14,14 +14,11 @@ import org.shadowmaster435.gooeyeditor.screen.elements.records.ScrollbarWidgetDa
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 
 public class PropertyEditor extends ParentableWidgetBase {
 
-    private HashMap<GuiElement.Property, GuiElement> properties = new HashMap<>();
+    private final HashMap<GuiElement.Property, GuiElement> properties = new HashMap<>();
     private ScrollableContainer listContainer;
     private ScrollbarWidget scrollbar;
     public boolean shouldRenderText = false;
@@ -36,7 +33,7 @@ public class PropertyEditor extends ParentableWidgetBase {
 
     public void initScrollStuff() {
         var scrollbar = new ScrollbarWidget(MinecraftClient.getInstance().getWindow().getScaledWidth() - 128, 0, 16,  MinecraftClient.getInstance().getWindow().getScaledHeight() , getTextureData(), false);
-        var container = new ScrollableContainer(MinecraftClient.getInstance().getWindow().getScaledWidth() - 128, getY(), getWidth(), getHeight(), MinecraftClient.getInstance().getWindow().getScaledHeight(), scrollbar, 12, false);
+        var container = new ScrollableContainer(MinecraftClient.getInstance().getWindow().getScaledWidth() - 110, -getGlobalY() + 12, getWidth(), getHeight(), MinecraftClient.getInstance().getWindow().getScaledHeight(), scrollbar, 12, false);
         this.listContainer = container;
         addElement(container);
         this.scrollbar = scrollbar;
@@ -59,7 +56,6 @@ public class PropertyEditor extends ParentableWidgetBase {
     }
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-
         if (listContainer == null) {
             return;
         }
@@ -75,7 +71,7 @@ public class PropertyEditor extends ParentableWidgetBase {
             context.fill(context.getScaledWindowWidth() - 128, 0, context.getScaledWindowWidth(), context.getScaledWindowHeight(), ColorHelper.Argb.getArgb(127, 127, 127));
 
             for (Property property : properties.keySet()) {
-                context.drawText(MinecraftClient.getInstance().textRenderer,property.display_name(), properties.get(property).getX(), properties.get(property).getY() - 8, ColorHelper.Argb.getArgb(255,255,255), true);
+                context.drawText(MinecraftClient.getInstance().textRenderer,property.display_name(), properties.get(property).getGlobalX(), properties.get(property).getGlobalY() - 8, ColorHelper.Argb.getArgb(255,255,255), true);
             }
             pop(context);
         }
@@ -86,11 +82,14 @@ public class PropertyEditor extends ParentableWidgetBase {
         properties.clear();
         var props = new ArrayList<>(Arrays.stream(element.getDefaultProperties()).toList());
         props.addAll(Arrays.asList(element.getProperties()));
-        listContainer.orphanizeChildren();
+        listContainer.clearChildren();
         if (element instanceof ParentableWidgetBase base) {
             screen.tree.createTreeForElement(base);
         }
         for (GuiElement.Property prop : props) {
+            if (Objects.equals(prop.display_name(), "Localize Position") && !element.showsParentOffsetButton) {
+                continue;
+            }
             var elem = widgetForType(prop.aClass());
             properties.put(prop, elem);
             listContainer.addElement(elem);
@@ -104,7 +103,8 @@ public class PropertyEditor extends ParentableWidgetBase {
     }
 
     public void unloadProperties() {
-        listContainer.orphanizeChildren();
+        listContainer.clearChildren();
+        screen.tree.clearChildren();
         shouldRenderText = false;
     }
 

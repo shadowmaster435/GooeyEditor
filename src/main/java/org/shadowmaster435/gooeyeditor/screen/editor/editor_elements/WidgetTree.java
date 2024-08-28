@@ -1,63 +1,73 @@
 package org.shadowmaster435.gooeyeditor.screen.editor.editor_elements;
 
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.math.ColorHelper;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.CollapsableContainer;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.BaseContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.DropdownContainer;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.GenericContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.ScrollableListContainer;
+import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
+import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import org.shadowmaster435.gooeyeditor.util.SimpleTreeMap;
 import oshi.util.tuples.Pair;
 
+import javax.xml.stream.events.DTD;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WidgetTree extends ScrollableListContainer {
 
     public GuiEditorScreen screen;
-    private SimpleTreeMap<String, Pair<GuiElement, Integer>> tree = new SimpleTreeMap<>();
+    private final SimpleTreeMap<String, Pair<GuiElement, Integer>> tree = new SimpleTreeMap<>();
+    public Rect2 editorRect = new Rect2();
+    private ParentableWidgetBase current = null;
+    public DraggableElementReferenceButton hoveredButton = null;
+    private DraggableElementReferenceButton clickedButton = null;
+
 
     public WidgetTree(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, new ScrollbarWidget(x + (w - 12), y, 12, h, false), 2, editMode);
+        editorRect = new Rect2(x, y, w, h);
+        addElement(this.getScrollbar());
+        this.getScrollbar().layer = 515;
+        updateChildren = true;
+        renderChildren = true;
+    }
+
+    public void regenTree() {
+        if (current != null) {
+            createTreeForElement(current);
+        }
     }
 
     public void createTreeForElement(ParentableWidgetBase rootElement) {
-        tree.clear();
-        HashMap<GuiElement, GuiElement> parentMap = new HashMap<>();
-        for (GuiElement element : rootElement) {
-            if (element instanceof ParentableWidgetBase parentableWidgetBase) {
-                parentableWidgetBase.forEachInBranch((element1, parent, depth) -> {
-                    tree.put(new Pair<>(element1, depth), rootElement.name, getElementPath(element1).toArray(new String[]{}));
-                    parentMap.put(element1, Objects.requireNonNullElse(element1.parent, this));
-                }, 1);
-            } else {
-                tree.put(new Pair<>(element, 1), rootElement.name, element.name);
-                parentMap.put(element, this);
-
-            }
+        if (!screen.isPropertyEditorOpen()) {
+            return;
         }
-        HashMap<GuiElement, DropdownContainer> containerMap = new HashMap<>();
-        parentMap.forEach((element, parent) -> {
-            var button = new TextButtonWidget(0, 0, element.name, false);
-            DropdownContainer container = new DropdownContainer(0,0, 0,0, false);
-            if (containerMap.getOrDefault(parent, null) != null) {
-                container = containerMap.get(parent);
+        current = rootElement;
+        tree.clear();
+        clearChildren();
+        var genericContainer = new GenericContainer(0,0,0,0,false);
+        //HashMap<GuiElement, ArrayList<GuiElement>> parentMap = new HashMap<>();
+        AtomicInteger y = new AtomicInteger(0);
+        rootElement.forEachInBranch(((element, p, d) -> {
+            if (element.parent != null && element != rootElement && element.parent != element && element.parent != rootElement.parent && element instanceof ParentableWidgetBase e) {
+                var button = new DraggableElementReferenceButton(0,0, element.name, e, this, screen, false);
+                var currY = y.getAndAdd(1);
+                button.setY((currY * 10) - getY());
+                button.setX((d * 8) - getX());
+                genericContainer.addElement(button);
+                button.layer = 516;
             }
-            if (parent != this) {
-                containerMap.putIfAbsent(parent, container);
-                containerMap.get(parent).addElement(button);
-                container.addElement(element);
-                button.setDataPressFunction(this::tryExpandElement, element, container);
-
-            } else {
-                button.setDataPressFunction(this::tryExpandElement, element, this);
-
-            }
-        });
-
+        }), 0);
+        addElement(genericContainer);
     }
+
+
 
     public void tryExpandElement(GuiButton textButtonWidget, Object[] data) {
         if (data[0] instanceof GuiElement element) {
@@ -74,10 +84,80 @@ public class WidgetTree extends ScrollableListContainer {
 
     private ArrayList<String> getElementPath(GuiElement element) {
         ArrayList<String> path = new ArrayList<>();
-        element.forEachParent((parent) -> path.add(parent.name));
+        element.forEachParent((parent) -> {
+            path.add(parent.name);
+        });
         return path;
     }
 
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+
+        getScrollbar().setActive(screen.isPropertyEditorOpen());
+        getScrollbar().setVisible(screen.isPropertyEditorOpen());
+        if (screen.isPropertyEditorOpen()) {
+            context.fill(getGlobalX() - 12, getGlobalY(), getGlobalX() + getWidth(), getGlobalY() + getHeight(), 513, ColorHelper.Argb.getArgb(100, 100, 100));
+        }
+        super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (getElement(0) instanceof GenericContainer g) {
+            var found = false;
+            for (GuiElement element : g) {
+                if (element instanceof DraggableElementReferenceButton b && b.isMouseOver(mouseX, mouseY)) {
+                    if (hoveredButton != null) {
+                        hoveredButton.hovering = false;
+                    }
+                    hoveredButton = b;
+                    hoveredButton.hovering = true;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                hoveredButton = null;
+            }
+        }
+
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (getElement(0) instanceof GenericContainer g) {
+            hoveredButton = null;
+            clickedButton = null;
+            for (GuiElement element : g) {
+                if (clickedButton == null && element instanceof DraggableElementReferenceButton a && a.isMouseOver(mouseX,mouseY)) {
+                    clickedButton = a;
+                    break;
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (getElement(0) instanceof GenericContainer g) {
+            for (GuiElement element : g) {
+                if (element instanceof DraggableElementReferenceButton) {
+                    if (clickedButton != null && hoveredButton != null && hoveredButton != clickedButton) {
+                        if (!hoveredButton.referenced.isChildOfElementBranch(clickedButton.referenced) && clickedButton != hoveredButton) {
+                            hoveredButton.transfer(clickedButton);
+                            //hoveredButton.referenced.parent = clickedButton.referenced;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
 
     @Override
     public Property[] getProperties() {

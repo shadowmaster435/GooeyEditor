@@ -43,8 +43,8 @@ public class IdentifierWidget extends ParentableWidgetBase {
         for (GuiElement element : this) {
             element.setWidth(getWidth());
 
-            element.setX(getX());
-            element.setY(current_y + getY());
+            element.setX(0);
+            element.setY(current_y);
             current_y += element.getHeight() + 2;
         }
         super.render(context, mouseX, mouseY, delta);

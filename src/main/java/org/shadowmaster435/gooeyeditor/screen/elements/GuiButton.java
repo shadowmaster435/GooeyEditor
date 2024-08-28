@@ -7,7 +7,7 @@ import org.joml.Vector2i;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public abstract class GuiButton extends GuiElement {
+public abstract class GuiButton extends ParentableWidgetBase {
 
     public Consumer<GuiButton> pressFunction;
     public BiConsumer<GuiButton, Object[]> dataPressFunction;
@@ -34,6 +34,7 @@ public abstract class GuiButton extends GuiElement {
         pressFunctionData = data;
     }
 
+
     @Override
     public Property[] getProperties() {
         var pressed = new Property("Pressed", "pressed", "pressed", Boolean.class);
@@ -45,7 +46,9 @@ public abstract class GuiButton extends GuiElement {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+
         if (isMouseOver(mouseX, mouseY)) {
+
             setFocused(true);
             if (toggle_mode) {
                 pressed = !pressed;

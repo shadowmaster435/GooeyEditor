@@ -334,7 +334,7 @@ public interface Easing {
             float s = getOvershoot();
             return c*(t/=d)*t*((s+1)*t - s) + b;
         }
-    };
+    }
 
     /** An instance of BackOut using the default overshoot. */
     Back BACK_OUT = new BackOut();

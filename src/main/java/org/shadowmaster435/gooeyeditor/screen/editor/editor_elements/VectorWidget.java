@@ -172,10 +172,12 @@ public class VectorWidget extends ParentableWidgetBase {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         var current_y = 0;
+
         for (GuiElement element : this) {
+            element.parent = this;
             element.setWidth(getWidth());
-            element.setX(getX());
-            element.setY(current_y + getY());
+            element.setX(0);
+            element.setY(current_y);
             current_y += element.getHeight() + 2;
         }
         super.render(context, mouseX, mouseY, delta);

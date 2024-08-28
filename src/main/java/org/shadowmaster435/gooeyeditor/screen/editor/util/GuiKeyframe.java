@@ -7,7 +7,7 @@ public class GuiKeyframe<T> {
 
     private GuiKeyframe<T> previous;
     private GuiKeyframe<T> next;
-    private float time = 0;
+    private final float time = 0;
     private Easing easing = Easing.LINEAR;
 
     public GuiKeyframe(GuiElement.Property property, float time) {

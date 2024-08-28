@@ -6,6 +6,7 @@ import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.ListContainer;
 
 public interface EditorUtil {
 
@@ -47,6 +48,25 @@ public interface EditorUtil {
         var tex = new GuiTexture(32, 32, 32, 32, Identifier.of("minecraft", "textures/block/dirt.png"), 16, 16, true);
         tex.name = "texture";
         return tex;
+    }
+
+    default ListContainer createListContainer() {
+        var list_container = new ListContainer(32, 32, 64, 64, 4, true);
+        list_container.name = "listContainer";
+        return list_container;
+    }
+
+
+    default PlayerInventoryWidget createPlayerInventory() {
+        var slot_display = new PlayerInventoryWidget(32, 32, true);
+        slot_display.name = "playerInventory";
+        return slot_display;
+    }
+
+    default SlotWidget createSlotDisplay() {
+        var slot_display = new SlotWidget(32, 32, 16, 16, true);
+        slot_display.name = "slotDisplay";
+        return slot_display;
     }
 
     default NinePatchTexture createNinePatch() {

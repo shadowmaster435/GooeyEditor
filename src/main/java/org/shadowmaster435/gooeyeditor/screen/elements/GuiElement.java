@@ -27,6 +27,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
+import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
@@ -639,7 +640,6 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         var origin = new Property("Origin", "setOrigin", "getOrigin", Vector2i.class);
         var center_origin = new Property("Center Origin", "center_origin", "center_origin", Boolean.class);
         var offsetByParent = new Property("Localize Position", "offsetByParent", "offsetByParent", Boolean.class);
-
         var rotation = new Property("Rotation", "rotation", "rotation", Float.class);
         var layer = new Property("Layer", "layer", "layer", Integer.class);
         return new Property[]{name, pos, size, scale, rotation, layer, origin, center_origin};
@@ -1086,12 +1086,25 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     }
     //endregion
     //region Import Export
-    public final void createAssignerInitInputString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {
+
+    public void createChildInitString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className, GuiElement element, GuiElement par, HashMap<String, Integer> usedNames, String safeParentName) {
+        var safeName = GuiEditorScreen.getSafeName(this, usedNames, true);
+
+        element.createLocalInitString(builder, clazz, safeName);
+        element.createAssignerSetterString(builder, safeName, usedNames, (par == null));
+        builder.line(safeParentName + ".addElement(" + safeName + ");");
+    }
+
+    public void createLocalInitString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {
+        builder.assign(ClassCodeStringBuilder.getSimpleCanonicalName(clazz) + " " + className, new ClassCodeStringBuilder.NewInstanceStringBuilder(clazz).add(getX()).add(getY()).add(false));
+    }
+
+    public void createAssignerInitInputString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {
         builder.assign("this." + className, new ClassCodeStringBuilder.NewInstanceStringBuilder(clazz).add(getX()).add(getY()).add(false));
     }
 
 
-    public final void createAssignerSetterString(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder) {
+    public void createAssignerSetterString(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder, String className, HashMap<String, Integer> usedNames, boolean root) {
         ArrayList<Property> props = new ArrayList<>();
         props.addAll(Arrays.stream(getProperties()).toList());
         props.addAll(Arrays.stream(getDefaultProperties()).toList());
@@ -1099,17 +1112,20 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
             if (Objects.equals(property.display_name, "Position")) {
                 continue;
             }
-            methodStringBuilder.line(getPropertyText(property));
+            methodStringBuilder.line(getPropertyText(property, null));
           //  builder.append(getPropertyText(property)).append("\n\t\t");
         }
-        methodStringBuilder.line("addDrawableChild(" + name + ");");
+        if (root) {
+            methodStringBuilder.line("addDrawableChild(" + className + ");");
+        }
 
      ///   builder.append("addDrawableChild(").append(name).append(");");
     }
 
-    private String getPropertyText(Property property) {
+    String getPropertyText(Property property, @Nullable String passedName) {
         var builder = new StringBuilder();
         var prop = property.get(this);
+        var name = (passedName != null) ? passedName : this.name;
         assert prop != null;
         var propClassName = prop.getClass().getSimpleName();
         if (property.isMethodSetter(this)) {

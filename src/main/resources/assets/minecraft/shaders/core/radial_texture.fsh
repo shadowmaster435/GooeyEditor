@@ -12,8 +12,6 @@ uniform float Angle;
 uniform int Pixelate;
 
 
-
-
 float angleDeltaToPointFromCenter(vec2 center, vec2 point) {
     float x = distance(center.x, point.x);
     float y = distance(center.y, point.y);

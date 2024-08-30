@@ -2,15 +2,11 @@ package org.shadowmaster435.gooeyeditor.screen.editor;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.Test;
@@ -25,7 +21,6 @@ import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.shadowmaster435.gooeyeditor.GooeyEditor.warn;
 
@@ -515,41 +510,52 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         var setVarsMethod = new ClassCodeStringBuilder.MethodStringBuilder("initElements", null, null);
         var initMethod = new ClassCodeStringBuilder.MethodStringBuilder("", Test.class, null);
         usedNames.clear();
-        StringBuilder fields = new StringBuilder();
-        StringBuilder assigners = new StringBuilder();
-        StringBuilder getters = new StringBuilder();
-        StringBuilder result = new StringBuilder();
 
         for (Element element1 : children()) {
             if (element1 instanceof GuiElement guiElement) {
                 if (guiElement.isEditMode()) {
-                    var actual_name = guiElement.name;
-                    if (usedNames.containsKey(guiElement.name)) {
-                        actual_name = guiElement.name + usedNames.getOrDefault(guiElement.name, 1);
-                        usedNames.put(guiElement.name, usedNames.getOrDefault(guiElement.name, 1) + 1);
-                        warn(1, guiElement, guiElement.name, actual_name);
-                    } else if (guiElement.name.isEmpty()) {
-                        warn(0, guiElement);
-                        continue;
-                    } else {
-                        usedNames.put(guiElement.name, 0);
-                    }
+                    var actual_name = getSafeName(guiElement, usedNames, true);
+
+                    guiElement.createLocalInitString(setVarsMethod, guiElement.getClass(), actual_name);
+                    guiElement.createAssignerSetterString(setVarsMethod, actual_name, usedNames, true);
                     guiElement.createAssignerInitInputString(setVarsMethod, guiElement.getClass(), actual_name);
-                    guiElement.createAssignerSetterString(setVarsMethod);
 
                     code.field(new ClassCodeStringBuilder.FieldStringBuilder(guiElement.getClass(), actual_name));
-                //    fields.append(String.format(fieldText, guiElement.getClass().getSimpleName() + " " + actual_name));
-              //      assigners.append(String.format(fieldAssignerText, actual_name, guiElement.getClass().getSimpleName(), guiElement.getAssignerInitInputString(), guiElement.getAssignerSetterString(initMethod)));
-               //     getters.append("this.").append(actual_name).append(", ");
                 }
             }
         }
-        initMethod.line("initMethod()");
+        initMethod.line("initMethod();");
         code.method(initMethod).method(setVarsMethod);
-  //      getters.replace(getters.length() - 2, getters.length(), "");
-        return code.build();//result.append(fields).append("\n").append(String.format(initText, assigners)).append(String.format(getText, getters)).toString();
+        return code.build();
     }
 
+    public static String getSafeName(GuiElement guiElement, HashMap<String, Integer> usedNames, boolean add) {
+        var actual_name = guiElement.name;
+        if (usedNames.containsKey(guiElement.name)) {
+            if (add) {
+                actual_name = guiElement.name + usedNames.getOrDefault(guiElement.name, 1);
+
+                usedNames.put(guiElement.name, usedNames.getOrDefault(guiElement.name, 1) + 1);
+              warn(1, guiElement, guiElement.name, actual_name);
+            } else {
+                var safe =  guiElement.name + (usedNames.getOrDefault(guiElement.name, 1) - 1);
+                if (safe.equals(guiElement.name + "-1")) {
+                    safe = guiElement.name;
+                }
+                actual_name = safe;
+            }
+        } else if (guiElement.name.isEmpty()) {
+            if (add) {
+                warn(0, guiElement);
+            }
+            return null;
+        } else {
+            if (add) {
+                usedNames.put(guiElement.name, 0);
+            }
+        }
+        return actual_name;
+    }
 
 
 }

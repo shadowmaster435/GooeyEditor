@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("unused")
 public class ClassCodeStringBuilder {
 
     private final String className;
@@ -58,9 +59,9 @@ public class ClassCodeStringBuilder {
 
     //region String Builders
     public static class NewInstanceStringBuilder {
-        private StringBuilder builder = new StringBuilder();
-        private Class<?> type;
-        private ArrayList<Class<?>> classesToImport = new ArrayList<>();
+        private final StringBuilder builder = new StringBuilder();
+        private final Class<?> type;
+        private final ArrayList<Class<?>> classesToImport = new ArrayList<>();
 
         public NewInstanceStringBuilder(Class<?> type) {
             this.type = type;
@@ -77,7 +78,7 @@ public class ClassCodeStringBuilder {
             return this;
         }
 
-        public String build() {
+        private String build() {
             var str = builder.toString();
 
             return String.format("new %1$s(%2$s)", getSimpleCanonicalName(type), builder.substring(0, str.length() - 2));
@@ -92,7 +93,7 @@ public class ClassCodeStringBuilder {
         }
     }
     
-    private static String getSimpleCanonicalName(Class<?> clazz) {
+    public static String getSimpleCanonicalName(Class<?> clazz) {
         var cannon = clazz.getCanonicalName();
         return cannon.substring(cannon.lastIndexOf(".") + 1);
     }
@@ -109,7 +110,7 @@ public class ClassCodeStringBuilder {
             return this;
         }
 
-        public String build() {
+        private String build() {
             var str = builder.toString();
             return str.substring(0, str.length() - 2) + ")";
         }
@@ -119,6 +120,7 @@ public class ClassCodeStringBuilder {
         }
     }
 
+    @SuppressWarnings("unused")
     public static class FieldStringBuilder {
         private final ArrayList<Class<?>> classesToImport = new ArrayList<>();
         private final Class<?> type;
@@ -130,11 +132,11 @@ public class ClassCodeStringBuilder {
             classesToImport.add(type);
         }
 
-        public String build() {
+        private String build() {
             return getSimpleCanonicalName(type) + " " + fieldName + ";";
         }
 
-        public String build(NewInstanceStringBuilder newInstanceStringBuilder) {
+        private String build(NewInstanceStringBuilder newInstanceStringBuilder) {
             if (!classesToImport.contains(newInstanceStringBuilder.getType())) {
                 classesToImport.add(newInstanceStringBuilder.getType());
             }
@@ -148,6 +150,7 @@ public class ClassCodeStringBuilder {
         }
     }
 
+    @SuppressWarnings("unused")
     public static class MethodStringBuilder {
         private final StringBuilder builder = new StringBuilder();
         private final ArrayList<Class<?>> classesToImport = new ArrayList<>();
@@ -203,12 +206,12 @@ public class ClassCodeStringBuilder {
             return classesToImport;
         }
 
-        public String build() {
+        private String build() {
             var built = builder.append("\n\t}").toString();
             classesToImport.clear();
             return built;
         }
-        public String build(String returns) {
+        private String build(String returns) {
             return builder.append("\t\treturn ").append(returns).append(";\n\t}").toString();
         }
     }

@@ -8,16 +8,13 @@ import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
+import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
-import org.spongepowered.asm.mixin.injection.At;
+import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class ParentableWidgetBase extends GuiElement implements Iterable<GuiElement> {
@@ -173,15 +170,15 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
     /**
      * Iterates through all child elements and children of those elements. Provides the depth of the current element being iterated as well as the element itself.
      * @param consumer Supplies the current element being iterate, the parent of that element, and the depth of that element in the widget tree branch.
-     * @param depth Depth you want to start with. Useful for positioning.
+     * @param startDepth Depth you want to start with. Useful for positioning.
      */
-    public void forEachInBranch(TriConsumer<GuiElement, GuiElement, Integer> consumer, int depth) {
+    public void forEachInBranch(TriConsumer<GuiElement, GuiElement, Integer> consumer, int startDepth) {
         widgets.forEach((widget -> {
             if (widget != this) {
-                consumer.accept(widget, widget.parent, depth + 1);
+                consumer.accept(widget, widget.parent, startDepth + 1);
             }
             if (widget instanceof ParentableWidgetBase widgetBase) {
-                widgetBase.forEachInBranch(consumer, depth + 1);
+                widgetBase.forEachInBranch(consumer, startDepth + 1);
             }
         }));
     }
@@ -398,5 +395,29 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
     @Override
     public Iterator<GuiElement> iterator() {
         return widgets.iterator();
+    }
+
+
+
+
+    @Override
+    public void createAssignerSetterString(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder, String className, HashMap<String, Integer> usedNames, boolean root) {
+        ArrayList<Property> props = new ArrayList<>();
+        props.addAll(Arrays.stream(getProperties()).toList());
+        props.addAll(Arrays.stream(getDefaultProperties()).toList());
+        for (Property property : props) {
+            if (Objects.equals(property.display_name(), "Position")) {
+                continue;
+            }
+            methodStringBuilder.line(getPropertyText(property, className));
+        }
+        if (root) {
+            methodStringBuilder.line("addDrawableChild(" + className + ");");
+            forEachInBranch((element, par, d) -> createChildrenStrings(methodStringBuilder, element, par, usedNames), 0);
+        }
+    }
+
+    private void createChildrenStrings(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder, GuiElement element, GuiElement par, HashMap<String, Integer> usedNames) {
+        element.createChildInitString(methodStringBuilder, element.getClass(), element.name, element, par, usedNames, GuiEditorScreen.getSafeName(this, usedNames, false));
     }
 }

@@ -3,15 +3,13 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 import com.google.common.collect.*;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Hand;
-import org.objectweb.asm.Handle;
 import org.shadowmaster435.gooeyeditor.screen.GuiScreenHandler;
 import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
-import org.shadowmaster435.gooeyeditor.screen.SlotDisplayWidget;
+import org.shadowmaster435.gooeyeditor.screen.editor.util.MiscMath;
 
 import java.util.ArrayList;
 
-public class SlotGridWidget extends ParentableWidgetBase {
+public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
 
     private final Table<Integer, Integer, SlotWidget> slotTable = HashBasedTable.create();
     public int xSize = 2;
@@ -50,7 +48,33 @@ public class SlotGridWidget extends ParentableWidgetBase {
         }
     }
 
-    public ArrayList<Slot> getAndAddSlotsToHandler(HandledGuiScreen<? extends GuiScreenHandler> handled, Inventory inventory) {
+    /**
+     * @return {@link SlotWidget} by their position in the grid or null if not present.
+     */
+    public SlotWidget getSlot(int x, int y) {
+        return slotTable.get(x, y);
+    }
+    /**
+     * @return {@link SlotWidget} by their numerical id from left to right, top to bottom (see {@link MiscMath#gridify(int, int, int)}), or null if not present.
+     */
+    public SlotWidget getSlot(int i) {
+        var pos = gridify(i, xSize, ySize);
+        return getSlot(pos.x, pos.y);
+    }
+
+    /**
+     * Assigns given slots by their numerical id from left to right, top to bottom (see {@link MiscMath#gridify(int, int, int)}).
+     */
+    public void setSlots(Slot... slots) {
+    }
+
+    /**
+     * Automatically creates and adds slots to the given {@link HandledGuiScreen}.
+     * @param handled Handler to add slots to
+     * @param inventory Inventory required by slot initializer
+     * @return List of generated slots for use elsewhere
+     */
+    public ArrayList<Slot> createSlotsForHandler(HandledGuiScreen<? extends GuiScreenHandler> handled, Inventory inventory) {
         ArrayList<Slot> ret = new ArrayList<>();
         for (int x = 0; x < Math.abs(xSize); ++x) {
             for (int y = 0; y < Math.abs(ySize); ++y) {

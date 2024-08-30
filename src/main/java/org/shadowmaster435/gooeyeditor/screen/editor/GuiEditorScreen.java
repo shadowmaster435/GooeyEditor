@@ -13,10 +13,13 @@ import net.minecraft.util.math.ColorHelper;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
+import org.shadowmaster435.gooeyeditor.Test;
+import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.*;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.BaseContainer;
+import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
 import java.util.ArrayList;
@@ -33,15 +36,6 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public final HashMap<GuiElement, ParentableWidgetBase> toAddToChild = new HashMap<>();
 
     private final Screen parent;
-    private final String fieldText = "\tpublic %s;\n";
-    private final String fieldAssignerText = "\t\tvar %1$s = new %2$s(%3$s);\n\t\t%4$s\n\t\tthis.%1$s = %1$s;\n\n";
-    private final String initText = "\t@Override\n\tpublic void initElements() {\n%s\t}\n";
-    private final String getText = "\n\t@Override\n\tpublic GuiElement[] getElements() {\n\t\treturn new GuiElement[]{%s};\n\t}\n";
-    private final String elementImport = "import org.shadowmaster435.gooeyeditor.screen.elements.*;\n";
-    private final String jomlImport = "import org.joml.*;\n";
-    private final String identifierImport = "import " + Identifier.class.getCanonicalName() + ";\n";
-    private final String guiScreenImport = "import org.shadowmaster435.gooeyeditor.screen.GuiScreen;\n";
-    private final String classString = "\npublic class %1$s extends GuiScreen {\n\n\t//This default init function is required if you want to load this screen in the editor\n\t//will throw an exception if excluded\n\tpublic %1$s() {\n\t\tsuper();\n\t}\n";
     private final HashMap<String, Integer> usedNames = new HashMap<>();
     public ButtonWidget button1;
     public GuiElement element;
@@ -49,7 +43,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public TextureButtonWidget layer_editing;
     public TextureButtonWidget showContainers;
     public WidgetTree tree;
-    private DropDownWidget file;
+    private TextButtonWidget file;
     private TextButtonWidget save;
     private DropDownWidget create;
     private TextButtonWidget color_rect;
@@ -482,16 +476,18 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     }
 
     private void initFileTab() {
-        var file = new DropDownWidget(4,4,Text.of("File"), false);
-        var save = new TextButtonWidget(4,4,Text.of("Save"), false);
-        file.setSpacing(4);
+        var file = new TextButtonWidget(4,4,Text.of("File"), false);
+       // var save = new TextButtonWidget(4,4,Text.of("Save"), false);
+      //  file.setSpacing(4);
 
-        file.addEntry(save);
-        save.setPressFunction(GuiEditorScreen::tstfunc);
+     //   file.addEntry(save);
+        file.setPressFunction((a) -> {
+            System.out.println(getExportString("Test"));
+        });
         this.file = file;
         
         addDrawableChild(file);
-        addDrawableChild(save);
+   //     addDrawableChild(save);
     }
 
     private void initWidgetTree() {
@@ -505,21 +501,25 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         if (children().isEmpty()) {
             return "";
         }
-        return  elementImport +
-                jomlImport +
-                identifierImport +
-                guiScreenImport +
-                String.format(classString, className) +
-                getContentsExportString() + "}";
+        return getContentsExportString(className);
+//        return  elementImport +
+//                jomlImport +
+//                identifierImport +
+//                guiScreenImport +
+//                String.format(classString, className) +
+
     }
 
-    public String getContentsExportString() {
-
+    public String getContentsExportString(String className) {
+        var code = new ClassCodeStringBuilder(className, GuiScreen.class);
+        var setVarsMethod = new ClassCodeStringBuilder.MethodStringBuilder("initElements", null, null);
+        var initMethod = new ClassCodeStringBuilder.MethodStringBuilder("", Test.class, null);
         usedNames.clear();
         StringBuilder fields = new StringBuilder();
         StringBuilder assigners = new StringBuilder();
         StringBuilder getters = new StringBuilder();
         StringBuilder result = new StringBuilder();
+
         for (Element element1 : children()) {
             if (element1 instanceof GuiElement guiElement) {
                 if (guiElement.isEditMode()) {
@@ -532,17 +532,22 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
                         warn(0, guiElement);
                         continue;
                     } else {
-
                         usedNames.put(guiElement.name, 0);
                     }
-                    fields.append(String.format(fieldText, guiElement.getClass().getSimpleName() + " " + actual_name));
-                    assigners.append(String.format(fieldAssignerText, actual_name, guiElement.getClass().getSimpleName(), guiElement.getAssignerInitInputString(), guiElement.getAssignerSetterString()));
-                    getters.append("this.").append(actual_name).append(", ");
+                    guiElement.createAssignerInitInputString(setVarsMethod, guiElement.getClass(), actual_name);
+                    guiElement.createAssignerSetterString(setVarsMethod);
+
+                    code.field(new ClassCodeStringBuilder.FieldStringBuilder(guiElement.getClass(), actual_name));
+                //    fields.append(String.format(fieldText, guiElement.getClass().getSimpleName() + " " + actual_name));
+              //      assigners.append(String.format(fieldAssignerText, actual_name, guiElement.getClass().getSimpleName(), guiElement.getAssignerInitInputString(), guiElement.getAssignerSetterString(initMethod)));
+               //     getters.append("this.").append(actual_name).append(", ");
                 }
             }
         }
-        getters.replace(getters.length() - 2, getters.length(), "");
-        return result.append(fields).append("\n").append(String.format(initText, assigners)).append(String.format(getText, getters)).toString();
+        initMethod.line("initMethod()");
+        code.method(initMethod).method(setVarsMethod);
+  //      getters.replace(getters.length() - 2, getters.length(), "");
+        return code.build();//result.append(fields).append("\n").append(String.format(initText, assigners)).append(String.format(getText, getters)).toString();
     }
 
 

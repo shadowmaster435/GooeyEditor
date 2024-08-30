@@ -12,7 +12,6 @@ public class GooeyEditor implements ModInitializer {
     private static final HashMap<String, Class<? extends GuiScreen>> loadableScreens = new HashMap<>();
     @Override
     public void onInitialize() {
-
     }
     public static void warn(int warning, Object... extra_data) {
         switch (warning) {

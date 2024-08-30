@@ -39,7 +39,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
     }
 
     public void addElements(GuiElement... element) {
-        widgets.addAll(Arrays.stream(element).toList());
+        for (GuiElement elem : element) {
+            addElement(elem);
+        }
     }
 
     public ArrayList<GuiElement> getElements() {

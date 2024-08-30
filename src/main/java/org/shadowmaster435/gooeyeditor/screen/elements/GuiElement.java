@@ -28,6 +28,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
+import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import org.shadowmaster435.gooeyeditor.util.VectorMath;
 
@@ -80,6 +81,7 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     public boolean center_origin = false;
     public boolean offsetByParent = true;
     public boolean showsParentOffsetButton = true;
+    public boolean selectable = true;
     private boolean editMode;
     public boolean selected = false;
     private boolean active = true;
@@ -1084,13 +1086,12 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     }
     //endregion
     //region Import Export
-    public final String getAssignerInitInputString() {
-        return getX() + ", " + getY() + ", false";
+    public final void createAssignerInitInputString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {
+        builder.assign("this." + className, new ClassCodeStringBuilder.NewInstanceStringBuilder(clazz).add(getX()).add(getY()).add(false));
     }
 
 
-    public final String getAssignerSetterString() {
-        StringBuilder builder = new StringBuilder();
+    public final void createAssignerSetterString(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder) {
         ArrayList<Property> props = new ArrayList<>();
         props.addAll(Arrays.stream(getProperties()).toList());
         props.addAll(Arrays.stream(getDefaultProperties()).toList());
@@ -1098,10 +1099,12 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
             if (Objects.equals(property.display_name, "Position")) {
                 continue;
             }
-            builder.append(getPropertyText(property)).append("\n\t\t");
+            methodStringBuilder.line(getPropertyText(property));
+          //  builder.append(getPropertyText(property)).append("\n\t\t");
         }
-        builder.append("addDrawableChild(").append(name).append(");");
-        return builder.toString();
+        methodStringBuilder.line("addDrawableChild(" + name + ");");
+
+     ///   builder.append("addDrawableChild(").append(name).append(");");
     }
 
     private String getPropertyText(Property property) {

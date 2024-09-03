@@ -1,29 +1,32 @@
 package org.shadowmaster435.gooeyeditor;
 
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 import org.joml.*;
 import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
 
-public class Test extends GuiScreen {
+public class Test2 extends GuiScreen<TestHandler> {
+    public SlotWidget normal;
+    public SlotWidget tiny;
+    public SlotWidget big;
+    public SlotWidget mega;
+    public Inventory inv;
 
-    //This default init function is required if you want to load this screen in the editor
-    //will throw an exception if excluded
-    public Test() {
-        super();
+    public Test2(TestHandler handler, PlayerInventory playerInventory, Text text) {
+        super(handler, playerInventory);
+        initElements();
+
+        this.inv = handler.inv;
     }
-    public ScrollbarWidget scrollBar;
-    public GuiTexture texture;
-    public NinePatchTexture ninePatch;
-    public GuiTexture texture1;
-    public NinePatchTexture ninePatch2;
-    public TextWidget text;
-    public GuiTexture texture2;
-    public NinePatchTexture ninePatch1;
-    public ItemDisplayWidget itemDisplay;
-    public TextField textField;
 
-    @Override
+
     public void initElements() {
         var scrollBar = new ScrollbarWidget(198, 57, false);
         scrollBar.texture_width = 16;
@@ -44,7 +47,7 @@ public class Test extends GuiScreen {
         scrollBar.setOrigin(new Vector2i(0, 0));
         scrollBar.center_origin = false;
         addDrawableChild(scrollBar);
-        this.scrollBar = scrollBar;
+     //   this.scrollBar = scrollBar;
 
         var texture = new GuiTexture(154, 152, false);
         texture.texture_width = 16;
@@ -58,7 +61,7 @@ public class Test extends GuiScreen {
         texture.setOrigin(new Vector2i(0, 0));
         texture.center_origin = true;
         addDrawableChild(texture);
-        this.texture = texture;
+   //     this.texture = texture;
 
         var ninePatch = new NinePatchTexture(56, 42, false);
         ninePatch.texture_width = 16;
@@ -73,7 +76,7 @@ public class Test extends GuiScreen {
         ninePatch.setOrigin(new Vector2i(0, 0));
         ninePatch.center_origin = false;
         addDrawableChild(ninePatch);
-        this.ninePatch = ninePatch;
+      //  this.ninePatch = ninePatch;
 
         var texture1 = new GuiTexture(140, 146, false);
         texture1.texture_width = 16;
@@ -87,7 +90,7 @@ public class Test extends GuiScreen {
         texture1.setOrigin(new Vector2i(0, 0));
         texture1.center_origin = true;
         addDrawableChild(texture1);
-        this.texture1 = texture1;
+    //    this.texture1 = texture1;
 
         var ninePatch2 = new NinePatchTexture(193, 52, false);
         ninePatch2.texture_width = 16;
@@ -102,7 +105,7 @@ public class Test extends GuiScreen {
         ninePatch2.setOrigin(new Vector2i(0, 0));
         ninePatch2.center_origin = false;
         addDrawableChild(ninePatch2);
-        this.ninePatch2 = ninePatch2;
+     //   this.ninePatch2 = ninePatch2;
 
         var text = new TextWidget(62, 49, false);
         text.r = 255;
@@ -119,7 +122,7 @@ public class Test extends GuiScreen {
         text.setOrigin(new Vector2i(0, 0));
         text.center_origin = false;
         addDrawableChild(text);
-        this.text = text;
+    //    this.text = text;
 
         var texture2 = new GuiTexture(61, 111, false);
         texture2.texture_width = 16;
@@ -133,7 +136,7 @@ public class Test extends GuiScreen {
         texture2.setOrigin(new Vector2i(0, 0));
         texture2.center_origin = true;
         addDrawableChild(texture2);
-        this.texture2 = texture2;
+    //    this.texture2 = texture2;
 
         var ninePatch1 = new NinePatchTexture(153, 88, false);
         ninePatch1.texture_width = 16;
@@ -148,7 +151,7 @@ public class Test extends GuiScreen {
         ninePatch1.setOrigin(new Vector2i(0, 0));
         ninePatch1.center_origin = false;
         addDrawableChild(ninePatch1);
-        this.ninePatch1 = ninePatch1;
+     //   this.ninePatch1 = ninePatch1;
 
         var itemDisplay = new ItemDisplayWidget(154, 89, false);
         itemDisplay.item = Identifier.of("minecraft:dirt");
@@ -161,7 +164,7 @@ public class Test extends GuiScreen {
         itemDisplay.setOrigin(new Vector2i(0, 0));
         itemDisplay.center_origin = false;
         addDrawableChild(itemDisplay);
-        this.itemDisplay = itemDisplay;
+       // this.itemDisplay = itemDisplay;
 
         var textField = new TextField(62, 60, false);
         textField.setText("");
@@ -174,12 +177,25 @@ public class Test extends GuiScreen {
         textField.setOrigin(new Vector2i(0, 0));
         textField.center_origin = false;
         addDrawableChild(textField);
-        this.textField = textField;
+     //   this.textField = textField;
 
     }
 
     @Override
-    public GuiElement[] getElements() {
-        return new GuiElement[]{this.scrollBar, this.texture, this.ninePatch, this.texture1, this.ninePatch2, this.text, this.texture2, this.ninePatch1, this.itemDisplay, this.textField};
+    public boolean isClickOutsideBounds(double mouseX, double mouseY, int button) {
+        return false;
+    }
+
+    private static DefaultedList<ItemStack> getItems(ScreenHandler handler) {
+        if (handler instanceof TestHandler a) {
+            return a.getStacks();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+        context.getMatrices().peek().getPositionMatrix();
     }
 }

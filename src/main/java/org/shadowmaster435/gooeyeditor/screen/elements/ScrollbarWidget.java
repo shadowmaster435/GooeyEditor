@@ -7,6 +7,7 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.BaseContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.ScrollbarWidgetData;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
@@ -95,6 +96,8 @@ public class ScrollbarWidget extends NinePatchTexture {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         super.preTransform(context, mouseX, mouseY, delta);
+        drawNinePatchTexture(context, getGlobalRect(), texture, grabber_edge_thickness, grabber_texture_width, grabber_texture_height);
+
         drawNinePatchTexture(context, getGrabberRect(), grabber_texture, grabber_edge_thickness, grabber_texture_width, grabber_texture_height);
     }
 
@@ -123,11 +126,11 @@ public class ScrollbarWidget extends NinePatchTexture {
 
 
     public boolean canScroll(int mouseX, int mouseY) {
-        return isMouseOver(mouseX,mouseY);
+        return (parent instanceof BaseContainer e) ? e.isMouseOver(mouseX,mouseY) : isMouseOver(mouseX,mouseY);
     }
 
     public Rect2 getGrabberRect() {
-        return new Rect2(getX(), (int) (grabber_pos + getY()), getWidth(), grabber_length);
+        return new Rect2(getGlobalX(), (int) (grabber_pos + getGlobalY()), getWidth(), grabber_length);
     }
 
     public double getGrabberPosition() {
@@ -148,8 +151,8 @@ public class ScrollbarWidget extends NinePatchTexture {
 
     public void tryGrab(double mouseX, double mouseY) {
         if (grabbed) {
-            var h = Math.clamp((int) (mouseX) - getX() - grabber_click_offset, 0, getHeight() - getGrabberRect().height);
-            var v = Math.clamp((int) (mouseY) - getY() - grabber_click_offset, 0, getHeight() - getGrabberRect().height);
+            var h = Math.clamp((int) (mouseX) - getGlobalX() - grabber_click_offset, 0, getHeight() - getGrabberRect().height);
+            var v = Math.clamp((int) (mouseY) - getGlobalY() - grabber_click_offset, 0, getHeight() - getGrabberRect().height);
 
             grabber_pos = (horizontal) ? h : v;
         }

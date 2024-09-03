@@ -2,3 +2,5 @@ accessWidener v2 named
 
 accessible method net/minecraft/client/gui/screen/Screen addDrawableChild (Lnet/minecraft/client/gui/Element;)Lnet/minecraft/client/gui/Element;
 accessible method net/minecraft/client/gui/screen/ingame/HandledScreen getSlotAt (DD)Lnet/minecraft/screen/slot/Slot;
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen quickMovingStack Lnet/minecraft/item/ItemStack;
+accessible method net/minecraft/client/gui/screen/ingame/HandledScreen isPointOverSlot (Lnet/minecraft/screen/slot/Slot;DD)Z

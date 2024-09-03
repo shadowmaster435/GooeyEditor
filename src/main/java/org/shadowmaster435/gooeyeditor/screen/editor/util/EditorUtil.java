@@ -55,7 +55,11 @@ public interface EditorUtil {
         list_container.name = "listContainer";
         return list_container;
     }
-
+    default SlotGridWidget createSlotGrid() {
+        var slot_display = new SlotGridWidget(32, 32, true);
+        slot_display.name = "slotGrid";
+        return slot_display;
+    }
 
     default PlayerInventoryWidget createPlayerInventory() {
         var slot_display = new PlayerInventoryWidget(32, 32, true);

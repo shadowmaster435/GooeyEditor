@@ -30,8 +30,8 @@ public class WidgetTree extends ScrollableListContainer {
 
 
     public WidgetTree(int x, int y, int w, int h, boolean editMode) {
-        super(x, y, w, h, new ScrollbarWidget(x + (w - 12), y, 12, h, false), 2, editMode);
-        editorRect = new Rect2(x, y, w, h);
+        super(0, y, w, h, new ScrollbarWidget((w - 12), 0, 12, h, false), 2, editMode);
+        editorRect = new Rect2(x - 3, y, w, h);
         addElement(this.getScrollbar());
         this.getScrollbar().layer = 515;
         updateChildren = true;
@@ -51,6 +51,7 @@ public class WidgetTree extends ScrollableListContainer {
         current = rootElement;
         tree.clear();
         clearChildren();
+        addElement(this.getScrollbar());
         var genericContainer = new GenericContainer(0,0,0,0,false);
         //HashMap<GuiElement, ArrayList<GuiElement>> parentMap = new HashMap<>();
         AtomicInteger y = new AtomicInteger(0);
@@ -59,7 +60,7 @@ public class WidgetTree extends ScrollableListContainer {
                 var button = new DraggableElementReferenceButton(0,0, element.name, e, this, screen, false);
                 var currY = y.getAndAdd(1);
                 button.setY((currY * 10));
-                button.setX((d * 8) - getX());
+                button.setX((d * 8) - getGlobalX());
                 genericContainer.addElement(button);
                 button.layer = 516;
             }
@@ -91,14 +92,15 @@ public class WidgetTree extends ScrollableListContainer {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-
+    public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
+        scissor(true);
         getScrollbar().setActive(screen.isPropertyEditorOpen());
         getScrollbar().setVisible(screen.isPropertyEditorOpen());
         if (screen.isPropertyEditorOpen()) {
             context.fill(getGlobalX() - 12, getGlobalY(), getGlobalX() + getWidth(), getGlobalY() + getHeight(), 513, ColorHelper.Argb.getArgb(100, 100, 100));
         }
-        super.render(context, mouseX, mouseY, delta);
+        super.preTransform(context, mouseX, mouseY, delta);
+
     }
 
     @Override

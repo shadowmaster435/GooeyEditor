@@ -1,11 +1,9 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
+import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.GuiScreenHandler;
-import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
 
 import java.util.ArrayList;
 
@@ -24,7 +22,7 @@ public class PlayerInventoryWidget extends ParentableWidgetBase {
         addElements(inventory, hotbar);
     }
 
-    public void setPlayerInventory(HandledGuiScreen<? extends GuiScreenHandler> handled) {
+    public void setPlayerInventory(GuiScreen<? extends GuiScreenHandler> handled) {
         ArrayList<Slot> hotbarSlots = new ArrayList<>();
         ArrayList<Slot> inventorySlots = new ArrayList<>();
         for (int i = 0; i < 36; ++i) {

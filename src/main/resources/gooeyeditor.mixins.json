@@ -4,9 +4,11 @@
   "package": "org.shadowmaster435.gooeyeditor.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "GenericContainerScreenHandlerMixin"
   ],
   "client": [
     "GameRendererMixin",
+    "HandledScreenMixin",
     "MinecraftClientMixin",
     "MouseMixin",
     "TitleScreenMixin"

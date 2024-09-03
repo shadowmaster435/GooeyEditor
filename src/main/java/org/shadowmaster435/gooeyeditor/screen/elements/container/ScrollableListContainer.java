@@ -53,13 +53,11 @@ public class ScrollableListContainer extends ListContainer {
     public void postTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         previous_scroll_pos = scrollbar.grabber_pos;
 
-        if (scrollbar != null) {
-            var scroll_delta = scrollbar.getGrabberDelta();
-            scrollbar.render(context, mouseX, mouseY, delta);
-            scroll_offset = MathHelper.lerp(scroll_delta, 0, getListHeight() - getHeight());
-            if (previous_scroll_pos != scrollbar.grabber_pos) {
-                arrange();
-            }
+        var scroll_delta = scrollbar.getGrabberDelta();
+        scrollbar.render(context, mouseX, mouseY, delta);
+        scroll_offset = MathHelper.lerp(scroll_delta, 0, getListHeight() - getHeight());
+        if (previous_scroll_pos != scrollbar.grabber_pos) {
+            arrange();
         }
         super.postTransform(context, mouseX, mouseY, delta);
     }

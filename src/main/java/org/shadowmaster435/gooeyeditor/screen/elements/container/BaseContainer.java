@@ -65,7 +65,7 @@ public abstract class BaseContainer extends ParentableWidgetBase {
 
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
-        setScissor(getX(), getY(), getX() + getWidth(), getY() + getHeight());
+        setScissor(getGlobalX(), getGlobalY(), getGlobalX() + getWidth(), getGlobalY() + getHeight());
         if (changed()) {
             arrange();
         }

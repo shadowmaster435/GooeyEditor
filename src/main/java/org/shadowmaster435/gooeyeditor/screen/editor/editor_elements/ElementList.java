@@ -81,11 +81,12 @@ public class ElementList extends GenericContainer implements EditorUtil {
 
     private void init() {
         PopupContainer popup = new PopupContainer(getWidth(), getHeight(), false);
-        ScrollbarWidget scrollbar = new ScrollbarWidget(getX() + getWidth() - 13, getY() + 5, 8, getHeight() - 11, false);
+        ScrollbarWidget scrollbar = new ScrollbarWidget(getWidth() - 13, 5, 8, getHeight() - 11, false);
         ScrollableListContainer button_list = new ScrollableListContainer(16, 16, getWidth() - 12, getHeight() - 4, scrollbar, 4, false);
+        scrollbar.scroll_delta = 4;
         button_list.scissor(true);
         TextButtonWidget close_button = new TextButtonWidget(8, 8, Text.of("X"), false);
-        NinePatchTexture bg = new NinePatchTexture(getX(), getY(), getWidth(), getHeight(), NinePatchTexture.GUI_BOX, false);
+        NinePatchTexture bg = new NinePatchTexture(0, 0, getWidth(), getHeight(), NinePatchTexture.GUI_BOX, false);
         addElement(popup);
         popup.addElement(scrollbar);
         popup.addElement(bg);

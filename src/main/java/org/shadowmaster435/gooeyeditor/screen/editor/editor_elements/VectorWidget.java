@@ -84,7 +84,7 @@ public class VectorWidget extends ParentableWidgetBase {
         }
     }
 
-    public <V> Number[] convertVector(V vec) {
+    public static  <V> Number[] convertVector(V vec) {
         var clazz = vec.getClass();
         ArrayList<Number> list = new ArrayList<>();
         if (clazz.getSimpleName().contains("2")) {

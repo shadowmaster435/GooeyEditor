@@ -33,7 +33,7 @@ public class TextButtonWidget extends GuiButton {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         var color = (!pressed) ? ColorHelper.Argb.getArgb(255,255,255) : ColorHelper.Argb.getArgb(127,127,127);
-        context.drawText(MinecraftClient.getInstance().textRenderer, message, getGlobalX(), getGlobalY(), color, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, message, getGlobalX(), getGlobalY(), color, false);
         setHeight(Math.max(8, getHeight()));
 
         setWidth(Math.max(MinecraftClient.getInstance().textRenderer.getWidth(message), getWidth()));

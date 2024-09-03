@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public abstract class ParentableWidgetBase extends GuiElement implements Iterable<GuiElement> {
+public abstract non-sealed class ParentableWidgetBase extends GuiElement implements Iterable<GuiElement> {
 
     private final ArrayList<GuiElement> widgets = new ArrayList<>();
     public boolean updateChildren = true;
@@ -418,6 +418,9 @@ public abstract class ParentableWidgetBase extends GuiElement implements Iterabl
     }
 
     private void createChildrenStrings(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder, GuiElement element, GuiElement par, HashMap<String, Integer> usedNames) {
+        if (par instanceof SlotGridWidget && element instanceof SlotWidget) {
+            return;
+        }
         element.createChildInitString(methodStringBuilder, element.getClass(), element.name, element, par, usedNames, GuiEditorScreen.getSafeName(this, usedNames, false));
     }
 }

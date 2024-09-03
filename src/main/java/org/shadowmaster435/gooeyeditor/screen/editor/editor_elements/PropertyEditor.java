@@ -31,6 +31,14 @@ public class PropertyEditor extends ParentableWidgetBase {
         initScrollStuff();
     }
 
+    public void align() {
+        setPosition(MinecraftClient.getInstance().getWindow().getScaledWidth() - 64, 32);
+        listContainer.setPosition(MinecraftClient.getInstance().getWindow().getScaledWidth() - 110, 12);
+        listContainer.setSize(getWidth(), getHeight());
+        scrollbar.setPosition(MinecraftClient.getInstance().getWindow().getScaledWidth() - 128, 0);
+        scrollbar.setSize(16,  MinecraftClient.getInstance().getWindow().getScaledHeight());
+    }
+
     public void initScrollStuff() {
         var scrollbar = new ScrollbarWidget(MinecraftClient.getInstance().getWindow().getScaledWidth() - 128, 0, 16,  MinecraftClient.getInstance().getWindow().getScaledHeight() , getTextureData(), false);
         var container = new ScrollableContainer(MinecraftClient.getInstance().getWindow().getScaledWidth() - 110, 12, getWidth(), getHeight(), MinecraftClient.getInstance().getWindow().getScaledHeight(), scrollbar, 12, false);

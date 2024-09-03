@@ -20,6 +20,9 @@ public class GuiRangeTexture extends ParentableWidgetBase {
         this.texture = texture;
         this.texture_width = texture_width;
         this.texture_height = texture_height;
+        if (editMode) {
+            delta = 1.0F;
+        }
     }
 
     @Override

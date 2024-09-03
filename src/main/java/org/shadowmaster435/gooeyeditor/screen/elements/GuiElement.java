@@ -2,6 +2,9 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 
 
 //region Imports
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
@@ -17,22 +20,24 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector2i;
+import org.joml.*;
 import org.lwjgl.glfw.GLFW;
+import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
+import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.VectorWidget;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import org.shadowmaster435.gooeyeditor.util.VectorMath;
 
+import java.lang.Math;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -43,7 +48,7 @@ import java.util.function.Supplier;
 // Class of nightmarish proportions.
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
 
-public abstract class GuiElement implements Drawable, Selectable, Element, Widget {
+public abstract sealed class GuiElement implements Drawable, Selectable, Element, Widget permits ParentableWidgetBase {
     //region Fields
     //region floats
     public float scale_x = 1;
@@ -79,6 +84,7 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     public GuiElement parent = null;
     //endregion
     //region bools
+    public boolean center_screen = false;
     public boolean center_origin = false;
     public boolean offsetByParent = true;
     public boolean showsParentOffsetButton = true;
@@ -322,10 +328,22 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         if (!visible) {
             return;
         }
+        if (center_screen) {
+            centerElement();
+        }
         defaultRenderSequence(context, mouseX, mouseY, delta);
     }
     //endregion
     //region Getters, Setters, And Consumers.
+
+    public void centerElement() {
+        var dims = new Vector2i(MinecraftClient.getInstance().getWindow().getScaledWidth(), MinecraftClient.getInstance().getWindow().getScaledHeight());
+        if (parent != null) {
+            dims = parent.getSize();
+        }
+        setX((dims.x / 2) - (getSize().x / 2));
+        setY((dims.y / 2) - (getSize().y / 2));
+    }
 
     public void forEachParent(Consumer<GuiElement> consumer) {
         var actualParent = parent;
@@ -639,10 +657,11 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         var scale = new Property("Scale", "setScale", "getScale", Vector2f.class);
         var origin = new Property("Origin", "setOrigin", "getOrigin", Vector2i.class);
         var center_origin = new Property("Center Origin", "center_origin", "center_origin", Boolean.class);
+        var center_screen = new Property("Center", "center_screen", "center_screen", Boolean.class);
         var offsetByParent = new Property("Localize Position", "offsetByParent", "offsetByParent", Boolean.class);
         var rotation = new Property("Rotation", "rotation", "rotation", Float.class);
         var layer = new Property("Layer", "layer", "layer", Integer.class);
-        return new Property[]{name, pos, size, scale, rotation, layer, origin, center_origin};
+        return new Property[]{name, pos, size, scale, rotation, layer, origin, center_origin, center_screen};
     }
 
     /**
@@ -661,11 +680,44 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         }
         return list.toArray(new Property[]{});
     }
+    /**
+     * @param first Array of properties to merge.
+     * @param props Properties to merge with {@code first}.
+     * @return a merged array of any amount of property arrays.
+     */
+    public Property[] mergeProperties(Property[] first, Property... props) {
+        ArrayList<Property> list = new ArrayList<>(Arrays.stream(first).toList());
+        list.addAll(Arrays.asList(props));
+        return list.toArray(new Property[]{});
+    }
+    /**
+     * @param props Properties to merge.
+     * @return a merged array of any amount of property arrays.
+     */
+    public Property[] mergeProperties(Property... props) {
+        return new ArrayList<>(Arrays.asList(props)).toArray(new Property[]{});
+    }
+
+    private static final Map<Class<?>, String> classMap = Map.ofEntries(
+            Map.entry(Boolean.class, "bool"),
+            Map.entry(String.class, "str"),
+            Map.entry(Double.class, "double"),
+            Map.entry(Float.class, "float"),
+            Map.entry(Integer.class, "int"),
+            Map.entry(Identifier.class, "id"),
+            Map.entry(Vector2i.class, "vec2i"),
+            Map.entry(Vector2d.class, "vec2d"),
+            Map.entry(Vector2f.class, "vec2f"),
+            Map.entry(Vector3i.class, "vec3i"),
+            Map.entry(Vector3d.class, "vec3d"),
+            Map.entry(Vector3f.class, "vec3f"),
+            Map.entry(Vector4i.class, "vec4i"),
+            Map.entry(Vector4d.class, "vec4d"),
+            Map.entry(Vector4f.class, "vec4f")
+    );
 
 
-
-
-    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "ConfusingArgumentToVarargsMethod"})
     public record Property(String display_name, String setterMethodOrFieldName, String getterMethodOrFieldName, Class<?> aClass) {
 
         public <O> boolean isMethodSetter(O object) {
@@ -679,6 +731,131 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
             }
             return is_method;
         }
+
+        public static  <V> Pair<Property, ?> fromJson(JsonObject jsonObject) {
+            var display_name = jsonObject.get("display_name").getAsString();
+            var setter = jsonObject.get("setterMethodOrFieldName").getAsString();
+            var getter = jsonObject.get("getterMethodOrFieldName").getAsString();
+            var type = readClassType(jsonObject.get("type").getAsString());
+            JsonElement element = jsonObject.get("value");
+            V value = null;
+            if (element instanceof JsonObject object) {
+                value = (V) Identifier.of(object.get("namespace").getAsString(), object.get("path").getAsString());
+            } else if (element instanceof JsonArray) {
+                value = readVec(jsonObject);
+            } else {
+                value = readPrimitive(jsonObject);
+            }
+            return new Pair<>(new Property(display_name, setter, getter, type), value);
+        }
+
+        public void writeJson(JsonObject newJObj, Object objInstance) {
+            var type = classMap.get(aClass);
+            newJObj.addProperty("display_name", display_name);
+            newJObj.addProperty("setterMethodOrFieldName", setterMethodOrFieldName);
+            newJObj.addProperty("getterMethodOrFieldName", getterMethodOrFieldName);
+            newJObj.addProperty("type", type);
+            var val = get(objInstance);
+            if (val instanceof Identifier id) {
+                var idObj = new JsonObject();
+                idObj.addProperty("namespace", id.getPath());
+                idObj.addProperty("path", id.getNamespace());
+                newJObj.add("value", idObj);
+            } else if (isVec(aClass)) {
+                writeVec(newJObj, val);
+            } else {
+                writePrimitive(newJObj, type, val);
+            }
+        }
+
+        public static  <V> V readPrimitive(JsonObject obj) {
+            var type = obj.get("type").getAsString();
+            Object result = null;
+            switch (type) {
+                case "str" -> result = obj.get("value").getAsString();
+                case "int" -> result = obj.get("value").getAsInt();
+                case "float" -> result = obj.get("value").getAsFloat();
+                case "double" -> result = obj.get("value").getAsDouble();
+                case "bool" -> result = obj.get("value").getAsBoolean();
+            }
+            return (V) result;
+        }
+
+        public static void writePrimitive(JsonObject obj, String type, Object val) {
+            switch (type) {
+                case "str" -> obj.addProperty("value", (String) val);
+                case "int" -> obj.addProperty("value", (Integer) val);
+                case "float" -> obj.addProperty("value", (Float) val);
+                case "double" -> obj.addProperty("value", (Double) val);
+                case "bool" -> obj.addProperty("value", (Boolean) val);
+            }
+        }
+
+        public static void writeVec(JsonObject obj, Object val) {
+            var nums = VectorWidget.convertVector(val);
+            var arr = new JsonArray();
+            for (Number number : nums) {
+                arr.add(number);
+            }
+            obj.add("value", arr);
+        }
+
+
+
+        public static  <V> V readVec(JsonObject obj) {
+            var type = obj.get("type").getAsString();
+            var nums = obj.get("value").getAsJsonArray();
+            if (type.endsWith("i")) {
+                ArrayList<Integer> numList = new ArrayList<>();
+                for (JsonElement element : nums) {
+                    numList.add(element.getAsInt());
+                }
+                try {return (V) readClassType(type).getConstructor(int[].class).newInstance(numList.toArray(new Integer[]{}));} catch (Exception e) {throw new RuntimeException(e);}
+            }
+            if (type.endsWith("f")) {
+                ArrayList<Float> numList = new ArrayList<>();
+                for (JsonElement element : nums) {
+                    numList.add(element.getAsFloat());
+                }
+                try {return (V) readClassType(type).getConstructor(float[].class).newInstance(numList.toArray(new Float[]{}));} catch (Exception e) {throw new RuntimeException(e);}
+            }
+            if (type.endsWith("d")) {
+                ArrayList<Double> numList = new ArrayList<>();
+                for (JsonElement element : nums) {
+                    numList.add(element.getAsDouble());
+                }
+                try {return (V) readClassType(type).getConstructor(double[].class).newInstance(numList.toArray(new Double[]{}));} catch (Exception e) {throw new RuntimeException(e);}
+            }
+            return null;
+        }
+
+
+        private static Class<?> readClassType(String type) {
+            Class<?> clazz = null;
+            switch (type) {
+                case "vec2i" -> clazz = Vector2i.class;
+                case "vec2d" -> clazz = Vector2d.class;
+                case "vec2f" -> clazz = Vector2f.class;
+                case "vec3i" -> clazz = Vector3i.class;
+                case "vec3d" -> clazz = Vector3d.class;
+                case "vec3f" -> clazz = Vector3f.class;
+                case "vec4i" -> clazz = Vector4i.class;
+                case "vec4d" -> clazz = Vector4d.class;
+                case "vec4f" -> clazz = Vector4f.class;
+                case "id" -> clazz = Identifier.class;
+                case "int" -> clazz = Integer.class;
+                case "double" -> clazz = Double.class;
+                case "float" -> clazz = Float.class;
+                case "str" -> clazz = String.class;
+                case "bool" -> clazz = Boolean.class;
+            }
+            return clazz;
+        }
+
+        private static  <V> boolean isVec(Class<?> obj) {
+            return ClassCodeStringBuilder.getSimpleCanonicalName(obj).startsWith("Vector");
+        }
+
 
         public  <O, T> T get(O object) {
             boolean is_method = false;
@@ -775,14 +952,15 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
 
     public final void defaultRenderSequence(DrawContext context, int mouseX, int mouseY, float delta) {
         updatePrevious(mouseX, mouseY);
-
+        boolean safety_scissors = false; // ha. prevents an underflow.
         push(context);
         if (scissor_enabled) {
+            safety_scissors = true;
             context.enableScissor(scissor.x, scissor.y , scissor.width, scissor.height);
         }
         applyTransforms(context, mouseX, mouseY, delta);
         preTransform(context, mouseX, mouseY, delta);
-        if (scissor_enabled) {
+        if (scissor_enabled && safety_scissors) {
             context.disableScissor();
         }
         renderTooltip(context, mouseX, mouseY);
@@ -942,20 +1120,22 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
             var matrices = context.getMatrices();
             BakedModel bakedModel = MinecraftClient.getInstance().getItemRenderer().getModel(stack, null, null, 0);
             matrices.push();
+
             if (stack.getCount() != 1) {
                 context.getMatrices().push();
                 String string = String.valueOf(stack.getCount());
-                context.getMatrices().translate(x , y - h, 8.0F);
 
-                context.getMatrices().scale(w / 16f, h / 16f, 2f);
+                context.getMatrices().translate(x ,y - h, layer);
+
+                context.getMatrices().scale(w / 16f, h / 16f, (float) getSize().length());
                 context.getMatrices().translate(-w, -h, 1.0F);
 
                 context.drawText(MinecraftClient.getInstance().textRenderer, String.valueOf(stack.getCount()), w - MinecraftClient.getInstance().textRenderer.getWidth(string) + 16, (h - 10) + 35, 16777215, true);
                 context.getMatrices().pop();
             }
 
-            matrices.translate(x + (w / 2f), y + (h / 2f), layer + 0.9);
-            matrices.scale(w, -h, 16f);
+            matrices.translate(x + (w / 2f), y + (h / 2f), layer + ((float) (layer + getSize().length() / 4f)));
+            matrices.scale(w, -h, (float) getSize().length());
             try {
                 boolean bl = !bakedModel.isSideLit();
 
@@ -1087,7 +1267,61 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
     //endregion
     //region Import Export
 
+    private final String noInitMethodString = "public %s(int x, int y, boolean editMode) {\n}\n";
+
+    @SuppressWarnings("unchecked")
+    public static <E extends ParentableWidgetBase> E fromJson(JsonObject element, boolean editMode) {
+        E result;
+        var properties = element.get("properties").getAsJsonObject();
+        var children = element.get("children").getAsJsonObject();
+        var clazz = GooeyEditor.getClassFromString(element.get("type").getAsString());
+        try {
+            result = (E) clazz.getConstructor(Integer.class, Integer.class, Boolean.class).newInstance(0,0, editMode);
+        } catch (Exception e) {
+            if (e instanceof NoSuchMethodException) {
+                var cannonName = ClassCodeStringBuilder.getSimpleCanonicalName(clazz);
+                var otherDevsClass = "\nJson Load Error:\nElement class '" + cannonName + "' is missing a default init method, please add this to your element class:\n" + String.format("public %s(int x, int y, boolean editMode) {\n}\n", cannonName) + "Class Path: " + clazz.getCanonicalName() + "\n";
+                var oneOfMyClasses = "\nJson Load Error:\nBuilt in element '" + cannonName + "' is missing a default init method, please make a bug report.\n Class Path: " + clazz.getCanonicalName() + "\n";
+                var isMyClass = clazz.getCanonicalName().startsWith("org.shadowmaster435.gooeyeditor");
+                throw new RuntimeException((isMyClass) ? oneOfMyClasses : otherDevsClass);
+            } else {
+                throw new RuntimeException("\nJson Load Error:\n", e);
+            }
+        }
+        for (Map.Entry<String, JsonElement> propElement : properties.entrySet()) {
+            var property = Property.fromJson(propElement.getValue().getAsJsonObject());
+            property.getLeft().set(element, property.getRight());
+        }
+        for (Map.Entry<String, JsonElement> child : children.entrySet()) {
+            result.addElement(fromJson(child.getValue().getAsJsonObject(), editMode));
+        }
+        return result;
+    }
+
+    public void writeJson(JsonObject object) {
+        ArrayList<Property> props = new ArrayList<>();
+        props.addAll(Arrays.stream(getProperties()).toList());
+        props.addAll(Arrays.stream(getDefaultProperties()).toList());
+        JsonObject propJson = new JsonObject();
+        JsonObject children = new JsonObject();
+
+
+        for (Property property : props) {
+            property.writeJson(propJson, this);
+        }
+        if (this instanceof ParentableWidgetBase e) {
+            for (GuiElement element : e.getElements()) {
+                e.writeJson(children);
+            }
+        }
+        object.addProperty("class", ClassCodeStringBuilder.getSimpleCanonicalName(this.getClass()));
+        object.add("properties", propJson);
+        object.add("children", children);
+    }
+
+
     public void createChildInitString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className, GuiElement element, GuiElement par, HashMap<String, Integer> usedNames, String safeParentName) {
+
         var safeName = GuiEditorScreen.getSafeName(this, usedNames, true);
 
         element.createLocalInitString(builder, clazz, safeName);
@@ -1113,13 +1347,11 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
                 continue;
             }
             methodStringBuilder.line(getPropertyText(property, null));
-          //  builder.append(getPropertyText(property)).append("\n\t\t");
         }
         if (root) {
             methodStringBuilder.line("addDrawableChild(" + className + ");");
         }
 
-     ///   builder.append("addDrawableChild(").append(name).append(");");
     }
 
     String getPropertyText(Property property, @Nullable String passedName) {
@@ -1206,4 +1438,6 @@ public abstract class GuiElement implements Drawable, Selectable, Element, Widge
         return builder.toString();
     }
     //endregion
+
+
 }

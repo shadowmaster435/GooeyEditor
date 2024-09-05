@@ -6,6 +6,7 @@ import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.BoxContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.ListContainer;
 
 public interface EditorUtil {
@@ -24,6 +25,12 @@ public interface EditorUtil {
 
     default ColorPicker createColorPicker() {
         return new ColorPicker(32, 32, 32, 32, true);
+    }
+
+    default BoxContainer createBoxContainer() {
+        var tex = new BoxContainer(32,32, 32, 32,true);
+        tex.name = "boxContainer";
+        return tex;
     }
 
     default SpinboxWidget createSpinbox() {

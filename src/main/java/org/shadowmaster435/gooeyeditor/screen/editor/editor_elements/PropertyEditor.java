@@ -87,12 +87,12 @@ public class PropertyEditor extends ParentableWidgetBase {
         organizePropertyElements();
     }
 
-    public <E extends GuiElement> void loadProperties(E element) {
+    public <E extends GuiElement> void loadProperties(E element, boolean genTree) {
         properties.clear();
         var props = new ArrayList<>(Arrays.stream(element.getDefaultProperties()).toList());
         props.addAll(Arrays.asList(element.getProperties()));
         listContainer.clearChildren();
-        if (element instanceof ParentableWidgetBase base) {
+        if (element instanceof ParentableWidgetBase base && genTree) {
             screen.tree.createTreeForElement(base);
         }
         for (GuiElement.Property prop : props) {

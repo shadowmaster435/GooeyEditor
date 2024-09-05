@@ -48,7 +48,7 @@ public class BoxContainer extends BaseContainer{
     }
 
     public int getElementSize() {
-        return (getElements().size() / ((vertical) ? getHeight() : getWidth())) + element_spacing;
+        return ((((vertical) ? getHeight() : getWidth())) + element_spacing) / getElements().size();
     }
 
 

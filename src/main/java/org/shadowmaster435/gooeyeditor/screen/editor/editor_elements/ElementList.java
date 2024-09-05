@@ -47,19 +47,21 @@ public class ElementList extends GenericContainer implements EditorUtil {
         push(context);
         context.getMatrices().translate(0,0,515);
         pop(context);
-
+        scissor(true);
         super.render(context, mouseX, mouseY, delta);
+        setScissor(getGlobalX(), getGlobalY(), getGlobalX() + getWidth(), getGlobalY() + 190);
 
     }
 
     private <W extends GuiButton> void create(W widget) {
         this.close((TextButtonWidget) widget);
-
         var entry = entries.get(widget).get();
         entry.layer = screen.getCurrentLayer();
-        if (childToAddTo != null && childToAddTo instanceof ParentableWidgetBase a) {
+        if (childToAddTo != null && screen.hasSelectedElement() && childToAddTo instanceof ParentableWidgetBase a) {
+
             screen.toAddToChild.put(entry, a);
         } else {
+
             screen.toAdd.add(entry);
         }
     }
@@ -82,7 +84,8 @@ public class ElementList extends GenericContainer implements EditorUtil {
     private void init() {
         PopupContainer popup = new PopupContainer(getWidth(), getHeight(), false);
         ScrollbarWidget scrollbar = new ScrollbarWidget(getWidth() - 13, 5, 8, getHeight() - 11, false);
-        ScrollableListContainer button_list = new ScrollableListContainer(16, 16, getWidth() - 12, getHeight() - 4, scrollbar, 4, false);
+        ScrollableListContainer button_list = new ScrollableListContainer(16, 16, getWidth() - 12, getHeight() - 20, scrollbar, 4, false);
+        button_list.reversed = true;
         scrollbar.scroll_delta = 4;
         button_list.scissor(true);
         TextButtonWidget close_button = new TextButtonWidget(8, 8, Text.of("X"), false);

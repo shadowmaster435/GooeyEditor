@@ -28,6 +28,7 @@ import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
@@ -40,6 +41,7 @@ import org.shadowmaster435.gooeyeditor.util.VectorMath;
 import java.lang.Math;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.IntBuffer;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -738,9 +740,9 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
             var getter = jsonObject.get("getterMethodOrFieldName").getAsString();
             var type = readClassType(jsonObject.get("type").getAsString());
             JsonElement element = jsonObject.get("value");
-            V value = null;
+            V value;
             if (element instanceof JsonObject object) {
-                value = (V) Identifier.of(object.get("namespace").getAsString(), object.get("path").getAsString());
+                value = (V) Identifier.of(object.get("path").getAsString(), object.get("namespace").getAsString());
             } else if (element instanceof JsonArray) {
                 value = readVec(jsonObject);
             } else {
@@ -810,21 +812,42 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
                 for (JsonElement element : nums) {
                     numList.add(element.getAsInt());
                 }
-                try {return (V) readClassType(type).getConstructor(int[].class).newInstance(numList.toArray(new Integer[]{}));} catch (Exception e) {throw new RuntimeException(e);}
+                try {
+                    Integer[] values = numList.toArray(new Integer[0]);
+                    Class<?>[] classes = new Class<?>[numList.size()];
+                    Arrays.fill(classes, int.class);
+                    return (V) readClassType(type).getConstructor(classes).newInstance(values);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             if (type.endsWith("f")) {
                 ArrayList<Float> numList = new ArrayList<>();
                 for (JsonElement element : nums) {
                     numList.add(element.getAsFloat());
                 }
-                try {return (V) readClassType(type).getConstructor(float[].class).newInstance(numList.toArray(new Float[]{}));} catch (Exception e) {throw new RuntimeException(e);}
+                try {
+                    Float[] values = numList.toArray(new Float[0]);
+                    Class<?>[] classes = new Class<?>[numList.size()];
+                    Arrays.fill(classes, float.class);
+                    return (V) readClassType(type).getConstructor(classes).newInstance(values);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             if (type.endsWith("d")) {
                 ArrayList<Double> numList = new ArrayList<>();
                 for (JsonElement element : nums) {
                     numList.add(element.getAsDouble());
                 }
-                try {return (V) readClassType(type).getConstructor(double[].class).newInstance(numList.toArray(new Double[]{}));} catch (Exception e) {throw new RuntimeException(e);}
+                try {
+                    Double[] values = numList.toArray(new Double[0]);
+                    Class<?>[] classes = new Class<?>[numList.size()];
+                    Arrays.fill(classes, double.class);
+                    return (V) readClassType(type).getConstructor(classes).newInstance(values);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             return null;
         }
@@ -1270,31 +1293,38 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
     private final String noInitMethodString = "public %s(int x, int y, boolean editMode) {\n}\n";
 
     @SuppressWarnings("unchecked")
-    public static <E extends ParentableWidgetBase> E fromJson(JsonObject element, boolean editMode) {
+    public static <E extends ParentableWidgetBase> E fromJson(JsonObject element, String elementName, boolean editMode) {
         E result;
         var properties = element.get("properties").getAsJsonObject();
         var children = element.get("children").getAsJsonObject();
-        var clazz = GooeyEditor.getClassFromString(element.get("type").getAsString());
         try {
-            result = (E) clazz.getConstructor(Integer.class, Integer.class, Boolean.class).newInstance(0,0, editMode);
+            var clazz = Class.forName(element.get("class").getAsString());
+            result = (E) clazz.getConstructor(int.class, int.class, boolean.class).newInstance(0,0, editMode);
         } catch (Exception e) {
-            if (e instanceof NoSuchMethodException) {
-                var cannonName = ClassCodeStringBuilder.getSimpleCanonicalName(clazz);
-                var otherDevsClass = "\nJson Load Error:\nElement class '" + cannonName + "' is missing a default init method, please add this to your element class:\n" + String.format("public %s(int x, int y, boolean editMode) {\n}\n", cannonName) + "Class Path: " + clazz.getCanonicalName() + "\n";
-                var oneOfMyClasses = "\nJson Load Error:\nBuilt in element '" + cannonName + "' is missing a default init method, please make a bug report.\n Class Path: " + clazz.getCanonicalName() + "\n";
-                var isMyClass = clazz.getCanonicalName().startsWith("org.shadowmaster435.gooeyeditor");
-                throw new RuntimeException((isMyClass) ? oneOfMyClasses : otherDevsClass);
+            if (e instanceof InstantiationException) {
+                try {
+                    var clazz = Class.forName(element.get("class").getAsString());
+                    var cannonName = ClassCodeStringBuilder.getSimpleCanonicalName(clazz);
+                    var otherDevsClass = "\nJson Load Error:\nElement class '" + cannonName + "' is missing a default init method, please add this to your element class:\n" + String.format("public %s(int x, int y, boolean editMode) {\n}\n", cannonName) + "Class Path: " + clazz.getCanonicalName() + "\n";
+                    var oneOfMyClasses = "\nJson Load Error:\nBuilt in element '" + cannonName + "' is missing a default init method, please make a bug report.\n Class Path: " + clazz.getCanonicalName() + "\n";
+                    var isMyClass = clazz.getCanonicalName().startsWith("org.shadowmaster435.gooeyeditor");
+                    throw new RuntimeException((isMyClass) ? oneOfMyClasses : otherDevsClass);
+                } catch (Exception a) {
+                    throw new RuntimeException(a);
+                }
+
             } else {
                 throw new RuntimeException("\nJson Load Error:\n", e);
             }
         }
         for (Map.Entry<String, JsonElement> propElement : properties.entrySet()) {
             var property = Property.fromJson(propElement.getValue().getAsJsonObject());
-            property.getLeft().set(element, property.getRight());
+            property.getLeft().set(result, property.getRight());
         }
         for (Map.Entry<String, JsonElement> child : children.entrySet()) {
-            result.addElement(fromJson(child.getValue().getAsJsonObject(), editMode));
+            result.addElement(fromJson(child.getValue().getAsJsonObject(), child.getKey(), editMode));
         }
+        result.name = elementName;
         return result;
     }
 
@@ -1302,21 +1332,25 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
         ArrayList<Property> props = new ArrayList<>();
         props.addAll(Arrays.stream(getProperties()).toList());
         props.addAll(Arrays.stream(getDefaultProperties()).toList());
+        JsonObject elem = new JsonObject();
         JsonObject propJson = new JsonObject();
         JsonObject children = new JsonObject();
 
 
         for (Property property : props) {
-            property.writeJson(propJson, this);
+            var prop = new JsonObject();
+            property.writeJson(prop, this);
+            propJson.add(property.display_name, prop);
         }
         if (this instanceof ParentableWidgetBase e) {
             for (GuiElement element : e.getElements()) {
-                e.writeJson(children);
+                element.writeJson(children);
             }
         }
-        object.addProperty("class", ClassCodeStringBuilder.getSimpleCanonicalName(this.getClass()));
-        object.add("properties", propJson);
-        object.add("children", children);
+        elem.addProperty("class", ClassCodeStringBuilder.getSimpleCanonicalName(this.getClass()));
+        elem.add("properties", propJson);
+        elem.add("children", children);
+        object.add(name, elem);
     }
 
 

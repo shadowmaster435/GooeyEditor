@@ -128,7 +128,7 @@ public abstract class GuiScreen<T extends ScreenHandler> extends HandledScreen<T
 
     public final void fromJson(JsonObject object) {
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            var element = GuiElement.fromJson(entry.getValue().getAsJsonObject(), false);
+            var element = GuiElement.fromJson(entry.getValue().getAsJsonObject(), entry.getKey(), false);
             addDrawableChild(element);
         }
     }

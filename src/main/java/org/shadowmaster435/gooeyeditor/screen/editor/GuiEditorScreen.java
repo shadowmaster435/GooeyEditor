@@ -1,5 +1,13 @@
 package org.shadowmaster435.gooeyeditor.screen.editor;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -8,6 +16,8 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.JsonHelper;
+import net.minecraft.util.JsonReaderUtils;
 import net.minecraft.util.math.ColorHelper;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
@@ -20,9 +30,12 @@ import org.shadowmaster435.gooeyeditor.screen.elements.*;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.BaseContainer;
 import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
+import org.shadowmaster435.gooeyeditor.util.SimpleFileDialogue;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.shadowmaster435.gooeyeditor.GooeyEditor.warn;
@@ -218,6 +231,10 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+    public boolean hasSelectedElement() {
+        return selected_element != null;
+    }
+
     /**
      * Sets selection to provided element and marks previously selected element (if any) as unselected.
      * @param element Element you want selected.
@@ -229,10 +246,22 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         }
         selected_element = element;
         selected_element.selected = true;
-        propertyEditor.loadProperties(selected_element);
+        propertyEditor.loadProperties(selected_element, true);
     }
+    /**
+     * Sets selection to provided element and marks previously selected element (if any) as unselected.
+     * @param element Element you want selected.
+     * @param genTree If false keeps the previously generated tree.
+     */
+    public void selectElement(GuiElement element, boolean genTree) {
 
-
+        if (selected_element != null) { // unselect previous if not null
+            selected_element.selected = false;
+        }
+        selected_element = element;
+        selected_element.selected = true;
+        propertyEditor.loadProperties(selected_element, genTree);
+    }
 
 
     private boolean isElementLayerVisible(GuiElement element) {
@@ -354,17 +383,18 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
             context.getMatrices().pop();
         }
         if (showContainers.pressed) {
+
             for (Element e : children()) {
 
                 if (e instanceof BaseContainer c) {
-                    if (!c.isEditMode()) {
+                    if (!c.isEditMode() && !c.selected) {
                         continue;
                     }
-                    context.fill(c.getX(), c.getY(), c.getX() + c.getWidth(), c.getY() + c.getHeight(), ColorHelper.Argb.getArgb(50,255,255,255));
+                    context.fill(c.getGlobalX(), c.getGlobalY(), c.getGlobalX() + c.getWidth(), c.getGlobalY() + c.getHeight(), c.layer + 1, ColorHelper.Argb.getArgb(255,255,255,255));
                 } else if (e instanceof ParentableWidgetBase w) {
                     w.forEachInBranch((a, par, d) -> {
-                        if (a instanceof BaseContainer c && c.isEditMode()) {
-                            context.fill(c.getX(), c.getY(), c.getX() + c.getWidth(), c.getY() + c.getHeight(), ColorHelper.Argb.getArgb(50, 255, 255, 255));
+                        if (a instanceof BaseContainer c && c.isEditMode() && !c.selected) {
+                            context.fill(c.getGlobalX(), c.getGlobalY(), c.getGlobalX() + c.getWidth(), c.getGlobalY() + c.getHeight(), c.layer + 1, ColorHelper.Argb.getArgb(255, 255, 255, 255));
                         }
                     }, 0);
                 }
@@ -506,6 +536,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         elementList.registerElement("Spinbox", this::createSpinbox);
         elementList.registerElement("Item Display", this::createItemDisplay);
         elementList.registerElement("Slot Display", this::createSlotDisplay);
+        elementList.registerElement("Box Container", this::createBoxContainer);
 
         elementList.registerElement("Color Picker", this::createColorPicker);
         elementList.registerElement("Scrollbar", this::createScrollbar);
@@ -518,6 +549,8 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         elementList.open();
     }
 
+    private SimpleFileDialogue dialogue;
+
     private void initFileTab() {
         var file = new TextButtonWidget(4,4,Text.of("File"), false);
        // var save = new TextButtonWidget(4,4,Text.of("Save"), false);
@@ -525,12 +558,42 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
      //   file.addEntry(save);
         file.setPressFunction((a) -> {
-            System.out.println(getExportString("Test2"));
+            saveJson();
         });
         this.file = file;
         
         addDrawableChild(file);
    //     addDrawableChild(save);
+    }
+
+    /**
+     * Opens a file dialogue window to select a json to load.
+     * @return Selected json as a {@link JsonObject}. Returns an empty {@link JsonObject} if an error occurs.
+     */
+    public JsonObject loadJson() {
+        var path = SimpleFileDialogue.open();
+        var result = new JsonObject();
+        if (path == null) return result;
+        try {
+            if (new File(path).exists()) {
+                var file = new FileInputStream(path);
+                var json = JsonParser.parseString(new String(file.readAllBytes()));
+                result = json.getAsJsonObject();
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return result;
+        }
+        return result;
+    }
+
+    /**
+     * Opens a file dialogue window to select a location to save the exported json.
+     */
+    public void saveJson() {
+        var json = toJson();
+        SimpleFileDialogue.save(json);
     }
 
     private void initWidgetTree() {
@@ -605,5 +668,30 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         return actual_name;
     }
 
+    public final void fromJson(JsonObject object) {
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            var element = GuiElement.fromJson(entry.getValue().getAsJsonObject(), entry.getKey(), true);
+            toAdd.add(element);
+        }
+    }
+
+    public String toJson() {
+        var json = new JsonObject();
+        for (Element element1 : children()) {
+            if (element1 instanceof GuiElement guiElement && guiElement.isEditMode()) {
+                guiElement.writeJson(json);
+            }
+        }
+        try {
+            StringWriter stringWriter = new StringWriter();
+            JsonWriter jsonWriter = new JsonWriter(stringWriter);
+            jsonWriter.setLenient(true);
+            jsonWriter.setIndent("\t");
+            Streams.write(json, jsonWriter);
+            return stringWriter.toString();
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
 
 }

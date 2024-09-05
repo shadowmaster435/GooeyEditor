@@ -105,38 +105,49 @@ public class WidgetTree extends ScrollableListContainer {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if (getElement(0) instanceof GenericContainer g) {
-            var found = false;
-            for (GuiElement element : g) {
-                if (element instanceof DraggableElementReferenceButton b && b.isMouseOver(mouseX, mouseY)) {
-                    if (hoveredButton != null) {
-                        hoveredButton.hovering = false;
+        for (GuiElement element1 : getElements()) {
+            if (element1 instanceof GenericContainer g) {
+                var found = false;
+                for (GuiElement element : g) {
+                    if (element instanceof DraggableElementReferenceButton b && b.getGlobalRect().contains(mouseX, mouseY)) {
+                        if (hoveredButton != null) {
+                            hoveredButton.hovering = false;
+                        }
+                        hoveredButton = b;
+                        hoveredButton.hovering = true;
+                        found = true;
+                        break;
                     }
-                    hoveredButton = b;
-                    hoveredButton.hovering = true;
-                    found = true;
-                    break;
                 }
-            }
 
-            if (!found) {
-                hoveredButton = null;
+                if (!found) {
+                    hoveredButton = null;
+                }
+                break;
             }
         }
-
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
+    private double mouseClickX = 0;
+    private double mouseClickY = 0;
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (getElement(0) instanceof GenericContainer g) {
-            hoveredButton = null;
-            clickedButton = null;
-            for (GuiElement element : g) {
-                if (clickedButton == null && element instanceof DraggableElementReferenceButton a && a.isMouseOver(mouseX,mouseY)) {
-                    clickedButton = a;
-                    break;
+        mouseClickX = Math.floor(mouseX);
+        mouseClickY = Math.floor(mouseY);
+        for (GuiElement element1 : getElements()) {
+
+            if (element1 instanceof GenericContainer g) {
+                hoveredButton = null;
+                clickedButton = null;
+                for (GuiElement element : g) {
+                    if (clickedButton == null && element instanceof DraggableElementReferenceButton a && a.isMouseOver(mouseX, mouseY)) {
+                        clickedButton = a;
+                        break;
+                    }
                 }
+                break;
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -144,20 +155,27 @@ public class WidgetTree extends ScrollableListContainer {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (getElement(0) instanceof GenericContainer g) {
-            for (GuiElement element : g) {
-                if (element instanceof DraggableElementReferenceButton) {
-                    if (clickedButton != null && hoveredButton != null && hoveredButton != clickedButton) {
-                        if (!hoveredButton.referenced.isChildOfElementBranch(clickedButton.referenced) && clickedButton != hoveredButton) {
-                            hoveredButton.transfer(clickedButton);
-                            //hoveredButton.referenced.parent = clickedButton.referenced;
-                            break;
+        if (Math.floor(mouseX) == mouseClickX && Math.floor(mouseY) == mouseClickY && clickedButton != null) {
+            screen.selectElement(clickedButton.referenced, false);
+        } else {
+            for (GuiElement element1 : getElements()) {
+                if (element1 instanceof GenericContainer g) {
+                    for (GuiElement element : g) {
+                        if (element instanceof DraggableElementReferenceButton) {
+
+                            if (clickedButton != null && hoveredButton != null) {
+                                if (!hoveredButton.referenced.isChildOfElementBranch(clickedButton.referenced) && clickedButton != hoveredButton) {
+                                    hoveredButton.transfer(clickedButton);
+                                    break;
+                                }
+                            }
                         }
                     }
+                    break;
                 }
             }
         }
-
+        clickedButton = null;
         return super.mouseReleased(mouseX, mouseY, button);
     }
 

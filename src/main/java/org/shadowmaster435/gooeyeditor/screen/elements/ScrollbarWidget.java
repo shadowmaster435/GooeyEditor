@@ -25,6 +25,7 @@ public class ScrollbarWidget extends NinePatchTexture {
     private boolean grabbed = false;
     public boolean horizontal = false;
 
+
     public double scroll_delta = 1;
 
     public static final NinePatchTextureData DEFAULT_SCROLLBAR_BG = new NinePatchTextureData(16,16,5,Identifier.of(GooeyEditor.id, "textures/gui/slot.png"));

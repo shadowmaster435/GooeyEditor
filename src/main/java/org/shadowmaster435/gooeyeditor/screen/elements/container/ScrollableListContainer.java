@@ -17,6 +17,7 @@ public class ScrollableListContainer extends ListContainer {
     private ScrollbarWidget scrollbar;
     private int scroll_offset = 0;
     private double previous_scroll_pos = 0;
+    public boolean reversed = false;
 
     public ScrollableListContainer(int x, int y, int w, int h, ScrollbarWidget scrollbar, int element_spacing, boolean editMode) {
         super(x, y, w, h, element_spacing, editMode);
@@ -39,10 +40,14 @@ public class ScrollableListContainer extends ListContainer {
                 continue;
             }
             element.setX(0);
-            element.setY(y_offset + scroll_offset);
+            if (reversed) {
+                element.setY(y_offset - scroll_offset);
+            } else {
+                element.setY(y_offset + scroll_offset);
+            }
             y_offset += getElementSpacing() + element.getHeight();
         }
-        listHeight = y_offset - getElementSpacing();
+        listHeight = y_offset;
       //  setHeight(listHeight);
     }
 

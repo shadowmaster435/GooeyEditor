@@ -41,7 +41,6 @@ public abstract class GuiScreen<T extends ScreenHandler> extends HandledScreen<T
         super.init();
         refreshElements();
         initElements();
-
     }
 
     public abstract void initElements();

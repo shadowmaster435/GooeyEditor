@@ -15,12 +15,29 @@ public abstract class CollapsableContainer extends BaseContainer {
     public abstract Vector2i getClosedSize();
     public abstract Vector2i getOpenSize();
 
+
+    public void toggle() {
+        isOpen = !isOpen;
+        forEachInBranch((element, parent, depth) -> {
+            element.setActive(!isOpen);
+            element.setVisible(!isOpen);
+        }, 0);
+    }
+
     public void open() {
         isOpen = true;
+        forEachInBranch((element, parent, depth) -> {
+            element.setActive(true);
+            element.setVisible(true);
+        }, 0);
     }
 
     public void close() {
         isOpen = false;
+        forEachInBranch((element, parent, depth) -> {
+            element.setActive(false);
+            element.setVisible(false);
+        }, 0);
     }
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -34,6 +51,11 @@ public abstract class CollapsableContainer extends BaseContainer {
         }
 
         super.preTransform(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return isOpen && super.isMouseOver(mouseX, mouseY);
     }
 
     @Override

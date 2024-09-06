@@ -51,7 +51,7 @@ public abstract class GuiButton extends ParentableWidgetBase {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
 
-        if (isMouseOver(mouseX, mouseY)) {
+        if (isMouseOver(mouseX, mouseY) && isActive()) {
 
             setFocused(true);
             if (toggle_mode) {
@@ -60,7 +60,7 @@ public abstract class GuiButton extends ParentableWidgetBase {
                 pressed = true;
             }
         }
-        if (isMouseOver(mouseX, mouseY) && pressFunction != null && button == 0) {
+        if (isMouseOver(mouseX, mouseY) && pressFunction != null&& isActive() && button == 0) {
             if (dataPressFunction != null) {
                 dataPressFunction.accept(this, pressFunctionData);
             } else {

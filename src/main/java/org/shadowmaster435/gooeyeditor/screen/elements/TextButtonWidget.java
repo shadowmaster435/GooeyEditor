@@ -13,18 +13,13 @@ import java.util.function.Supplier;
 
 public class TextButtonWidget extends GuiButton {
 
-    public Text message = Text.of("");
+    public String text = "";
     public TextButtonWidget(int x, int y, String message, boolean editMode) {
         super(x, y, 0, 0, editMode);
 
-        this.message = Text.of(message);
+        this.text = message;
     }
 
-    public TextButtonWidget(int x, int y, Text message, boolean editMode) {
-        super(x, y, 0, 0, editMode);
-
-        this.message = message;
-    }
     public TextButtonWidget(int x, int y, boolean editMode) {
         super(x, y, 0, 0, editMode);
     }
@@ -33,10 +28,10 @@ public class TextButtonWidget extends GuiButton {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         var color = (!pressed) ? ColorHelper.Argb.getArgb(255,255,255) : ColorHelper.Argb.getArgb(127,127,127);
-        context.drawText(MinecraftClient.getInstance().textRenderer, message, getGlobalX(), getGlobalY(), color, false);
+        context.drawText(MinecraftClient.getInstance().textRenderer, text, getGlobalX(), getGlobalY(), color, false);
         setHeight(Math.max(8, getHeight()));
 
-        setWidth(Math.max(MinecraftClient.getInstance().textRenderer.getWidth(message), getWidth()));
+        setWidth(Math.max(MinecraftClient.getInstance().textRenderer.getWidth(text), getWidth()));
         if (!toggle_mode) {
             pressed = false;
         }

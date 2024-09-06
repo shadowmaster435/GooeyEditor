@@ -187,7 +187,6 @@ public abstract non-sealed class ParentableWidgetBase extends GuiElement impleme
 
 
 
-
     /**
      * @return Bounding rectangle for all children including children of children and so on.
      */

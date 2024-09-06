@@ -39,8 +39,8 @@ public class SpinboxWidget extends TextField {
         };
         var pw = MinecraftClient.getInstance().textRenderer.getWidth("+");
         var mw = MinecraftClient.getInstance().textRenderer.getWidth("-");
-        add = new TextButtonWidget(((w - 2) - pw), (h / 4), Text.of("+"), editMode);
-        sub = new TextButtonWidget(((w - 2) - ((mw + pw) + 1)), (h / 4), Text.of("-"), editMode);
+        add = new TextButtonWidget(((w - 2) - pw), (h / 4), "+", editMode);
+        sub = new TextButtonWidget(((w - 2) - ((mw + pw) + 1)), (h / 4), "-", editMode);
         add.setPressFunction(this::add);
         sub.setPressFunction(this::sub);
         addElement(sub);
@@ -59,8 +59,8 @@ public class SpinboxWidget extends TextField {
         };
         var pw = MinecraftClient.getInstance().textRenderer.getWidth("+");
         var mw = MinecraftClient.getInstance().textRenderer.getWidth("-");
-        add = new TextButtonWidget(x + ((14) - pw), y + (4), Text.of("+"), editMode);
-        sub = new TextButtonWidget(x + ((14) - ((mw + pw) + 1)), y + (4), Text.of("-"), editMode);
+        add = new TextButtonWidget(x + ((14) - pw), y + (4), "+", editMode);
+        sub = new TextButtonWidget(x + ((14) - ((mw + pw) + 1)), y + (4), "-", editMode);
         add.setPressFunction(this::add);
         sub.setPressFunction(this::sub);
         addElement(sub);

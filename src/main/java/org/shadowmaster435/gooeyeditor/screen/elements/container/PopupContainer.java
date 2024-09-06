@@ -5,9 +5,8 @@ import net.minecraft.client.gui.DrawContext;
 import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 
-public class PopupContainer extends BaseContainer {
+public class PopupContainer extends CollapsableContainer {
 
-    private boolean is_open = false;
 
     public PopupContainer(int w, int h, boolean editMode) {
         super(0, 0, w, h, editMode);
@@ -22,7 +21,7 @@ public class PopupContainer extends BaseContainer {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (is_open) {
+        if (isOpen) {
             return super.mouseReleased(mouseX, mouseY, button);
         } else {
             return false;
@@ -31,7 +30,7 @@ public class PopupContainer extends BaseContainer {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (is_open) {
+        if (isOpen) {
             return super.mouseClicked(mouseX, mouseY, button);
 
         } else {
@@ -41,7 +40,7 @@ public class PopupContainer extends BaseContainer {
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-        if (is_open) {
+        if (isOpen) {
             return super.isMouseOver(mouseX, mouseY);
         } else {
             return false;
@@ -50,26 +49,46 @@ public class PopupContainer extends BaseContainer {
 
     public void open(Vector2i vec) {
         open(vec.x, vec.y);
+        super.open();
     }
 
+    @Override
+    public void open() {
+        isOpen = true;
+        renderChildren = true;
+        updateChildren = true;
+        super.open();
+    }
 
     public void open(int x, int y) {
-        is_open = true;
+        isOpen = true;
         renderChildren = true;
         updateChildren = true;
         setX(x);
         setY(y);
+        super.open();
     }
 
+    @Override
+    public Vector2i getClosedSize() {
+        return new Vector2i(getWidth(), getHeight());
+    }
+
+    @Override
+    public Vector2i getOpenSize() {
+        return new Vector2i(getWidth(), getHeight());
+    }
+
+    @Override
     public void close() {
-        is_open = false;
+        isOpen = false;
         renderChildren = false;
         updateChildren = false;
     }
 
     @Override
     public GuiElement getHoveredChild(int mouseX, int mouseY) {
-        if (is_open) {
+        if (isOpen) {
             return super.getHoveredChild(mouseX, mouseY);
         } else {
             return null;
@@ -78,7 +97,7 @@ public class PopupContainer extends BaseContainer {
 
     @Override
     public boolean isChildHoverable(int mouseX, int mouseY, GuiElement element) {
-        if (is_open) {
+        if (isOpen) {
             return super.isChildHoverable(mouseX, mouseY, element);
         } else {
             return false;
@@ -87,12 +106,12 @@ public class PopupContainer extends BaseContainer {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (is_open) {
+        if (isOpen) {
             super.render(context, mouseX, mouseY, delta);
         }
     }
 
     public boolean isOpen() {
-        return is_open;
+        return isOpen;
     }
 }

@@ -1,6 +1,5 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
-
 //region Imports
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,9 +27,7 @@ import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
-import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.VectorWidget;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
@@ -41,7 +38,6 @@ import org.shadowmaster435.gooeyeditor.util.VectorMath;
 import java.lang.Math;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.IntBuffer;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -49,7 +45,6 @@ import java.util.function.Supplier;
 
 // Class of nightmarish proportions.
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
-
 public abstract sealed class GuiElement implements Drawable, Selectable, Element, Widget permits ParentableWidgetBase {
     //region Fields
     //region floats
@@ -105,8 +100,6 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
     private boolean rotating = false;
     private boolean focused = false;
     //endregion
-
-
     //region misc
     private Rect2 scissor = new Rect2(0,0,0,0);
     private Rect2 pre_transform_rect = new Rect2(0,0,0,0);
@@ -975,7 +968,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
 
     public final void defaultRenderSequence(DrawContext context, int mouseX, int mouseY, float delta) {
         updatePrevious(mouseX, mouseY);
-        boolean safety_scissors = false; // ha. prevents an underflow.
+        boolean safety_scissors = false; // haha. prevents an underflow.
         push(context);
         if (scissor_enabled) {
             safety_scissors = true;
@@ -1290,8 +1283,6 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
     //endregion
     //region Import Export
 
-    private final String noInitMethodString = "public %s(int x, int y, boolean editMode) {\n}\n";
-
     @SuppressWarnings("unchecked")
     public static <E extends ParentableWidgetBase> E fromJson(JsonObject element, String elementName, boolean editMode) {
         E result;
@@ -1347,7 +1338,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
                 element.writeJson(children);
             }
         }
-        elem.addProperty("class", ClassCodeStringBuilder.getSimpleCanonicalName(this.getClass()));
+        elem.addProperty("class", getClass().getCanonicalName());
         elem.add("properties", propJson);
         elem.add("children", children);
         object.add(name, elem);
@@ -1368,7 +1359,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
     }
 
     public void createAssignerInitInputString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {
-        builder.assign("this." + className, new ClassCodeStringBuilder.NewInstanceStringBuilder(clazz).add(getX()).add(getY()).add(false));
+        builder.assign("this." + className, className);
     }
 
 
@@ -1472,6 +1463,4 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
         return builder.toString();
     }
     //endregion
-
-
 }

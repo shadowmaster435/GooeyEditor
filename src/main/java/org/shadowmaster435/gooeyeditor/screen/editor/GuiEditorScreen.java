@@ -28,6 +28,8 @@ import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.*;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.BaseContainer;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.DropdownContainer;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.ListContainer;
 import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import org.shadowmaster435.gooeyeditor.util.SimpleFileDialogue;
@@ -56,7 +58,6 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public WidgetTree tree;
     private TextButtonWidget file;
     private TextButtonWidget save;
-    private DropDownWidget create;
     private TextButtonWidget color_rect;
     private GuiElement selected_element = null;
     private IdentifierWidget w1;
@@ -69,10 +70,11 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     private TextButtonWidget contextDeleteButton;
     private TextButtonWidget contextAddButton;
     private TextButtonWidget centerElementButton;
+    public boolean saveMenuOpen = false;
+    public SaveMenu saveMenu;
 
     private TextButtonWidget contextChildButton;
     private final ArrayList<GuiElement> elements = new ArrayList<>();
-
 
     public GuiEditorScreen(Screen screen) {
         super(Text.empty());
@@ -235,6 +237,11 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         return selected_element != null;
     }
 
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
+
     /**
      * Sets selection to provided element and marks previously selected element (if any) as unselected.
      * @param element Element you want selected.
@@ -270,7 +277,11 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        for (Element element1 : children()) {
+        var children = new ArrayList<>(children());
+        for (Element element1 : children) {
+            if (element1 == null) {
+                continue;
+            }
             element1.keyPressed(keyCode, scanCode, modifiers);
         }
         if (selected_element != null && (keyCode == GLFW.GLFW_KEY_DELETE || keyCode == GLFW.GLFW_KEY_BACKSPACE) && !propertyEditor.isPropertyFocused()) {
@@ -360,7 +371,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         var pEdit = propertyEditor.editorRect.contains(mouseX, mouseY) && propertyEditor.shouldRenderText;
         var ctx = contextMenu.isMouseOver(mouseX, mouseY) && contextMenu.isOpen();
         var tre = tree.editorRect.contains(mouseX,mouseY) && isPropertyEditorOpen();
-        return pEdit || ctx || tre;
+        return pEdit || ctx || tre || elementList.isOpen() || saveMenuOpen;
     }
 
     public boolean isPropertyEditorOpen() {
@@ -482,7 +493,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     }
 
     private void initAddTab() {
-        var add = new TextButtonWidget(32,4,Text.of("Add"), false);
+        var add = new TextButtonWidget(32,4,("Add"), false);
         var elementList = new ElementList(0,0,256, 192, this, false);
         add.setPressFunction(this::openElementList);
         addDrawableChild(add);
@@ -498,7 +509,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         contextMenu.layer = 600;
         this.contextMenu = contextMenu;
         addDrawableChild(contextMenu);
-        var edit = new TextButtonWidget(0,0,Text.of("Edit"), false);
+        var edit = new TextButtonWidget(0,0,("Edit"), false);
         edit.setPressFunction((a) -> {propertyEditor.renderText(true); contextMenu.close(); if (selected_element instanceof ParentableWidgetBase widgetBase) tree.createTreeForElement(widgetBase);});
         contextMenu.addElement(edit);
         this.contextEditButton = edit;
@@ -509,15 +520,15 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 //        });
 //        contextMenu.addElement(center);
 //        this.centerElementButton = center;
-        var add = new TextButtonWidget(0,0,Text.of("Add"), false);
+        var add = new TextButtonWidget(0,0,("Add"), false);
         add.setPressFunction((a) -> {openElementList(a); contextMenu.close(); elementList.childToAddTo = null;});
         contextMenu.addElement(add);
         this.contextAddButton = add;
-        var addChild = new TextButtonWidget(0,0,Text.of("Add Child"), false);
+        var addChild = new TextButtonWidget(0,0,"Add Child", false);
         addChild.setPressFunction((a) -> {openElementList(a); contextMenu.close(); elementList.childToAddTo = selected_element;});
         contextMenu.addElement(addChild);
         this.contextChildButton = addChild;
-        var delete = new TextButtonWidget(0,0,Text.of("Delete"), false);
+        var delete = new TextButtonWidget(0,0,("Delete"), false);
         delete.setPressFunction((a) -> {deleteSelectedElement(a); contextMenu.close();});
         contextMenu.addElement(delete);
         this.contextDeleteButton = delete;
@@ -552,32 +563,56 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     private SimpleFileDialogue dialogue;
 
     private void initFileTab() {
-        var file = new TextButtonWidget(4,4,Text.of("File"), false);
+        var dropDown = new DropdownContainer(2, 8, 10, 10, false);
+        var list = new ListContainer(0,0,0,0,2,false);
+        var file = new TextButtonWidget(4,4,"File", false);
+        var load = new TextButtonWidget(0,0, "Load", false);
+        var save = new TextButtonWidget(0,0, "Save", false);
+        var exit = new TextButtonWidget(0,0, "Exit", false);
+
        // var save = new TextButtonWidget(4,4,Text.of("Save"), false);
       //  file.setSpacing(4);
 
      //   file.addEntry(save);
-        file.setPressFunction((a) -> {
-            saveJson();
-        });
+        file.setPressFunction((a) -> {if (!saveMenuOpen) dropDown.toggle();});
+        load.setPressFunction((a) -> {if (!saveMenuOpen) {fromJson(loadJson()); dropDown.close();}});
+        save.setPressFunction((a) -> {if (!saveMenuOpen) {openSaveMenu(); dropDown.close();}});
+        exit.setPressFunction((a) -> {if (!saveMenuOpen){close();}});
         this.file = file;
         
         addDrawableChild(file);
-   //     addDrawableChild(save);
+        addDrawableChild(dropDown);
+        dropDown.addElement(list);
+        list.addElements(save, load, exit);
+        dropDown.toggle();
     }
+
+    private void openSaveMenu() {
+        saveMenuOpen = true;
+        if (saveMenu == null) {
+            var menu = new SaveMenu(this);
+            toAdd.add(menu);
+            this.saveMenu = menu;
+        }
+
+        saveMenu.open(0,0);
+    }
+
+
 
     /**
      * Opens a file dialogue window to select a json to load.
      * @return Selected json as a {@link JsonObject}. Returns an empty {@link JsonObject} if an error occurs.
      */
     public JsonObject loadJson() {
-        var path = SimpleFileDialogue.open();
+        var path = SimpleFileDialogue.open(".json", "Json Files", false);
         var result = new JsonObject();
         if (path == null) return result;
         try {
             if (new File(path).exists()) {
                 var file = new FileInputStream(path);
-                var json = JsonParser.parseString(new String(file.readAllBytes()));
+                var s = new String(file.readAllBytes());
+                var json = JsonParser.parseString(s);
                 result = json.getAsJsonObject();
             }
         } catch (Exception e) {
@@ -593,7 +628,15 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
      */
     public void saveJson() {
         var json = toJson();
-        SimpleFileDialogue.save(json);
+        SimpleFileDialogue.save(json, ".json", "Json Files");
+    }
+
+    public void removeElement(GuiElement element) {
+        remove(element);
+    }
+
+    public void saveCode(String className) {
+        SimpleFileDialogue.save(getExportString(className), ".txt", "Text Document");
     }
 
     private void initWidgetTree() {
@@ -618,8 +661,8 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     public String getContentsExportString(String className) {
         var code = new ClassCodeStringBuilder(className, GuiScreen.class);
-        var setVarsMethod = new ClassCodeStringBuilder.MethodStringBuilder("initElements", null, null);
-        var initMethod = new ClassCodeStringBuilder.MethodStringBuilder("", Test2.class, null);
+        var setVarsMethod = new ClassCodeStringBuilder.MethodStringBuilder("initElements", null, null, false);
+        var initMethod = new ClassCodeStringBuilder.MethodStringBuilder(className, null, null, true);
         usedNames.clear();
 
         for (Element element1 : children()) {

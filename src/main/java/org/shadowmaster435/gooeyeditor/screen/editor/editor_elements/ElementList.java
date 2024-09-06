@@ -35,7 +35,7 @@ public class ElementList extends GenericContainer implements EditorUtil {
     }
 
     public  <E extends GuiElement> void registerElement(String display_name, Supplier<E> create_function) {
-        var button = new TextButtonWidget(0, 0, Text.of(display_name), false);
+        var button = new TextButtonWidget(0, 0, display_name, false);
         entries.put(button, create_function);
         button.setPressFunction(this::create);
         button_list.addElement(button);
@@ -88,7 +88,7 @@ public class ElementList extends GenericContainer implements EditorUtil {
         button_list.reversed = true;
         scrollbar.scroll_delta = 4;
         button_list.scissor(true);
-        TextButtonWidget close_button = new TextButtonWidget(8, 8, Text.of("X"), false);
+        TextButtonWidget close_button = new TextButtonWidget(8, 8, "X", false);
         NinePatchTexture bg = new NinePatchTexture(0, 0, getWidth(), getHeight(), NinePatchTexture.GUI_BOX, false);
         addElement(popup);
         popup.addElement(scrollbar);

@@ -155,11 +155,11 @@ public class ClassCodeStringBuilder {
         private final StringBuilder builder = new StringBuilder();
         private final ArrayList<Class<?>> classesToImport = new ArrayList<>();
 
-        public MethodStringBuilder(String methodName, @Nullable Class<?> type, @Nullable TupleStringBuilder tupleStringBuilder) {
+        public MethodStringBuilder(String methodName, @Nullable Class<?> type, @Nullable TupleStringBuilder tupleStringBuilder, boolean initMethod) {
             builder
                     .append("\tpublic ")
-                    .append((type != null) ? getSimpleCanonicalName(type) : "void ")
-                    .append(methodName)
+                    .append((initMethod) ? methodName : (type != null) ? getSimpleCanonicalName(type) : "void ")
+                    .append((initMethod) ? "" : methodName)
                     .append((tupleStringBuilder != null) ? "(" + tupleStringBuilder.build() + ") " + " " : "() ")
                     .append("{\n");
             if (tupleStringBuilder != null) {
@@ -184,7 +184,7 @@ public class ClassCodeStringBuilder {
         }
 
         public MethodStringBuilder assign(String assignee, String assigner) {
-            builder.append("\t\t").append(assignee).append(" = ").append(assigner).append(";");
+            builder.append("\t\t").append(assignee).append(" = ").append(assigner).append(";\n");
             return this;
         }
 

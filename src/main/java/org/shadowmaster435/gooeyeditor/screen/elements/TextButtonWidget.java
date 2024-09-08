@@ -36,7 +36,7 @@ public class TextButtonWidget extends GuiButton {
             pressed = false;
         }
 
-     //   drawNinePatchTexture(context, new Rect2(getX(), getY(), 32, 32), NinePatchTexture.GUI_BOX.texture(), 6, 16, 16);
+     //   drawNinePatchTexture(context, new Rect2(getX(), getY(), 32, 32), NinePatchTexture.BOX_PANEL.texture(), 6, 16, 16);
 
         super.preTransform(context, mouseX, mouseY, delta);
     }

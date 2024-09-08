@@ -92,7 +92,7 @@ public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
             createGrid();
             regen = false;
         }
-        drawNinePatchTexture(context, getRect(), NinePatchTexture.GUI_SLOT.texture(),4, 16, 16);
+        drawNinePatchTexture(context, getRect(), NinePatchTexture.SLOT.texture(),4, 16, 16);
 
         super.preTransform(context, mouseX, mouseY, delta);
     }

@@ -81,7 +81,7 @@ public interface EditorUtil {
     }
 
     default NinePatchTexture createNinePatch() {
-        var nine_patch = new NinePatchTexture(32, 32, 32, 32, NinePatchTexture.GUI_PANEL, true);
+        var nine_patch = new NinePatchTexture(32, 32, 32, 32, NinePatchTexture.PANEL, true);
         nine_patch.name = "ninePatch";
         return nine_patch;
     }

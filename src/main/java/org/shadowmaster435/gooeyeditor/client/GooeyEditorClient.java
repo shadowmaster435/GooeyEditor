@@ -4,7 +4,9 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.resource.ResourceManager;
@@ -22,6 +24,8 @@ public class GooeyEditorClient implements ClientModInitializer {
 
     private static ShaderProgram hue_gradient;
     private static ShaderProgram radial_texture;
+    private static ShaderProgram draw_buffer;
+
 
     @Override
     public void onInitializeClient() {
@@ -39,11 +43,11 @@ public class GooeyEditorClient implements ClientModInitializer {
         return radial_texture;
     }
 
-
-
-    public static void registerHueGradient() {
-
+    public static ShaderProgram getDrawBuffer() {
+        return draw_buffer;
     }
+
+
 
     public static void register_shaders() {
 
@@ -52,12 +56,12 @@ public class GooeyEditorClient implements ClientModInitializer {
             public Identifier getFabricId() {
                 return Identifier.ofVanilla("shaders");
             }
-
             @Override
             public void reload(ResourceManager manager) {
                 try {
                     hue_gradient = new ShaderProgram(manager, "hue_gradient", VertexFormats.POSITION_TEXTURE_COLOR);
                     radial_texture = new ShaderProgram(manager, "radial_texture", VertexFormats.POSITION_TEXTURE_COLOR);
+                  //  draw_buffer = new ShaderProgram(manager, "draw_buffer", VertexFormats.POSITION_TEXTURE_COLOR);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);

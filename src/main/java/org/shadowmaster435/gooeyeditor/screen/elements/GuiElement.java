@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.*;
@@ -30,6 +31,7 @@ import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.VectorWidget;
+import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
@@ -966,6 +968,19 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
         }
     }
 
+    public void renderBlock(DrawContext context, BlockState state, float offsetX, float offsetY, float offsetZ, float rotationX, float rotationY, float rotationZ) {
+        var manager = MinecraftClient.getInstance().getBlockRenderManager();
+        var matrices = context.getMatrices();
+        matrices.push();
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rotationX));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotationY));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotationZ));
+        matrices.translate(offsetX, offsetY, offsetZ);
+        manager.renderBlockAsEntity(state, matrices, context.getVertexConsumers(), 15728880, 15728880);
+        matrices.pop();
+
+    }
+
     public final void defaultRenderSequence(DrawContext context, int mouseX, int mouseY, float delta) {
         updatePrevious(mouseX, mouseY);
         boolean safety_scissors = false; // haha. prevents an underflow.
@@ -1180,7 +1195,22 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
             matrices.pop();
         }
     }
+    public void drawNinePatchTexture(DrawContext context, Rect2 rect, NinePatchTextureData data, int edge_thickness, int texture_width, int texture_height) {
+        var texture = data.texture();
+        drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
+        drawCenter(context, rect, texture, edge_thickness, texture_width, texture_height);
+        drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
+    }
 
+    public void drawNinePatchTexture(DrawContext context, Rect2 rect, NinePatchTextureData data) {
+        var texture = data.texture();
+        var texture_width = data.texture_width();
+        var texture_height = data.texture_height();
+        var edge_thickness = data.edge_thickness();
+        drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
+        drawCenter(context, rect, texture, edge_thickness, texture_width, texture_height);
+        drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
+    }
 
     public void drawNinePatchTexture(DrawContext context, Rect2 rect, Identifier texture, int edge_thickness, int texture_width, int texture_height) {
         drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);

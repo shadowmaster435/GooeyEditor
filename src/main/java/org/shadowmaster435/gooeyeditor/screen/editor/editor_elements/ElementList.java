@@ -89,7 +89,7 @@ public class ElementList extends GenericContainer implements EditorUtil {
         scrollbar.scroll_delta = 4;
         button_list.scissor(true);
         TextButtonWidget close_button = new TextButtonWidget(8, 8, "X", false);
-        NinePatchTexture bg = new NinePatchTexture(0, 0, getWidth(), getHeight(), NinePatchTexture.GUI_BOX, false);
+        NinePatchTexture bg = new NinePatchTexture(0, 0, getWidth(), getHeight(), NinePatchTexture.BOX_PANEL, false);
         addElement(popup);
         popup.addElement(scrollbar);
         popup.addElement(bg);

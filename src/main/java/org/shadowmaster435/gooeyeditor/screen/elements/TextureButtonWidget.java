@@ -3,7 +3,6 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.ScrollableContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.TextureButtonData;
 
 public class TextureButtonWidget extends GuiButton {
@@ -13,12 +12,8 @@ public class TextureButtonWidget extends GuiButton {
     public Identifier on;
     public Identifier on_hovered;
 
-    public static final TextureButtonData CHECKBOX = new TextureButtonData(
-            Identifier.of(GooeyEditor.id, "textures/gui/checkbox_empty.png"),
-            Identifier.of(GooeyEditor.id, "textures/gui/checkbox_empty_hovered.png"),
-            Identifier.of(GooeyEditor.id, "textures/gui/checkbox.png"),
-            Identifier.of(GooeyEditor.id, "textures/gui/checkbox_hovered.png")
-    );
+
+
 
     public TextureButtonWidget(int x, int y, int w, int h, TextureButtonData data, boolean editMode) {
         super(x, y, w, h, editMode);
@@ -62,4 +57,83 @@ public class TextureButtonWidget extends GuiButton {
         var on_hovered = new Property("On Hovered Texture", "on_hovered", "on_hovered", Identifier.class);
         return mergeProperties(super.getProperties(), new Property[]{off, off_hovered, on, on_hovered});
     }
+    // preset
+    public static final TextureButtonData CHECKBOX = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/checkbox_empty.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/checkbox_empty_hovered.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/checkbox.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/checkbox_hovered.png")
+    );
+
+    public static final TextureButtonData LARGE_ARROW_LEFT = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_left.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_left_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_left.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_left_selected.png")
+    );
+
+    public static final TextureButtonData LARGE_ARROW_RIGHT = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_right.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_right_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_right.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_right_selected.png")
+    );
+
+    public static final TextureButtonData LARGE_ARROW_UP = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_up.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_up_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_up.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_up_selected.png")
+    );
+
+    public static final TextureButtonData LARGE_ARROW_DOWN = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_down.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_down_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_down.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/large_arrow_down_selected.png")
+    );
+
+    public static final TextureButtonData ARROW_UP = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_up.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_up_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_up.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_up_selected.png")
+    );
+
+    public static final TextureButtonData ARROW_DOWN = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_down.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_down_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_down.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_down_selected.png")
+    );
+
+    public static final TextureButtonData ARROW_LEFT = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_left.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_left_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_left.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_left_selected.png")
+    );
+
+
+    public static final TextureButtonData ARROW_RIGHT = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_right.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_right_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_right.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/arrow_right_selected.png")
+    );
+
+    public static final TextureButtonData BOOK_ARROW_LEFT = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_left.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_left_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_left.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_left_selected.png")
+    );
+
+    public static final TextureButtonData BOOK_ARROW_RIGHT = new TextureButtonData(
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_right.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_right_selected.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_right.png"),
+            Identifier.of(GooeyEditor.id, "textures/gui/book_arrow_right_selected.png")
+    );
+
 }

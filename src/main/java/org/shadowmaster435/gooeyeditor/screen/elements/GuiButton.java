@@ -1,8 +1,6 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2i;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

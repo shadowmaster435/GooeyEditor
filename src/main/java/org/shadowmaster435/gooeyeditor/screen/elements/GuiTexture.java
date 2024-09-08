@@ -1,7 +1,11 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
+import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.GenericContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
@@ -18,28 +22,12 @@ public class GuiTexture extends ParentableWidgetBase implements EditorUtil {
         this.texture = texture;
         this.texture_width = texture_width;
         this.texture_height = texture_height;
-//        var a = createNinePatch();
-//        var b = createNinePatch();
-//        a.name = "4321";
-//        b.name = "498";
-//      //  addElement(createNinePatch());
-//        addElement(a);
-//        a.addElement(b);
-//        b.addElement(createNinePatch());
-//        addElement(createNinePatch());
-//        var a1 = createNinePatch();
-//        var b1 = createNinePatch();
-//        a1.name = "4322231";
-//        b1.name = "49322138";
-//     //   addElement(createNinePatch());
-//        addElement(a1);
-//    //    addElement(createNinePatch());
-//
-//        a1.addElement(b1);
-//        b1.addElement(createNinePatch());
-//        addElement(createNinePatch());
-//        setX(64);
-//        //   addElement(createNinePatch());
+    }
+
+    public GuiTexture(int x, int y, int w, int h, int texture_width, int texture_height, boolean editMode) {
+        super(x, y, w, h, editMode);
+        this.texture_width = texture_width;
+        this.texture_height = texture_height;
     }
 
     public GuiTexture(int x, int y, boolean editMode) {
@@ -49,7 +37,6 @@ public class GuiTexture extends ParentableWidgetBase implements EditorUtil {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         drawTexture(context, texture, texture_width, texture_height);
-      //  System.out.println(parent + "|" + this + "|" + name);
         super.preTransform(context, mouseX, mouseY, delta);
     }
 
@@ -61,4 +48,8 @@ public class GuiTexture extends ParentableWidgetBase implements EditorUtil {
 
         return new Property[]{texture_width, texture_height, texture};
     }
+
+    // preset
+    public static final Identifier MAGNIFYING_GLASS_ICON = Identifier.of(GooeyEditor.id, "textures/gui/magnifying_glass_icon.png");
+
 }

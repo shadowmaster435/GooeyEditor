@@ -31,7 +31,7 @@ public class SlotWidget extends ParentableWidgetBase {
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
 
         if (drawSlot) {
-            drawNinePatchTexture(context, getGlobalRect(), NinePatchTexture.GUI_SLOT.texture(),  2,  NinePatchTexture.GUI_SLOT.texture_width(),  NinePatchTexture.GUI_SLOT.texture_height());
+            drawNinePatchTexture(context, getGlobalRect(), NinePatchTexture.SLOT.texture(),  2,  NinePatchTexture.SLOT.texture_width(),  NinePatchTexture.SLOT.texture_height());
         }
         if (displayedSlot == null) {
             if (isMouseOver(mouseX, mouseY) && !isEditMode()) {

@@ -65,10 +65,10 @@ public class Polygon2D {
     public void transform(Matrix4f matrix4f) {
         var mat3 = matrix4f.get3x3(new Matrix3d());
         for (Vector2d point : points) {
-            var vec3 = new Vector3d(point.x, point.y, 0);
+            var vec3 = new Vector3d(point.x, 0, point.y);
             mat3.transform(vec3);
             point.x = vec3.x;
-            point.y = vec3.y;
+            point.y = vec3.z;
         }
     }
 

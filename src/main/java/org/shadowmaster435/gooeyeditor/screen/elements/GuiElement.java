@@ -87,6 +87,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
     public boolean center_origin = false;
     public boolean offsetByParent = true;
     public boolean showsParentOffsetButton = true;
+    public boolean needsExport = true;
     public boolean selectable = true;
     private boolean editMode;
     public boolean selected = false;
@@ -1200,6 +1201,10 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
         drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
         drawCenter(context, rect, texture, edge_thickness, texture_width, texture_height);
         drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
+    }
+
+    public void drawNinePatchTexture(DrawContext context, NinePatchTextureData data) {
+        drawNinePatchTexture(context, this.getGlobalRect(), data);
     }
 
     public void drawNinePatchTexture(DrawContext context, Rect2 rect, NinePatchTextureData data) {

@@ -7,9 +7,14 @@ import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 public abstract class CollapsableContainer extends BaseContainer {
 
     public boolean isOpen = false;
+    public int width;
+    public int height;
+
 
     public CollapsableContainer(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);
+        this.width = w;
+        this.height = h;
     }
 
     public abstract Vector2i getClosedSize();
@@ -22,6 +27,34 @@ public abstract class CollapsableContainer extends BaseContainer {
             element.setActive(!isOpen);
             element.setVisible(!isOpen);
         }, 0);
+    }
+
+    @Override
+    public void setWidth(int width) {
+        this.width = width;
+        super.setWidth(width);
+    }
+
+    @Override
+    public void setHeight(int height) {
+        this.height = height;
+        super.setHeight(height);
+    }
+
+    @Override
+    public void setSize(Vector2i vector2i) {
+        this.setSize(vector2i.x, vector2i.y);
+    }
+
+    @Override
+    public void setSize(int w, int h) {
+        super.setSize(w, h);
+        this.width = w;
+        this.height = h;
+    }
+
+    public Vector2i getStoredSize() {
+        return new Vector2i(width, height);
     }
 
     public void open() {

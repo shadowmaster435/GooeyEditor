@@ -155,7 +155,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
                         widgetBase.forEachInBranch((element3, parent, d) -> {
 
                             if (!stop.get()) {
-                                if (element3.isMouseOver(mouseX, mouseY) && element3.isEditMode() && isElementLayerVisible(element3) && !hoveringPropertyEditor) {
+                                if (element3.isMouseOver(mouseX, mouseY) && element3.isEditMode() && element3.selectable && isElementLayerVisible(element3) && !hoveringPropertyEditor) {
                                     selectElement(element3);
                                     stop.set(true);
                                 }
@@ -165,7 +165,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
                             return super.mouseClicked(mouseX, mouseY, button);
                         }
                     }
-                    if (element2.isMouseOver(mouseX, mouseY) && element2.isEditMode() && isElementLayerVisible(element2)) {
+                    if (element2.isMouseOver(mouseX, mouseY) && element2.isEditMode() && element2.selectable && isElementLayerVisible(element2)) {
                         selectElement(element2);
 
                         return super.mouseClicked(mouseX, mouseY, button);
@@ -202,7 +202,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
                             AtomicBoolean stop = new AtomicBoolean(false);
                             widgetBase.forEachInBranch((element3, parent, d) -> {
                                 if (!stop.get()) {
-                                    if (element3.isMouseOver(mouseX, mouseY) && element3.isEditMode() && isElementLayerVisible(element3) && !hoveringPropertyEditor) {
+                                    if (element3.isMouseOver(mouseX, mouseY) && element3.isEditMode() && element3.selectable && isElementLayerVisible(element3) && !hoveringPropertyEditor) {
                                         selectElement(element3);
                                         stop.set(true);
                                     }
@@ -212,7 +212,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
                                 return super.mouseClicked(mouseX, mouseY, button);
                             }
                         }
-                        if (element2.isMouseOver(mouseX, mouseY) && element2.isEditMode() && isElementLayerVisible(element2)) {
+                        if (element2.isMouseOver(mouseX, mouseY) && element2.isEditMode() && element2.selectable && isElementLayerVisible(element2)) {
                             if (element2 == selected_element) {
                                 return super.mouseClicked(mouseX, mouseY, button);
                             }
@@ -398,14 +398,14 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
             for (Element e : children()) {
 
                 if (e instanceof BaseContainer c) {
-                    if (!c.isEditMode() && !c.selected) {
+                    if ((!c.isEditMode() && !c.selected) || !c.selectable) {
                         continue;
                     }
                     context.fill(c.getGlobalX(), c.getGlobalY(), c.getGlobalX() + c.getWidth(), c.getGlobalY() + c.getHeight(), c.layer + 1, ColorHelper.Argb.getArgb(255,255,255,255));
                 } else if (e instanceof ParentableWidgetBase w) {
                     w.forEachInBranch((a, par, d) -> {
-                        if (a instanceof BaseContainer c && c.isEditMode() && !c.selected) {
-                            context.fill(c.getGlobalX(), c.getGlobalY(), c.getGlobalX() + c.getWidth(), c.getGlobalY() + c.getHeight(), c.layer + 1, ColorHelper.Argb.getArgb(255, 255, 255, 255));
+                        if ((a instanceof BaseContainer && a.isEditMode() && !a.selected) || !a.selectable) {
+                            context.fill(a.getGlobalX(), a.getGlobalY(), a.getGlobalX() + a.getWidth(), a.getGlobalY() + a.getHeight(), a.layer + 1, ColorHelper.Argb.getArgb(255, 255, 255, 255));
                         }
                     }, 0);
                 }
@@ -667,7 +667,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
         for (Element element1 : children()) {
             if (element1 instanceof GuiElement guiElement) {
-                if (guiElement.isEditMode()) {
+                if (guiElement.isEditMode() && guiElement.needsExport) {
                     var actual_name = getSafeName(guiElement, usedNames, true);
 
                     guiElement.createLocalInitString(setVarsMethod, guiElement.getClass(), actual_name);
@@ -721,7 +721,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public String toJson() {
         var json = new JsonObject();
         for (Element element1 : children()) {
-            if (element1 instanceof GuiElement guiElement && guiElement.isEditMode()) {
+            if (element1 instanceof GuiElement guiElement && guiElement.isEditMode() && ((GuiElement) element1).needsExport) {
                 guiElement.writeJson(json);
             }
         }

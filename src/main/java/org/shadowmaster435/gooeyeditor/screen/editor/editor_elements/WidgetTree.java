@@ -155,17 +155,18 @@ public class WidgetTree extends ScrollableListContainer {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (Math.floor(mouseX) == mouseClickX && Math.floor(mouseY) == mouseClickY && clickedButton != null) {
+        if (Math.floor(mouseX) == mouseClickX && Math.floor(mouseY) == mouseClickY && clickedButton != null && clickedButton.referenced.selectable) {
             screen.selectElement(clickedButton.referenced, false);
         } else {
             for (GuiElement element1 : getElements()) {
                 if (element1 instanceof GenericContainer g) {
                     for (GuiElement element : g) {
                         if (element instanceof DraggableElementReferenceButton) {
-
                             if (clickedButton != null && hoveredButton != null) {
                                 if (!hoveredButton.referenced.isChildOfElementBranch(clickedButton.referenced) && clickedButton != hoveredButton) {
-                                    hoveredButton.transfer(clickedButton);
+                                    if (clickedButton.selectable) {
+                                        hoveredButton.transfer(clickedButton);
+                                    }
                                     break;
                                 }
                             }

@@ -1,6 +1,7 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
@@ -24,10 +25,12 @@ public class TextButtonWidget extends GuiButton {
         super(x, y, 0, 0, editMode);
     }
 
+    private boolean drawnText = false;
 
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         var color = (!pressed) ? ColorHelper.Argb.getArgb(255,255,255) : ColorHelper.Argb.getArgb(127,127,127);
+
         context.drawText(MinecraftClient.getInstance().textRenderer, text, getGlobalX(), getGlobalY(), color, false);
         setHeight(Math.max(8, getHeight()));
 
@@ -35,8 +38,6 @@ public class TextButtonWidget extends GuiButton {
         if (!toggle_mode) {
             pressed = false;
         }
-
-     //   drawNinePatchTexture(context, new Rect2(getX(), getY(), 32, 32), NinePatchTexture.BOX_PANEL.texture(), 6, 16, 16);
 
         super.preTransform(context, mouseX, mouseY, delta);
     }

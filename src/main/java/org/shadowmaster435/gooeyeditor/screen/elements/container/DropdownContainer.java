@@ -48,23 +48,7 @@ public class DropdownContainer extends CollapsableContainer {
         }
 
     }
-    @Override
-    public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
-        var first = true;
-        renderChildren = isOpen;
-        updateChildren = isOpen;
-        for (GuiElement element : this) {
-            if (first) {
-                element.render(context, mouseX, mouseY, delta);
-                first = false;
-            }
-            if (renderChildren) {
 
-                element.render(context, mouseX, mouseY, delta);
-            }
-        }
-        super.preTransform(context, mouseX, mouseY, delta);
-    }
 
 
     @Override

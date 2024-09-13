@@ -6,8 +6,7 @@ import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.BoxContainer;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.ListContainer;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.*;
 
 public interface EditorUtil {
 
@@ -23,8 +22,21 @@ public interface EditorUtil {
         return getScaledWindowCenter().sub(half_size);
     }
 
-    default ColorPicker createColorPicker() {
-        return new ColorPicker(32, 32, 32, 32, true);
+    default PaginatedListContainer createPaginatedListContainer() {
+        var tex = new PaginatedListContainer(32,32, 32, 32,true);
+        tex.name = "pageListContainer";
+        return tex;
+    }
+
+    default PaginatedContainer createPaginatedContainer() {
+        var tex = new PaginatedContainer(32,32, 32, 32,true);
+        tex.name = "pageContainer";
+        return tex;
+    }
+    default TabContainer createTabContainer() {
+        var tex = new TabContainer(32,32, 32, 32,true);
+        tex.name = "tabContainer";
+        return tex;
     }
 
     default BoxContainer createBoxContainer() {

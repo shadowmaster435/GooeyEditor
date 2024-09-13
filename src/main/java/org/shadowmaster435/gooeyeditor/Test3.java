@@ -9,13 +9,14 @@ import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 
-public class Test3 extends GuiScreen<TestHandler> {
+public class Test3 extends GuiScreen<InventoryExampleHandler> {
 
     //This default init function is required if you want to load this screen in the editor
     //will throw an exception if excluded
-    public Test3(TestHandler handler, PlayerInventory inventory, Text text) {
+    public Test3(InventoryExampleHandler handler, PlayerInventory inventory, Text text) {
         super(handler, inventory);
         initElements();
+
     }
     public ScrollbarWidget scrollBar;
     public GuiTexture texture;
@@ -27,6 +28,11 @@ public class Test3 extends GuiScreen<TestHandler> {
     public NinePatchTexture ninePatch1;
     public ItemDisplayWidget itemDisplay;
     public TextField textField;
+
+    @Override
+    public void clinit() {
+
+    }
 
     @Override
     public void initElements() {

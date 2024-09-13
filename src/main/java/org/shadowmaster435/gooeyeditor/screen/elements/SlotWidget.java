@@ -57,10 +57,6 @@ public class SlotWidget extends ParentableWidgetBase {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (isMouseOver(mouseX, mouseY)) {
-            if (button == 0) {
-            }
-        }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 

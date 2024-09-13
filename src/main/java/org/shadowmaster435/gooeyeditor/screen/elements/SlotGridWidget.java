@@ -9,7 +9,7 @@ import org.shadowmaster435.gooeyeditor.screen.GuiScreenHandler;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.MiscMath;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
 
@@ -33,36 +33,21 @@ public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
         this.setWidth(32);
         this.setHeight(32);
 
-        if (isEditMode()) {
-            createGrid();
-        }
-    }
-
-    public <H extends GuiScreenHandler, S extends GuiScreen<H>> SlotGridWidget(int x, int y, Inventory inventory, S hander, boolean editMode) {
-        super(x, y, editMode);
-
         createGrid();
-        createSlotsForHandler(hander, inventory);
+        showChildren = false;
+
     }
+
+
 
 
     public SlotGridWidget(int x, int y, boolean editMode) {
         super(x, y, editMode);
         this.setWidth(32);
         this.setHeight(32);
-        if (isEditMode()) {
-            createGrid();
-        }
-    }
-
-    public void createAndAssignGrid(Slot... slots) {
         createGrid();
-        setSlots(slots);
-    }
+        showChildren = false;
 
-    public void createAndAssignGrid(Collection<Slot> slots) {
-        createGrid();
-        setSlots(slots);
     }
 
     public void createGrid() {
@@ -76,7 +61,8 @@ public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
                 widget.setHeight(slotHeight);
                 widget.setX(x * (slotWidth + xSpacing));
                 widget.setY(y * (slotHeight + ySpacing));
-
+                widget.selectable = false;
+                widget.needsExport = false;
                 widget.layer = this.layer;
                 widget.name = String.valueOf(x + (y * ySize));
                 addElement(widget);
@@ -92,8 +78,6 @@ public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
             createGrid();
             regen = false;
         }
-        drawNinePatchTexture(context, getRect(), NinePatchTexture.SLOT.texture(),4, 16, 16);
-
         super.preTransform(context, mouseX, mouseY, delta);
     }
 
@@ -104,53 +88,32 @@ public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
         return slotTable.get(x, y);
     }
     /**
-     * @return {@link SlotWidget} by their numerical id from left to right, top to bottom (see {@link MiscMath#gridify(int, int, int)}), or null if not present.
+     * @return {@link SlotWidget} by their numerical id from left to right, top to bottom (see {@link #gridify(int, int)}), or null if not present.
      */
     public SlotWidget getSlot(int i) {
-        var pos = gridify(i, xSize, ySize);
+        var pos = gridify(i, xSize);
+
+
         return getSlot(pos.x, pos.y);
     }
 
     /**
-     * Assigns given slots by their numerical id from left to right, top to bottom (see {@link MiscMath#gridify(int, int, int)}).
+     * Assigns given slots by their numerical id from left to right, top to bottom (see {@link #gridify(int, int)}).
      */
     public void setSlots(Slot... slots) {
-        for (Slot slot : slots) {
-            getSlot(slot.id).displayedSlot = slot;
+        for (int i = 0; i < slots.length; ++i) {
+            getSlot(i).displayedSlot = slots[i];
         }
     }
     /**
-     * Assigns given slots by their numerical id from left to right, top to bottom (see {@link MiscMath#gridify(int, int, int)}).
+     * Assigns given slots by their numerical id from left to right, top to bottom (see {@link #gridify(int, int)}).
      */
-    public void setSlots(Collection<Slot> slots) {
-        for (Slot slot : slots) {
-            getSlot(slot.id).displayedSlot = slot;
+    public void setSlots(List<Slot> slots) {
+        for (int i = 0; i < slots.size(); ++i) {
+            getSlot(i).displayedSlot = slots.get(i);
         }
     }
 
-    /**
-     * Automatically creates and adds slots to the given {@link GuiScreen}.
-     * @param handled Handler to add slots to
-     * @param inventory Inventory required by slot initializer
-     * @return List of generated slots for use elsewhere
-     */
-    public <H extends GuiScreenHandler, S extends GuiScreen<H>> ArrayList<Slot> createSlotsForHandler(S handled, Inventory inventory) {
-        ArrayList<Slot> ret = new ArrayList<>();
-        for (int x = 0; x < Math.abs(xSize); ++x) {
-            for (int y = 0; y < Math.abs(ySize); ++y) {
-                var widget = slotTable.get(x, y);
-
-                if (widget == null) {
-                    continue;
-                }
-                var slot = new Slot(inventory, x + (ySize * y), -1000, -1000);
-                handled.getScreenHandler().addSlot(slot);
-                widget.setDisplayedSlot(slot);
-
-            }
-        }
-        return ret;
-    }
 
 
     @Override

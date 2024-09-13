@@ -36,9 +36,11 @@ public class DraggableElementReferenceButton extends ParentableWidgetBase {
         } else {
 
             if (dragging) {
-
-                context.drawText(MinecraftClient.getInstance().textRenderer, referenced.name, (int) mouseDragX + mouseClickX, (int) mouseDragY + mouseClickY, Colors.WHITE, false);
+                if (referenced.selectable) {
+                    context.drawText(MinecraftClient.getInstance().textRenderer, referenced.name, (int) mouseDragX + mouseClickX, (int) mouseDragY + mouseClickY, Colors.WHITE, false);
+                }
                 context.drawText(MinecraftClient.getInstance().textRenderer, text, getGlobalX(), getGlobalY(), ColorHelper.Argb.getArgb(127, 150, 150, 150), false);
+
             } else {
                 context.drawText(MinecraftClient.getInstance().textRenderer, text, getGlobalX(), getGlobalY(), ColorHelper.Argb.getArgb(255, 255, 255, 255), false);
             }

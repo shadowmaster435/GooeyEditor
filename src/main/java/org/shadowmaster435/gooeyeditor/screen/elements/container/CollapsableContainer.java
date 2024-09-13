@@ -24,8 +24,8 @@ public abstract class CollapsableContainer extends BaseContainer {
     public void toggle() {
         isOpen = !isOpen;
         forEachInBranch((element, parent, depth) -> {
-            element.setActive(!isOpen);
-            element.setVisible(!isOpen);
+            element.setActive(isOpen);
+            element.setVisible(isOpen);
         }, 0);
     }
 
@@ -76,13 +76,6 @@ public abstract class CollapsableContainer extends BaseContainer {
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         renderChildren = isOpen;
         updateChildren = isOpen;
-        for (GuiElement element : this) {
-            if (renderChildren) {
-
-                element.render(context, mouseX, mouseY, delta);
-            }
-        }
-
         super.preTransform(context, mouseX, mouseY, delta);
     }
 

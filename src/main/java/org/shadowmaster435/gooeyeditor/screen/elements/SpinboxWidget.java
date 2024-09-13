@@ -2,6 +2,7 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.StringHelper;
 
@@ -16,8 +17,8 @@ public class SpinboxWidget extends TextField {
     public int max_value = 100;
     public int min_value = -100;
 
-    private final TextButtonWidget add;
-    private final TextButtonWidget sub;
+    private TextButtonWidget add;
+    private TextButtonWidget sub;
 
 
     @Override
@@ -37,19 +38,21 @@ public class SpinboxWidget extends TextField {
                return number_chars.contains(chr.toCharArray()[0]);
             }
         };
-        var pw = MinecraftClient.getInstance().textRenderer.getWidth("+");
-        var mw = MinecraftClient.getInstance().textRenderer.getWidth("-");
-        add = new TextButtonWidget(((w - 2) - pw), (h / 4), "+", editMode);
-        sub = new TextButtonWidget(((w - 2) - ((mw + pw) + 1)), (h / 4), "-", editMode);
-        add.setPressFunction(this::add);
-        sub.setPressFunction(this::sub);
-        addElement(sub);
-        addElement(add);
-
+        if (!editMode) {
+            var pw = MinecraftClient.getInstance().textRenderer.getWidth("+");
+            var mw = MinecraftClient.getInstance().textRenderer.getWidth("-");
+            add = new TextButtonWidget(((w - 2) - pw), (h / 4), "+", editMode);
+            sub = new TextButtonWidget(((w - 2) - ((mw + pw) + 1)), (h / 4), "-", editMode);
+            add.setPressFunction(this::add);
+            sub.setPressFunction(this::sub);
+            addElement(sub);
+            addElement(add);
+        }
     }
 
     public SpinboxWidget(int x, int y, boolean editMode) {
         super(x, y, editMode);
+        setSize(32, 12);
         this.textPredicate = chr -> {
             if (chr.isEmpty()) {
                 return true;
@@ -57,14 +60,16 @@ public class SpinboxWidget extends TextField {
                 return number_chars.contains(chr.toCharArray()[0]);
             }
         };
-        var pw = MinecraftClient.getInstance().textRenderer.getWidth("+");
-        var mw = MinecraftClient.getInstance().textRenderer.getWidth("-");
-        add = new TextButtonWidget(x + ((14) - pw), y + (4), "+", editMode);
-        sub = new TextButtonWidget(x + ((14) - ((mw + pw) + 1)), y + (4), "-", editMode);
-        add.setPressFunction(this::add);
-        sub.setPressFunction(this::sub);
-        addElement(sub);
-        addElement(add);
+        if (!editMode) {
+            var pw = MinecraftClient.getInstance().textRenderer.getWidth("+");
+            var mw = MinecraftClient.getInstance().textRenderer.getWidth("-");
+            add = new TextButtonWidget(x + ((14) - pw), y + (4), "+", editMode);
+            sub = new TextButtonWidget(x + ((14) - ((mw + pw) + 1)), y + (4), "-", editMode);
+            add.setPressFunction(this::add);
+            sub.setPressFunction(this::sub);
+            addElement(sub);
+            addElement(add);
+        }
     }
 
     public void add(GuiButton button) {
@@ -74,6 +79,11 @@ public class SpinboxWidget extends TextField {
     public void sub(GuiButton button) {
         setValue(Math.max(getInt() - 1, min_value));
 
+    }
+
+    @Override
+    public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.preTransform(context, mouseX, mouseY, delta);
     }
 
     private int getIntOf(String string) {
@@ -97,14 +107,12 @@ public class SpinboxWidget extends TextField {
     @Override
     public boolean charTyped(char chr, int modifiers) {
         if (!isEditMode()) {
-
             if (!this.isActive()) {
                 return false;
             } else if (StringHelper.isValidChar(chr) && number_chars.contains(chr) && (intInBounds(getIntOf(getText() + chr)) || !getSelectedText().isEmpty())) {
                 if (this.editable) {
                     this.write(Character.toString(chr));
                 }
-
                 return true;
             } else {
                 return false;
@@ -133,7 +141,6 @@ public class SpinboxWidget extends TextField {
                 if (Character.isHighSurrogate(string.charAt(k - 1))) {
                     --k;
                 }
-
                 string = string.substring(0, k);
                 l = k;
             }

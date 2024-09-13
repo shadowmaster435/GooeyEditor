@@ -10,6 +10,8 @@ public class InputHelper {
     public static boolean isRightMouseHeld = false;
     public static boolean isMiddleMouseHeld = false;
     public static boolean isShiftHeld = false;
+    public static boolean isLeftAltHeld = false;
+
     public static boolean isCtrlHeld = false;
     private static final boolean callbackRegistered = false;
 
@@ -25,6 +27,7 @@ public class InputHelper {
     public static void updateKeys() {
         isShiftHeld = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT);
         isCtrlHeld = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_CONTROL);
+        isLeftAltHeld = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_ALT);
 
     }
 

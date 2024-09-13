@@ -30,6 +30,14 @@ public class TextureButtonWidget extends GuiButton {
         this.on = data.on_texture();
         this.on_hovered = data.on_hovered_texture();
     }
+
+    public void setData(TextureButtonData data) {
+        this.off = data.off_texture();
+        this.off_hovered = data.off_hovered_texture();
+        this.on = data.on_texture();
+        this.on_hovered = data.on_hovered_texture();
+    }
+
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
 

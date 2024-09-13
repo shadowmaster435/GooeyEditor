@@ -37,9 +37,7 @@ public abstract class BaseContainer extends ParentableWidgetBase {
         return element_spacing;
     }
 
-    public void addElement(GuiElement... element) {
-        super.addElements(element);
-    }
+
     public void removeElement(int index) {
         super.removeElement(index);
     }
@@ -70,9 +68,7 @@ public abstract class BaseContainer extends ParentableWidgetBase {
             arrange();
         }
         super.preTransform(context, mouseX, mouseY, delta);
-        for (GuiElement element : this) {
-            element.render(context, mouseX, mouseY, delta);
-        }
+
     }
     @Override
     public Property[] getProperties() {

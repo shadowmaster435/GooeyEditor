@@ -2,7 +2,6 @@ package org.shadowmaster435.gooeyeditor.block;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
@@ -12,13 +11,12 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
-import org.shadowmaster435.gooeyeditor.TestHandler;
+import org.shadowmaster435.gooeyeditor.InventoryExampleHandler;
 import org.shadowmaster435.gooeyeditor.util.ImplementedInventory;
 
 public class TestBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
@@ -64,7 +62,7 @@ public class TestBlockEntity extends BlockEntity implements NamedScreenHandlerFa
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         // We provide *this* to the screenHandler as our class Implements Inventory
         // Only the Server has the Inventory at the start, this will be synced to the client in the ScreenHandler
-        return new TestHandler(syncId, playerInventory, this);
+        return new InventoryExampleHandler(syncId, playerInventory, this);
     }
 
     @Override

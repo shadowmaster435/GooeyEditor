@@ -9,7 +9,7 @@ public abstract class GuiButton extends ParentableWidgetBase {
 
     public Consumer<GuiButton> pressFunction;
     public BiConsumer<GuiButton, Object[]> dataPressFunction;
-    private Object[] pressFunctionData = new Object[]{};
+    public Object[] pressFunctionData = new Object[]{};
     public boolean pressed = false;
     public boolean toggle_mode = false;
 

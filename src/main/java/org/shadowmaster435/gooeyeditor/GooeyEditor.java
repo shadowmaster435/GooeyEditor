@@ -9,30 +9,33 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.block.TestBlock;
 import org.shadowmaster435.gooeyeditor.block.TestBlockEntity;
 import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
+import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
 
 import java.util.HashMap;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public class GooeyEditor implements ModInitializer {
     public static final String id = "gooeyeditor";
     public static final Logger logger = Logger.getLogger("Gooey Editor");
     private static final HashMap<String, Class<? extends GuiScreen>> loadableScreens = new HashMap<>();
-    public static ScreenHandlerType<TestHandler> TESTHANDLERTYPE;
+    public static ScreenHandlerType<InventoryExampleHandler> TESTHANDLERTYPE;
     private static HashMap<String, Class<?>> classMap = new HashMap<>();
+    private static HashMap<Identifier, Supplier<? extends ParentableWidgetBase>> registeredElements = new HashMap<>();
+    private static HashMap<Identifier, String> elementDisplayNames = new HashMap<>();
 
     public static final TestBlock TESTBLOCK = register(
             new TestBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.GRASS)),
             "testblock",
             true
     );
+
     public static <T extends BlockEntityType<?>> T registerEnt(String path, T blockEntityType) {
         return Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of("tutorial", path), blockEntityType);
     }
@@ -41,6 +44,20 @@ public class GooeyEditor implements ModInitializer {
             "testblockent",
             BlockEntityType.Builder.create(TestBlockEntity::new, TESTBLOCK).build()
     );
+
+    public static Identifier registerElement(Identifier id, String displayName, Supplier<? extends ParentableWidgetBase> creationFunction) {
+        registeredElements.put(id, creationFunction);
+        elementDisplayNames.put(id, displayName);
+        return id;
+    }
+
+    public static String getElementDisplayName(Identifier identifier) {
+        return elementDisplayNames.get(identifier);
+    }
+
+    public static HashMap<Identifier, Supplier<? extends ParentableWidgetBase>> getRegisteredElements() {
+        return new HashMap<>(registeredElements);
+    }
 
     public static <B extends Block> B register(B block, String name, boolean shouldRegisterItem) {
         // Register the block and its item.
@@ -57,7 +74,7 @@ public class GooeyEditor implements ModInitializer {
     }
     @Override
     public void onInitialize() {
-        TESTHANDLERTYPE = Registry.register(Registries.SCREEN_HANDLER, Identifier.of(id, "test"), new ScreenHandlerType<>(TestHandler::new, FeatureFlags.DEFAULT_ENABLED_FEATURES));
+        TESTHANDLERTYPE = Registry.register(Registries.SCREEN_HANDLER, Identifier.of(id, "test"), new ScreenHandlerType<>(InventoryExampleHandler::new, FeatureFlags.DEFAULT_ENABLED_FEATURES));
     }
     public static void warn(int warning, Object... extra_data) {
         switch (warning) {

@@ -4,23 +4,20 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
-import org.shadowmaster435.gooeyeditor.Test2;
-import org.shadowmaster435.gooeyeditor.TestHandler;
+import org.shadowmaster435.gooeyeditor.InventoryExample;
+import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 
 import java.io.IOException;
 
 public class GooeyEditorClient implements ClientModInitializer {
+
+    public static GuiEditorScreen currentEditor = null;
 
     private static ShaderProgram hue_gradient;
     private static ShaderProgram radial_texture;
@@ -30,8 +27,8 @@ public class GooeyEditorClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         register_shaders();
-        GooeyEditor.registerScreenForEditor("Test2", Test2.class);
-        HandledScreens.register(GooeyEditor.TESTHANDLERTYPE, Test2::new);
+        GooeyEditor.registerScreenForEditor("InventoryExample", InventoryExample.class);
+        HandledScreens.register(GooeyEditor.TESTHANDLERTYPE, InventoryExample::new);
     }
 
 

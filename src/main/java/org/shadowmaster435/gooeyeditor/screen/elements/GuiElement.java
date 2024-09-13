@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -21,10 +22,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.Util;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.ColorHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
@@ -38,6 +41,7 @@ import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import org.shadowmaster435.gooeyeditor.util.VectorMath;
 
 import java.lang.Math;
+import java.lang.constant.Constable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -88,6 +92,8 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
     public boolean offsetByParent = true;
     public boolean showsParentOffsetButton = true;
     public boolean needsExport = true;
+    public boolean showChildren = true;
+
     public boolean selectable = true;
     private boolean editMode;
     public boolean selected = false;
@@ -102,6 +108,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
     private boolean resizing = false;
     private boolean rotating = false;
     private boolean focused = false;
+    public boolean imported = false;
     //endregion
     //region misc
     private Rect2 scissor = new Rect2(0,0,0,0);
@@ -471,10 +478,12 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
             if (!selected) {
                 GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_POINTING_HAND_CURSOR));
             } else {
-                if (InputHelper.isShiftHeld) {
+                if (InputHelper.isShiftHeld && !InputHelper.isLeftAltHeld) {
                     GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.glfwCreateStandardCursor(type.rotate_cursor));
-                } else {
+                } else if (!InputHelper.isLeftAltHeld) {
                     GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.glfwCreateStandardCursor(type.cursor));
+                } else {
+                    GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_ALL_CURSOR));
                 }
             }
 
@@ -862,7 +871,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
                 case "vec4d" -> clazz = Vector4d.class;
                 case "vec4f" -> clazz = Vector4f.class;
                 case "id" -> clazz = Identifier.class;
-                case "int" -> clazz = Integer.class;
+                case "int" -> clazz = Constable.class;
                 case "double" -> clazz = Double.class;
                 case "float" -> clazz = Float.class;
                 case "str" -> clazz = String.class;
@@ -949,7 +958,24 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
 
             try {
                 ArrayList<Class<?>> input_classes = new ArrayList<>();
-                Arrays.stream(inputs).toList().forEach(c -> input_classes.add(c.getClass()));
+                Arrays.stream(inputs).toList().forEach(c -> {
+                    if (c instanceof Integer) {
+                        input_classes.add(int.class);
+                    } else if (c instanceof Float) {
+                        input_classes.add(float.class);
+
+                    }
+                    else if (c instanceof Double) {
+                        input_classes.add(double.class);
+
+                    }
+                    else if (c instanceof Boolean) {
+                        input_classes.add(boolean.class);
+
+                    } else {
+                        input_classes.add(c.getClass());
+                    }
+                });
                 return object.getClass().getMethod(methodOrFieldName, input_classes.toArray(new Class<?>[]{}));
             }  catch (Exception e) {
                 throw new RuntimeException(e);
@@ -1009,7 +1035,24 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
         previous_y = getHeight();
     }
 
+    public void drawText(DrawContext context, String text, int x, int y, int color, boolean shadow) {
+        var textRenderer = MinecraftClient.getInstance().textRenderer;
 
+        var endY = y + textRenderer.fontHeight;
+        var endX = x + textRenderer.getWidth(text);
+
+        int i = textRenderer.getWidth(text);
+        int j = (y + endY - 9) / 2 + 1;
+        int k = endX - x;
+        int l = i - k;
+        double d = (double) Util.getMeasuringTimeMs() / 1000.0;
+        double e = Math.max((double)l * 0.5, 3.0);
+        double f = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d / e)) / 2.0 + 0.5;
+        double g = MathHelper.lerp(f, 0.0, l);
+        context.enableScissor(x, y, endX, endY);
+        context.drawText(textRenderer, text, x - (int)g, j, color, shadow);
+        context.disableScissor();
+    }
 
 
     /**
@@ -1123,7 +1166,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
 
     public void startTransform(int mouseX, int mouseY) {
         if (editMode && isMouseOver(mouseX, mouseY)) {
-            if (isHoveringResizeBorder(mouseX, mouseY)) {
+            if (isHoveringResizeBorder(mouseX, mouseY) && !InputHelper.isLeftAltHeld) {
                 if (InputHelper.isShiftHeld) {
                     rotating = true;
                     previous_rotation = rotation;
@@ -1351,6 +1394,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
             result.addElement(fromJson(child.getValue().getAsJsonObject(), child.getKey(), editMode));
         }
         result.name = elementName;
+        result.imported = true;
         return result;
     }
 
@@ -1409,7 +1453,7 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
             methodStringBuilder.line(getPropertyText(property, null));
         }
         if (root) {
-            methodStringBuilder.line("addDrawableChild(" + className + ");");
+            methodStringBuilder.line("addElement(" + className + ");");
         }
 
     }

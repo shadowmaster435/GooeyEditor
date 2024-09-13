@@ -1,13 +1,10 @@
 package org.shadowmaster435.gooeyeditor.screen.editor;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -16,13 +13,10 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.JsonReaderUtils;
 import net.minecraft.util.math.ColorHelper;
-import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
-import org.shadowmaster435.gooeyeditor.Test2;
+import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.*;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
@@ -79,13 +73,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public GuiEditorScreen(Screen screen) {
         super(Text.empty());
         this.parent = screen;
-//        if (GooeyEditorClient.hsv == null) {
-//            var arr = new HSVTexture[360];
-//            for (int h = 0; h < 360; ++h) {
-//                arr[h] = new HSVTexture(h / 360f);
-//            }
-//            GooeyEditorClient.hsv = arr;
-//        }
+        GooeyEditorClient.currentEditor = this;
     }
 
     public static <W extends GuiButton> void tstfunc(W widget) {
@@ -103,9 +91,14 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         }
     }
 
+    public GuiElement getSelectedElement() {
+        return selected_element;
+    }
+
     @Override
     public void close() {
         super.close();
+        GooeyEditorClient.currentEditor = null;
     }
 
     public int getCurrentLayer() {
@@ -305,8 +298,8 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
             element1.charTyped(chr, modifiers);
         }
         if (InputHelper.isMiddleMouseHeld) {
-           loadScreen("Test2");
-           // System.out.println(getExportString("Test2"));
+           loadScreen("InventoryExample");
+           // System.out.println(getExportString("InventoryExample"));
         }
         return super.charTyped(chr, modifiers);
     }
@@ -501,6 +494,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         this.elementList = elementList;
         addDrawableChild(elementList);
         addDefaultElements();
+        addElements();
     }
 
     private void initContextMenu() {
@@ -541,18 +535,24 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         elementList.registerElement("List Container", this::createListContainer);
         elementList.registerElement("Slot Grid", this::createSlotGrid);
         elementList.registerElement("Player Inventory", this::createPlayerInventory);
-
         elementList.registerElement("Range Texture", this::createRangeTexture);
         elementList.registerElement("Radial Texture", this::createRadialTexture);
         elementList.registerElement("Spinbox", this::createSpinbox);
         elementList.registerElement("Item Display", this::createItemDisplay);
         elementList.registerElement("Slot Display", this::createSlotDisplay);
         elementList.registerElement("Box Container", this::createBoxContainer);
+        elementList.registerElement("Tab Container", this::createTabContainer);
+        elementList.registerElement("Page Container", this::createPaginatedContainer);
+        elementList.registerElement("Paged List Container", this::createPaginatedListContainer);
 
-        elementList.registerElement("Color Picker", this::createColorPicker);
         elementList.registerElement("Scrollbar", this::createScrollbar);
         elementList.registerElement("Text Field", this::createTextField);
         elementList.registerElement("Text", this::createText);
+    }
+
+    public void addElements() {
+        var elements = GooeyEditor.getRegisteredElements();
+        elements.forEach((id, func) -> elementList.registerElement(GooeyEditor.getElementDisplayName(id), func));
     }
 
     private <W extends GuiButton> void openElementList(W widget) {
@@ -569,7 +569,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         var load = new TextButtonWidget(0,0, "Load", false);
         var save = new TextButtonWidget(0,0, "Save", false);
         var exit = new TextButtonWidget(0,0, "Exit", false);
-
+        dropDown.close();
        // var save = new TextButtonWidget(4,4,Text.of("Save"), false);
       //  file.setSpacing(4);
 
@@ -579,12 +579,12 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         save.setPressFunction((a) -> {if (!saveMenuOpen) {openSaveMenu(); dropDown.close();}});
         exit.setPressFunction((a) -> {if (!saveMenuOpen){close();}});
         this.file = file;
+
         
         addDrawableChild(file);
         addDrawableChild(dropDown);
         dropDown.addElement(list);
         list.addElements(save, load, exit);
-        dropDown.toggle();
     }
 
     private void openSaveMenu() {

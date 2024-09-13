@@ -27,7 +27,6 @@ public class NinePatchTexture extends ParentableWidgetBase {
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         if (!(this instanceof ScrollbarWidget)) { // probably bad idea but i cant be bothered
             drawNinePatchTexture(context, getGlobalRect(), texture, edge_thickness, texture_width, texture_height);
-
         }
         super.preTransform(context, mouseX, mouseY, delta);
     }

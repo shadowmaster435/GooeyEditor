@@ -13,6 +13,7 @@ import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -53,10 +54,12 @@ public abstract non-sealed class ParentableWidgetBase extends GuiElement impleme
         element.parent = this;
     }
     public void removeElement(int index) {
+
         widgets.remove(index);
     }
     public void removeElement(GuiElement element) {
         widgets.remove(element);
+
     }
     public GuiElement getElement(int index) {
         GuiElement element = null;
@@ -65,6 +68,18 @@ public abstract non-sealed class ParentableWidgetBase extends GuiElement impleme
     }
     public void clearChildren() {
         widgets.clear();
+    }
+
+    public ParentableWidgetBase findChildInBranch(String childName) {
+        AtomicReference<ParentableWidgetBase> result = new AtomicReference<>();
+        AtomicBoolean stop = new AtomicBoolean(false);
+        forEachInBranch(((guiElement, p, d) -> {
+            if (Objects.equals(guiElement.name, childName) && !stop.get()) {
+                stop.set(true);
+                result.set((ParentableWidgetBase) guiElement);
+            }
+        }), 0);
+        return result.get();
     }
 
     public Vector2i getCollectiveChildSize(int spacing_x, int spacing_y) {
@@ -381,9 +396,6 @@ public abstract non-sealed class ParentableWidgetBase extends GuiElement impleme
 
 
 
-    public void removeChildAt(int index) {
-        widgets.remove(index);
-    }
 
     @Override
     public void forEachChild(Consumer<ClickableWidget> consumer) {
@@ -401,6 +413,9 @@ public abstract non-sealed class ParentableWidgetBase extends GuiElement impleme
 
     @Override
     public void createAssignerSetterString(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder, String className, HashMap<String, Integer> usedNames, boolean root) {
+        if (!needsExport) {
+            return;
+        }
         ArrayList<Property> props = new ArrayList<>();
         props.addAll(Arrays.stream(getProperties()).toList());
         props.addAll(Arrays.stream(getDefaultProperties()).toList());
@@ -411,13 +426,17 @@ public abstract non-sealed class ParentableWidgetBase extends GuiElement impleme
             methodStringBuilder.line(getPropertyText(property, className));
         }
         if (root) {
-            methodStringBuilder.line("addDrawableChild(" + className + ");");
-            forEachInBranch((element, par, d) -> createChildrenStrings(methodStringBuilder, element, par, usedNames), 0);
+            methodStringBuilder.line("addElement(" + className + ");");
+            forEachInBranch((element, par, d) -> {
+                if (!needsExport) {
+                    createChildrenStrings(methodStringBuilder, element, par, usedNames);
+                }
+            }, 0);
         }
     }
 
     private void createChildrenStrings(ClassCodeStringBuilder.MethodStringBuilder methodStringBuilder, GuiElement element, GuiElement par, HashMap<String, Integer> usedNames) {
-        if (par instanceof SlotGridWidget && element instanceof SlotWidget) {
+        if (par instanceof SlotGridWidget && element instanceof SlotWidget || !needsExport) {
             return;
         }
         element.createChildInitString(methodStringBuilder, element.getClass(), element.name, element, par, usedNames, GuiEditorScreen.getSafeName(this, usedNames, false));

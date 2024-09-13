@@ -4,10 +4,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.ColorHelper;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.BaseContainer;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.DropdownContainer;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.GenericContainer;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.ScrollableListContainer;
+import org.shadowmaster435.gooeyeditor.screen.elements.container.*;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import org.shadowmaster435.gooeyeditor.util.SimpleTreeMap;
@@ -53,15 +50,18 @@ public class WidgetTree extends ScrollableListContainer {
         clearChildren();
         addElement(this.getScrollbar());
         var genericContainer = new GenericContainer(0,0,0,0,false);
-        //HashMap<GuiElement, ArrayList<GuiElement>> parentMap = new HashMap<>();
         AtomicInteger y = new AtomicInteger(0);
         rootElement.forEachInBranch(((element, p, d) -> {
-            if (element.parent != null && element != rootElement && element.parent != element && element.parent != rootElement.parent && element instanceof ParentableWidgetBase e) {
+            if (element.parent != null && element.parent.showChildren && !element.name.isEmpty() && element != rootElement && element.parent != element && element.parent != rootElement.parent && element instanceof ParentableWidgetBase e) {
                 var button = new DraggableElementReferenceButton(0,0, element.name, e, this, screen, false);
                 var currY = y.getAndAdd(1);
                 button.setY((currY * 10));
                 button.setX((d * 8) - getGlobalX());
                 genericContainer.addElement(button);
+
+                if (element.parent instanceof TabContainer.Tab) {
+                    button.setX(button.getX() - 8);
+                }
                 button.layer = 516;
             }
         }), 0);
@@ -143,7 +143,9 @@ public class WidgetTree extends ScrollableListContainer {
                 clickedButton = null;
                 for (GuiElement element : g) {
                     if (clickedButton == null && element instanceof DraggableElementReferenceButton a && a.isMouseOver(mouseX, mouseY)) {
-                        clickedButton = a;
+                        if (a.referenced.selectable) {
+                            clickedButton = a;
+                        }
                         break;
                     }
                 }
@@ -164,7 +166,7 @@ public class WidgetTree extends ScrollableListContainer {
                         if (element instanceof DraggableElementReferenceButton) {
                             if (clickedButton != null && hoveredButton != null) {
                                 if (!hoveredButton.referenced.isChildOfElementBranch(clickedButton.referenced) && clickedButton != hoveredButton) {
-                                    if (clickedButton.selectable) {
+                                    if (clickedButton.referenced.selectable) {
                                         hoveredButton.transfer(clickedButton);
                                     }
                                     break;

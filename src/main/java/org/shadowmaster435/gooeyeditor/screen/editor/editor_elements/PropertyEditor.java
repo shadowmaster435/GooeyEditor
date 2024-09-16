@@ -12,13 +12,12 @@ import org.shadowmaster435.gooeyeditor.screen.elements.container.ScrollableConta
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.ScrollbarWidgetData;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
-import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
 import java.util.*;
 
-public class PropertyEditor extends ParentableWidgetBase {
+public class PropertyEditor extends GuiElement {
 
-    private final HashMap<GuiElement.Property, GuiElement> properties = new HashMap<>();
+    private final HashMap<SealedGuiElement.Property, SealedGuiElement> properties = new HashMap<>();
     private ScrollableContainer listContainer;
     private ScrollbarWidget scrollbar;
     public boolean shouldRenderText = false;
@@ -87,15 +86,15 @@ public class PropertyEditor extends ParentableWidgetBase {
         organizePropertyElements();
     }
 
-    public <E extends GuiElement> void loadProperties(E element, boolean genTree) {
+    public <E extends SealedGuiElement> void loadProperties(E element, boolean genTree) {
         properties.clear();
         var props = new ArrayList<>(Arrays.stream(element.getDefaultProperties()).toList());
         props.addAll(Arrays.asList(element.getProperties()));
         listContainer.clearChildren();
-        if (element instanceof ParentableWidgetBase base && genTree) {
+        if (element instanceof GuiElement base && genTree) {
             screen.tree.createTreeForElement(base);
         }
-        for (GuiElement.Property prop : props) {
+        for (SealedGuiElement.Property prop : props) {
             if (Objects.equals(prop.display_name(), "Localize Position") && !element.showsParentOffsetButton) {
                 continue;
             }
@@ -118,7 +117,7 @@ public class PropertyEditor extends ParentableWidgetBase {
     }
 
 
-    public void updateInputText(GuiElement source_element) {
+    public void updateInputText(SealedGuiElement source_element) {
         for (Property property : properties.keySet()) {
             var element = properties.get(property);
             var clazz = property.aClass();
@@ -139,7 +138,7 @@ public class PropertyEditor extends ParentableWidgetBase {
             }
         }
     }
-    public void updateProperties(GuiElement source_element) {
+    public void updateProperties(SealedGuiElement source_element) {
         for (Property property : properties.keySet()) {
             try {
                 var element = properties.get(property);
@@ -187,7 +186,7 @@ public class PropertyEditor extends ParentableWidgetBase {
     }
 
     public boolean isPropertyFocused() {
-        for (GuiElement element : listContainer) {
+        for (SealedGuiElement element : listContainer) {
             if (element.isFocused()) {
                 return true;
             }
@@ -196,7 +195,7 @@ public class PropertyEditor extends ParentableWidgetBase {
     }
 
     public boolean hoveringProperty(int mouseX, int mouseY) {
-        for (GuiElement element : listContainer) {
+        for (SealedGuiElement element : listContainer) {
             if (element.isMouseOver(mouseX, mouseY) || scrollbar.isMouseOver(mouseX,mouseY)) {
                 return true;
             }
@@ -206,7 +205,7 @@ public class PropertyEditor extends ParentableWidgetBase {
 
     public void organizePropertyElements() {
         var current_y = 0;
-        for (GuiElement prop : listContainer) {
+        for (SealedGuiElement prop : listContainer) {
             if (!(prop instanceof TextureButtonWidget)) {
                 prop.setWidth(100);
             }
@@ -216,7 +215,7 @@ public class PropertyEditor extends ParentableWidgetBase {
         }
     }
 
-    public GuiElement widgetForType(Class<?> clazz) {
+    public SealedGuiElement widgetForType(Class<?> clazz) {
         if (clazz == Float.class || clazz == Double.class || clazz == Integer.class || clazz == Long.class) {
             return new NumberFieldWidget(0,0, 32, 12, MinecraftClient.getInstance().textRenderer, false);
         }

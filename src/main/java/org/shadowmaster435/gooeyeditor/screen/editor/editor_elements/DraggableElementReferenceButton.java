@@ -5,13 +5,13 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Colors;
 import net.minecraft.util.math.ColorHelper;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
-import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
+import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 
-public class DraggableElementReferenceButton extends ParentableWidgetBase {
+public class DraggableElementReferenceButton extends GuiElement {
     public String text = "";
     public final GuiEditorScreen screen;
     public final WidgetTree tree;
-    public final ParentableWidgetBase referenced;
+    public final GuiElement referenced;
     public boolean hovering = false;
     private double mouseDragX = 0;
     private double mouseDragY = 0;
@@ -19,7 +19,7 @@ public class DraggableElementReferenceButton extends ParentableWidgetBase {
     private int mouseClickY = 0;
 
     private boolean dragging = false;
-    protected DraggableElementReferenceButton(int x, int y, String text, ParentableWidgetBase referenced, WidgetTree tree, GuiEditorScreen screen, boolean editMode) {
+    protected DraggableElementReferenceButton(int x, int y, String text, GuiElement referenced, WidgetTree tree, GuiEditorScreen screen, boolean editMode) {
         super(x, y, 0, 0, editMode);
         this.text = text;
         this.referenced = referenced;

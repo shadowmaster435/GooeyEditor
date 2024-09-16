@@ -1,7 +1,8 @@
 package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
-
+/**
+ * Functions like a list container that can resize entries to a set uniform size
+ */
 public class BoxContainer extends BaseContainer{
 
     public boolean vertical = true;
@@ -47,6 +48,9 @@ public class BoxContainer extends BaseContainer{
         }
     }
 
+    /**
+     * @return Height or Width of all elements in this container.
+     */
     public int getElementSize() {
         return ((((vertical) ? getHeight() : getWidth())) + element_spacing) / getElements().size();
     }

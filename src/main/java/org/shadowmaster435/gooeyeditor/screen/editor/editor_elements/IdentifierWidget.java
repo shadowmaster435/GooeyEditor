@@ -3,11 +3,11 @@ package org.shadowmaster435.gooeyeditor.screen.editor.editor_elements;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
-import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
 import org.shadowmaster435.gooeyeditor.screen.elements.TextField;
 
-public class IdentifierWidget extends ParentableWidgetBase {
+public class IdentifierWidget extends GuiElement {
 
 
     public IdentifierWidget(int x, int y, int w) {
@@ -40,7 +40,7 @@ public class IdentifierWidget extends ParentableWidgetBase {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         var current_y = 0;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             element.setWidth(getWidth());
 
             element.setX(0);
@@ -51,7 +51,7 @@ public class IdentifierWidget extends ParentableWidgetBase {
     }
     @Override
     public boolean isFocused() {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
 
             if (element.isFocused()) {
                 return true;

@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 /**
  * Just a copy of {@link net.minecraft.client.gui.widget.TextFieldWidget} adapted to the element system.
  */
-public class TextField extends ParentableWidgetBase {
+public class TextField extends GuiElement {
 
 
     private static final ButtonTextures TEXTURES = new ButtonTextures(

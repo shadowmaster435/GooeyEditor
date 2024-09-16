@@ -3,11 +3,8 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.shadowmaster435.gooeyeditor.screen.util.Range;
 
-import java.lang.constant.Constable;
-
-public class GuiRangeTexture extends ParentableWidgetBase {
+public class GuiRangeTexture extends GuiElement {
 
     public Identifier texture;
     public float delta = 0;

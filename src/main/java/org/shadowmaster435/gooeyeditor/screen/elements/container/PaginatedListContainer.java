@@ -2,13 +2,16 @@ package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiButton;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
-import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
 import org.shadowmaster435.gooeyeditor.util.ArrangeableList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Similar to {@link PaginatedContainer} but manual page creation is impossible and elements are automatically sorted like a {@link ListContainer}.
+ */
 public class PaginatedListContainer extends BaseContainer {
 
     private final ArrangeableList<ToggleContainer> pages = new ArrangeableList<>();
@@ -18,7 +21,7 @@ public class PaginatedListContainer extends BaseContainer {
     public int page_count = 1;
     public boolean vertical = true;
     public boolean repositionElements = false;
-    private ArrayList<GuiElement> references = new ArrayList<>();
+    private ArrayList<SealedGuiElement> references = new ArrayList<>();
 
     public PaginatedListContainer(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);
@@ -44,7 +47,7 @@ public class PaginatedListContainer extends BaseContainer {
         return pages.size() - 1;
     }
 
-    private int addPageWith(GuiElement... elements) {
+    private int addPageWith(SealedGuiElement... elements) {
         var container = new ToggleContainer(0,0,0,0, isEditMode());
         pages.add(container);
         container.name = "page" + (pages.size() - 1);
@@ -59,7 +62,7 @@ public class PaginatedListContainer extends BaseContainer {
         return pages.indexOf(container);
     }
 
-    public ArrayList<? extends GuiElement> getPageElements(int index) {
+    public ArrayList<? extends SealedGuiElement> getPageElements(int index) {
         return getPage(index).getElements();
     }
 
@@ -71,7 +74,7 @@ public class PaginatedListContainer extends BaseContainer {
         button.setPressFunction((a) -> setCurrentPage(getPageIndex(container)));
     }
 
-    public boolean shouldAddOnNextPage(GuiElement element, int page) {
+    public boolean shouldAddOnNextPage(SealedGuiElement element, int page) {
         var i = (pages.getOrDefault(page, null) != null) ? pages.get(page) : null;
         var i2 = heights.getOrDefault(i, null);
         var height = (i != null && !heights.isEmpty()) ? (i2 != null) ? i2 : 0 : 0;
@@ -99,7 +102,7 @@ public class PaginatedListContainer extends BaseContainer {
     }
 
     @Override
-    public void addElement(GuiElement element) {
+    public void addElement(SealedGuiElement element) {
         if (element instanceof ToggleContainer e) {
             super.addElement(e);
         } else {
@@ -126,7 +129,7 @@ public class PaginatedListContainer extends BaseContainer {
     }
 
     @Override
-    public void removeElement(GuiElement element) {
+    public void removeElement(SealedGuiElement element) {
         references.remove(element);
         if (element.parent instanceof ToggleContainer t && t.parent == this) {
             t.orphanize();
@@ -164,14 +167,14 @@ public class PaginatedListContainer extends BaseContainer {
     }
 
     @Override
-    public GuiElement getElement(int index) {
+    public SealedGuiElement getElement(int index) {
         return getElements().get(index);
     }
 
 
     @Override
-    public ArrangeableList<GuiElement> getElements() {
-        ArrangeableList<GuiElement> elements = new ArrangeableList<>();
+    public ArrangeableList<SealedGuiElement> getElements() {
+        ArrangeableList<SealedGuiElement> elements = new ArrangeableList<>();
         for (ToggleContainer container : pages) {
             elements.addAll(container.getElements());
         }
@@ -185,7 +188,7 @@ public class PaginatedListContainer extends BaseContainer {
         var size = getElements().size();
         for (int i = 0; i < size; ++i) {
 
-            var element = (ParentableWidgetBase) getElement(i);
+            var element = (GuiElement) getElement(i);
             if (vertical) {
                 element.setX((repositionElements) ? -element.getWidth() : 0);
                 element.setY(y_offset);

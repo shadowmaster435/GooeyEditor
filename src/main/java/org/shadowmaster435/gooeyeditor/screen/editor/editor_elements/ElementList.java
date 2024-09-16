@@ -1,8 +1,6 @@
 package org.shadowmaster435.gooeyeditor.screen.editor.editor_elements;
 
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.option.VideoOptionsScreen;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -23,13 +21,13 @@ public class ElementList extends GenericContainer implements EditorUtil {
     private GenericContainer clip_box;
 
     private PaginatedListContainer button_list;
-    private final HashMap<TextButtonWidget, Supplier<? extends GuiElement>> entries = new HashMap<>();
+    private final HashMap<TextButtonWidget, Supplier<? extends SealedGuiElement>> entries = new HashMap<>();
     private TextButtonWidget close_button;
     private ScrollbarWidget scrollbar;
     private NinePatchTexture bg;
     private boolean open = false;
     private final GuiEditorScreen screen;
-    public GuiElement childToAddTo = null;
+    public SealedGuiElement childToAddTo = null;
     public TextureButtonWidget left;
     public TextureButtonWidget right;
 
@@ -40,7 +38,7 @@ public class ElementList extends GenericContainer implements EditorUtil {
         initElements();
     }
 
-    public  <E extends GuiElement> void registerElement(String display_name, Supplier<E> create_function) {
+    public  <E extends SealedGuiElement> void registerElement(String display_name, Supplier<E> create_function) {
         var button = new TextButtonWidget(0, 0, display_name, false);
         button.setHeight(8);
         entries.put(button, create_function);
@@ -64,7 +62,7 @@ public class ElementList extends GenericContainer implements EditorUtil {
         this.close((TextButtonWidget) widget);
         var entry = entries.get(widget).get();
         entry.layer = screen.getCurrentLayer();
-        if (childToAddTo != null && screen.hasSelectedElement() && childToAddTo instanceof ParentableWidgetBase a) {
+        if (childToAddTo != null && screen.hasSelectedElement() && childToAddTo instanceof GuiElement a) {
 
             screen.toAddToChild.put(entry, a);
         } else {

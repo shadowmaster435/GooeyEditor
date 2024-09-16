@@ -16,7 +16,7 @@ public interface EditorUtil {
         return new Vector2i(MinecraftClient.getInstance().getWindow().getScaledWidth() / 2, MinecraftClient.getInstance().getWindow().getScaledHeight() / 2);
     }
 
-    default Vector2i getScreenCenteredPos(GuiElement element) {
+    default Vector2i getScreenCenteredPos(SealedGuiElement element) {
         var half_size_d = new Vector2d(element.getSize()).mul(0.5).floor();
         var half_size = new Vector2i((int) half_size_d.x, (int) half_size_d.y);
         return getScaledWindowCenter().sub(half_size);

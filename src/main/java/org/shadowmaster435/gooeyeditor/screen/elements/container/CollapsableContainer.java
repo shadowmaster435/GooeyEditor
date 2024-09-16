@@ -2,8 +2,11 @@ package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
 import org.joml.Vector2i;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 
+/**
+ * Base container class that toggles visibility and functionality for child elements.
+ */
 public abstract class CollapsableContainer extends BaseContainer {
 
     public boolean isOpen = false;
@@ -17,7 +20,13 @@ public abstract class CollapsableContainer extends BaseContainer {
         this.height = h;
     }
 
+    /**
+     * @return Size of the element to use when collapsed.
+     */
     public abstract Vector2i getClosedSize();
+    /**
+     * @return Size of the element to use when open.
+     */
     public abstract Vector2i getOpenSize();
 
 
@@ -53,6 +62,9 @@ public abstract class CollapsableContainer extends BaseContainer {
         this.height = h;
     }
 
+    /**
+     * @return Size before closed.
+     */
     public Vector2i getStoredSize() {
         return new Vector2i(width, height);
     }
@@ -91,7 +103,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public boolean changed() {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (element.changed()) {
                 return true;
             }
@@ -102,7 +114,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
 
             if (updateChildren) {
 
@@ -113,7 +125,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
 
             if (updateChildren) {
 
@@ -126,7 +138,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (updateChildren) {
 
                 element.mouseReleased(mouseX, mouseY, button);
@@ -138,7 +150,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (updateChildren) {
 
                 element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
@@ -149,7 +161,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (updateChildren) {
                 element.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 
@@ -160,7 +172,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (updateChildren) {
 
                 element.keyPressed(keyCode, scanCode, modifiers);
@@ -172,7 +184,7 @@ public abstract class CollapsableContainer extends BaseContainer {
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (updateChildren) {
                 element.keyReleased(keyCode, scanCode, modifiers);
             }
@@ -184,7 +196,7 @@ public abstract class CollapsableContainer extends BaseContainer {
 
     @Override
     public boolean charTyped(char chr, int modifiers) {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (updateChildren) {
 
                 element.charTyped(chr, modifiers);

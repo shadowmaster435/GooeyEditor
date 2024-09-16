@@ -5,7 +5,7 @@ import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 
-public class NinePatchTexture extends ParentableWidgetBase {
+public class NinePatchTexture extends GuiElement {
 
     public int edge_thickness = 0;
     public Identifier texture = Identifier.of("minecraft:textures/block/dirt.png");
@@ -26,7 +26,7 @@ public class NinePatchTexture extends ParentableWidgetBase {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         if (!(this instanceof ScrollbarWidget)) { // probably bad idea but i cant be bothered
-            drawNinePatchTexture(context, getGlobalRect(), texture, edge_thickness, false, true);
+            drawNinePatchTexture(context, getGlobalRect(), texture, edge_thickness);
         }
         super.preTransform(context, mouseX, mouseY, delta);
     }

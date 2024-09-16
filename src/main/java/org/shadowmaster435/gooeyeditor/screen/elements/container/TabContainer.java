@@ -5,14 +5,16 @@ import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiButton;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.NinePatchTexture;
-import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Container that can be navigated by tab similar to the creative menu.
+ */
 public class TabContainer extends BaseContainer {
 
     private HashMap<Tab, ToggleContainer> tabMap = new HashMap<>();
@@ -32,7 +34,6 @@ public class TabContainer extends BaseContainer {
 
     public TabContainer(int x, int y, boolean editMode) {
         super(0, 0, 32, 32, editMode);
-
     }
 
     private void initList() {
@@ -54,7 +55,7 @@ public class TabContainer extends BaseContainer {
 
 
     @Override
-    public void addElement(GuiElement element) {
+    public void addElement(SealedGuiElement element) {
         if (element instanceof Tab) {
             listContainer.addElement(element);
         } else {
@@ -63,8 +64,8 @@ public class TabContainer extends BaseContainer {
     }
 
     @Override
-    public void addElements(GuiElement... element) {
-        for (GuiElement elem : element) {
+    public void addElements(SealedGuiElement... element) {
+        for (SealedGuiElement elem : element) {
             if (elem instanceof Tab) {
 
                 listContainer.addElements(element);
@@ -74,6 +75,9 @@ public class TabContainer extends BaseContainer {
         }
     }
 
+    /**
+     * Opens provided tab.
+     */
     public void changeTab(Tab tab) {
         var container = tabMap.getOrDefault(tab, null);
         tabMap.forEach((k, v) -> {
@@ -87,6 +91,11 @@ public class TabContainer extends BaseContainer {
         });
     }
 
+    /**
+     * Adds a tab.
+     * @param tabName Tab element name
+     * @return Created tab.
+     */
     public Tab addTab(String tabName) {
         var newTab = new Tab(0, 0, 16, 16, this, isEditMode());
         var newContainer = new ToggleContainer(0, 0, 0, 16, isEditMode());
@@ -94,8 +103,13 @@ public class TabContainer extends BaseContainer {
         toAdd.put(newTab, newContainer);
         return newTab;
     }
-
-    public Tab addAsTab(String tabName, GuiElement... elements) {
+    /**
+     * Creates a tab and adds provided elements to itself.
+     * @param tabName Tab element name
+     * @param elements Elements to add.
+     * @return Created tab.
+     */
+    public Tab addAsTab(String tabName, SealedGuiElement... elements) {
         var newTab = new Tab(0, 0, 16, 16, this, isEditMode());
         var newContainer = new ToggleContainer(0, 0, 0, 16, isEditMode());
         newTab.name = tabName;
@@ -161,7 +175,7 @@ public class TabContainer extends BaseContainer {
         var rect = getGlobalRect();
         rect.setRect(getGlobalX(), getGlobalY() + 16, getWidth(), getHeight() - 16);
 
-        drawNinePatchTexture(context, rect, NinePatchTexture.PANEL.texture(), NinePatchTexture.PANEL.edge_thickness(), false, false);
+        drawNinePatchTexture(context, rect, NinePatchTexture.PANEL.texture(), NinePatchTexture.PANEL.edge_thickness());
         super.preTransform(context, mouseX, mouseY, delta);
 
     }
@@ -210,7 +224,7 @@ public class TabContainer extends BaseContainer {
         }
 
         @Override
-        public void addElement(GuiElement element) {
+        public void addElement(SealedGuiElement element) {
             container.tabMap.get(this).addElement(element);
             if (GooeyEditorClient.currentEditor != null) {
                 GooeyEditorClient.currentEditor.tree.regenTree();;
@@ -230,7 +244,7 @@ public class TabContainer extends BaseContainer {
         }
 
         @Override
-        public void removeElement(GuiElement element) {
+        public void removeElement(SealedGuiElement element) {
             container.tabMap.get(this).removeElement(element);
             if (GooeyEditorClient.currentEditor != null) {
                 GooeyEditorClient.currentEditor.tree.regenTree();;

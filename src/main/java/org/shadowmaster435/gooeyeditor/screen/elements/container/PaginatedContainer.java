@@ -2,11 +2,14 @@ package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiButton;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.util.ArrangeableList;
 
 import java.util.ArrayList;
 
+/**
+ * A paged container.
+ */
 public class PaginatedContainer extends BaseContainer {
 
     private final ArrangeableList<ToggleContainer> pages = new ArrangeableList<>();
@@ -50,7 +53,7 @@ public class PaginatedContainer extends BaseContainer {
      * Adds a page. While adding provided elements to the page.
      * @return Index of created page.
      */
-    public int addPageWith(GuiElement... elements) {
+    public int addPageWith(SealedGuiElement... elements) {
         var container = new ToggleContainer(0,0,0,0, isEditMode());
         pages.add(container);
         container.selectable = false;
@@ -66,7 +69,8 @@ public class PaginatedContainer extends BaseContainer {
         return pages.indexOf(container);
     }
 
-    public ArrayList<? extends GuiElement> getPageElements(int index) {
+
+    public ArrayList<? extends SealedGuiElement> getPageElements(int index) {
         return getPage(index).getElements();
     }
 
@@ -78,17 +82,26 @@ public class PaginatedContainer extends BaseContainer {
         button.setPressFunction((a) -> setCurrentPage(getPageIndex(container)));
     }
 
+    /**
+     * @param button Button to bind
+     * @param index Page to change to when button is pressed.
+     */
     public void bindButtonToPage(GuiButton button, int index) {
         button.setPressFunction((a) -> setCurrentPage(index));
     }
-
+    /**
+     * @param button Button to bind
+     */
     public void bindButtonToPrevious(GuiButton button) {
         button.setPressFunction((a) -> previous());
     }
-
+    /**
+     * @param button Button to bind
+     */
     public void bindButtonToNext(GuiButton button) {
         button.setPressFunction((a) -> next());
     }
+
     public void previous() {
         current_page -= 1;
     }
@@ -97,7 +110,7 @@ public class PaginatedContainer extends BaseContainer {
     }
 
     @Override
-    public void addElement(GuiElement element) {
+    public void addElement(SealedGuiElement element) {
         super.addElement(element);
     }
 

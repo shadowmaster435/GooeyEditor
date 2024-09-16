@@ -190,8 +190,8 @@ public class Test3 extends HandledGuiScreen<InventoryExampleHandler> {
     }
 
     @Override
-    public GuiElement[] getElements() {
-        return new GuiElement[]{this.scrollBar, this.texture, this.ninePatch, this.texture1, this.ninePatch2, this.text, this.texture2, this.ninePatch1, this.itemDisplay, this.textField};
+    public SealedGuiElement[] getElements() {
+        return new SealedGuiElement[]{this.scrollBar, this.texture, this.ninePatch, this.texture1, this.ninePatch2, this.text, this.texture2, this.ninePatch1, this.itemDisplay, this.textField};
     }
 
     @Override

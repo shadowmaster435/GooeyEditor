@@ -97,9 +97,9 @@ public class ScrollbarWidget extends NinePatchTexture {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         super.preTransform(context, mouseX, mouseY, delta);
-        drawNinePatchTexture(context, getGlobalRect(), texture, grabber_edge_thickness, false, true);
+        drawNinePatchTexture(context, getGlobalRect(), texture, grabber_edge_thickness);
 
-        drawNinePatchTexture(context, getGrabberRect(), grabber_texture, grabber_edge_thickness, false, true);
+        drawNinePatchTexture(context, getGrabberRect(), grabber_texture, grabber_edge_thickness);
     }
 
     public boolean mouseOverScrollBar(int mouseX, int mouseY) {

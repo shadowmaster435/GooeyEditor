@@ -1,7 +1,6 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.util.Identifier;
@@ -14,7 +13,7 @@ import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 import java.util.Objects;
 
 // unused for now
-public class ColorPicker extends ParentableWidgetBase {
+public class ColorPicker extends GuiElement {
 
     public int hue = 0;
 

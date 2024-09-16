@@ -4,13 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 
 import java.util.Objects;
 
-public class GuiRadialTexture extends ParentableWidgetBase {
+public class GuiRadialTexture extends GuiElement {
 
     public Identifier texture;
 

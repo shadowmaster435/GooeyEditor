@@ -9,6 +9,11 @@ import java.io.FileOutputStream;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 
+
+/**
+ * Opens a file dialogue. <p>
+ * All processing is stopped until a choice is made.
+ */
 public final class SimpleFileDialogue {
 
 

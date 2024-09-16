@@ -1,17 +1,14 @@
 package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
-import org.joml.Vector2i;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
-import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Base class for containers
- * Any elements added via {@link BaseContainer#addElement(GuiElement)} are will be rendered here.
+ * Any elements added via {@link BaseContainer#addElement(SealedGuiElement)} are will be rendered here.
  */
-public abstract class BaseContainer extends ParentableWidgetBase {
+public abstract class BaseContainer extends GuiElement {
 
     public int element_spacing = 0;
 
@@ -41,18 +38,18 @@ public abstract class BaseContainer extends ParentableWidgetBase {
     public void removeElement(int index) {
         super.removeElement(index);
     }
-    public void removeElement(GuiElement element) {
+    public void removeElement(SealedGuiElement element) {
         super.removeElement(element);
     }
 
 
-    public boolean isChildHoverable(int mouseX, int mouseY, GuiElement element) {
+    public boolean isChildHoverable(int mouseX, int mouseY, SealedGuiElement element) {
         return this.isMouseOver(mouseX, mouseY) && element.isMouseOver(mouseX, mouseY);
     }
 
     @Override
-    public GuiElement getHoveredChild(int mouseX, int mouseY) {
-        for (GuiElement element : this) {
+    public SealedGuiElement getHoveredChild(int mouseX, int mouseY) {
+        for (SealedGuiElement element : this) {
             if (isChildHoverable(mouseX, mouseY, element)) {
                 return element;
             }

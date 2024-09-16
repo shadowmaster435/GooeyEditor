@@ -1,16 +1,11 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
-import org.shadowmaster435.gooeyeditor.screen.elements.container.GenericContainer;
-import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 
-public class GuiTexture extends ParentableWidgetBase implements EditorUtil {
+public class GuiTexture extends GuiElement implements EditorUtil {
 
     public Identifier texture = Identifier.of("minecraft:textures/block/dirt.png");
     public int texture_width = 0;

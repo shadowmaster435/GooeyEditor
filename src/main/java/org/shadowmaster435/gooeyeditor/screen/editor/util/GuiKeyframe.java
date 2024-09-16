@@ -1,7 +1,7 @@
 package org.shadowmaster435.gooeyeditor.screen.editor.util;
 
 import org.jetbrains.annotations.Nullable;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 
 public class GuiKeyframe<T> {
 
@@ -10,7 +10,7 @@ public class GuiKeyframe<T> {
     private final float time = 0;
     private Easing easing = Easing.LINEAR;
 
-    public GuiKeyframe(GuiElement.Property property, float time) {
+    public GuiKeyframe(SealedGuiElement.Property property, float time) {
 
     }
 

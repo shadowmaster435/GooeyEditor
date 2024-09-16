@@ -1,22 +1,11 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Colors;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.ColorHelper;
-import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
-public class SlotWidget extends ParentableWidgetBase {
+public class SlotWidget extends GuiElement {
 
     public Slot displayedSlot;
     public boolean drawSlot = true;
@@ -44,7 +33,7 @@ public class SlotWidget extends ParentableWidgetBase {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         if (drawSlot) {
-            drawNinePatchTexture(context, getGlobalRect(), NinePatchTexture.SLOT.texture(),  2,  false,  false);
+            drawNinePatchTexture(context, getGlobalRect(), NinePatchTexture.SLOT.texture(), 2);
         }
         if (displayedSlot == null) {
             if (isMouseOver(mouseX, mouseY) && !isEditMode()) {
@@ -60,10 +49,7 @@ public class SlotWidget extends ParentableWidgetBase {
                 super.preTransform(context, mouseX, mouseY, delta);
                 return;
             }
-
         }
-
-
         try {
             drawItem(context, displayedSlot.getStack(), getGlobalX() + 1, getGlobalY() + 1, getWidth() - 2, getHeight() - 2);
             if (isMouseOver(mouseX, mouseY) && !isEditMode()) {

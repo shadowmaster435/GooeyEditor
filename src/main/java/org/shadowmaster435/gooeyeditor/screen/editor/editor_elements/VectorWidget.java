@@ -4,14 +4,14 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import org.joml.*;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.NumberFieldWidget;
-import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
+import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 
 import java.util.ArrayList;
 
-public class VectorWidget extends ParentableWidgetBase {
+public class VectorWidget extends GuiElement {
 
     private NumberType type;
     private final ArrayList<Number> elements = new ArrayList<>();
@@ -173,7 +173,7 @@ public class VectorWidget extends ParentableWidgetBase {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         var current_y = 0;
 
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             element.parent = this;
             element.setWidth(getWidth());
             element.setX(0);
@@ -235,7 +235,7 @@ public class VectorWidget extends ParentableWidgetBase {
 
     @Override
     public boolean isFocused() {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (element.isFocused()) {
                 return true;
             }

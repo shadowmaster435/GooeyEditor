@@ -2,12 +2,12 @@ package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.MathHelper;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.ScrollbarWidget;
 
 
 /**
- * Scrollable List container variant see {@link ListContainer}.
+ * Scrollable container .
  * To access scroll functionality a scrollbar must be provided.
  */
 public class ScrollableContainer extends BaseContainer {
@@ -23,8 +23,9 @@ public class ScrollableContainer extends BaseContainer {
         this.scrollbar = scrollbar;
         this.max_length = max_length;
         this.element_spacing = element_spacing;
-
     }
+
+
 
     public void setScrollbar(ScrollbarWidget scrollbar) {
         this.scrollbar = scrollbar;
@@ -36,7 +37,7 @@ public class ScrollableContainer extends BaseContainer {
     @Override
     public void arrange() {
         var max_y = 0;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             element.setX(0);
             element.offset(true);
             element.setOffsetY(scroll_offset);

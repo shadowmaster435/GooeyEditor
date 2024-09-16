@@ -34,6 +34,9 @@ public abstract class GuiScreenHandler extends ScreenHandler {
         }
     }
 
+    /**
+     * @return Slot with provided id.
+     */
     public Slot createSlot(Inventory inventory, int id) {
         return new Slot(inventory, id, -1000, -1000);
     }
@@ -72,10 +75,15 @@ public abstract class GuiScreenHandler extends ScreenHandler {
         return result;
     }
 
+    /**
+     * @return Player hotbar slots.
+     */
     public ArrayList<Slot> getHotbarSlots() {
         return new ArrayList<>(hotbarSlots);
     }
-
+    /**
+     * @return Player inventory slots.
+     */
     public ArrayList<Slot> getPlayerInventorySlots() {
         return playerInventorySlots;
     }

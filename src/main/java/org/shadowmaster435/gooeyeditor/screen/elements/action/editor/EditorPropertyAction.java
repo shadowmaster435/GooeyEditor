@@ -1,8 +1,8 @@
 package org.shadowmaster435.gooeyeditor.screen.elements.action.editor;
 
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 
-public class EditorPropertyAction implements EditorAction<GuiElement.Property[]> {
+public class EditorPropertyAction implements EditorAction<SealedGuiElement.Property[]> {
     @Override
     public void redo() {
 
@@ -14,7 +14,7 @@ public class EditorPropertyAction implements EditorAction<GuiElement.Property[]>
     }
 
     @Override
-    public void create(GuiElement.Property[] properties) {
+    public void create(SealedGuiElement.Property[] properties) {
 
     }
 }

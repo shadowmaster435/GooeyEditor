@@ -5,7 +5,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public abstract class GuiButton extends ParentableWidgetBase {
+
+/**
+ * Base class for buttons.
+ */
+public abstract class GuiButton extends GuiElement {
 
     public Consumer<GuiButton> pressFunction;
     public BiConsumer<GuiButton, Object[]> dataPressFunction;

@@ -6,6 +6,10 @@ import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.PopupContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.ScrollableListContainer;
 
+
+/**
+ * Functions like a right click menu.
+ */
 public class ContextPopupWidget extends PopupContainer {
 
     public ScrollableListContainer list;
@@ -32,7 +36,7 @@ public class ContextPopupWidget extends PopupContainer {
         list.setScissor(getGlobalX() + 2, getGlobalY() + 2, getGlobalX() + getWidth() - 2, getGlobalY() + getHeight() - 2);
         scrollbarWidget.setPosition(getWidth() - 13, 1);
         scrollbarWidget.setSize(12, getHeight() - 2);
-        drawNinePatchTexture(context, getGlobalRect(), border, 1, false, false);
+        drawNinePatchTexture(context, getGlobalRect(), border, 1);
         super.preTransform(context, mouseX, mouseY, delta);
     }
 
@@ -46,7 +50,7 @@ public class ContextPopupWidget extends PopupContainer {
     }
 
     @Override
-    public void addElement(GuiElement element) {
+    public void addElement(SealedGuiElement element) {
         element.layer = layer + 1;
         list.addElement(element);
     }
@@ -57,12 +61,12 @@ public class ContextPopupWidget extends PopupContainer {
     }
 
     @Override
-    public void removeElement(GuiElement element) {
+    public void removeElement(SealedGuiElement element) {
         list.removeElement(element);
     }
 
     @Override
-    public GuiElement getHoveredChild(int mouseX, int mouseY) {
+    public SealedGuiElement getHoveredChild(int mouseX, int mouseY) {
         return (isOpen()) ? list.getHoveredChild(mouseX, mouseY) : null;
     }
 }

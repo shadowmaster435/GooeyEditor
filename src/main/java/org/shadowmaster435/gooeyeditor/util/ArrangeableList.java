@@ -2,7 +2,6 @@ package org.shadowmaster435.gooeyeditor.util;
 
 import java.util.ArrayList;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class ArrangeableList<E> extends ArrayList<E> {
 

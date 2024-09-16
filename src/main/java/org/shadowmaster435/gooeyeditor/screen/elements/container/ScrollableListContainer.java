@@ -2,10 +2,8 @@ package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.MathHelper;
-import org.joml.Vector2i;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.ScrollbarWidget;
-import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 
 
 /**
@@ -35,7 +33,7 @@ public class ScrollableListContainer extends ListContainer {
     public void arrange() {
         var y_offset = 0;
 
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (element instanceof ScrollbarWidget) {
                 continue;
             }

@@ -1,6 +1,6 @@
 package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 
 public class ListContainer extends BaseContainer {
 
@@ -17,7 +17,7 @@ public class ListContainer extends BaseContainer {
     @Override
     public void arrange() {
         var y_offset = 0;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (vertical) {
                 element.setX((repositionElements) ? -element.getWidth() : 0);
                 element.setY(y_offset );

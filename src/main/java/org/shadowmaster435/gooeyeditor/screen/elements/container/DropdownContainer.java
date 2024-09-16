@@ -1,9 +1,12 @@
 package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
-import net.minecraft.client.gui.DrawContext;
 import org.joml.Vector2i;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 
+
+/**
+ * Functions like a collapsable {@link ListContainer}
+ */
 public class DropdownContainer extends CollapsableContainer {
 
     public int entry_offset = 0;
@@ -26,7 +29,7 @@ public class DropdownContainer extends CollapsableContainer {
     public int getHeight() {
         int y_offset = 0;
 
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             y_offset += getElementSpacing() + element.getHeight();
         }
         return y_offset;
@@ -36,7 +39,7 @@ public class DropdownContainer extends CollapsableContainer {
     public void arrange() {
         int y_offset = 0;
         boolean first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.setX(getX());
                 first = false;
@@ -53,7 +56,7 @@ public class DropdownContainer extends CollapsableContainer {
 
     @Override
     public boolean changed() {
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (element.changed()) {
                 return true;
             }
@@ -65,7 +68,7 @@ public class DropdownContainer extends CollapsableContainer {
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
         var first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.mouseMoved(mouseX, mouseY);
 
@@ -81,7 +84,7 @@ public class DropdownContainer extends CollapsableContainer {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         var first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.mouseClicked(mouseX, mouseY, button);
                 first = false;
@@ -98,7 +101,7 @@ public class DropdownContainer extends CollapsableContainer {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         var first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.mouseReleased(mouseX, mouseY, button);
                 first = false;
@@ -115,7 +118,7 @@ public class DropdownContainer extends CollapsableContainer {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         var first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 
@@ -132,7 +135,7 @@ public class DropdownContainer extends CollapsableContainer {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         var first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 
@@ -149,7 +152,7 @@ public class DropdownContainer extends CollapsableContainer {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         var first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.keyPressed(keyCode, scanCode, modifiers);
 
@@ -167,7 +170,7 @@ public class DropdownContainer extends CollapsableContainer {
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 
         var first = true;
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.keyReleased(keyCode, scanCode, modifiers);
 
@@ -186,7 +189,7 @@ public class DropdownContainer extends CollapsableContainer {
     public boolean charTyped(char chr, int modifiers) {
         var first = true;
 
-        for (GuiElement element : this) {
+        for (SealedGuiElement element : this) {
             if (first) {
                 element.charTyped(chr, modifiers);
 

@@ -39,13 +39,13 @@ import static org.shadowmaster435.gooeyeditor.GooeyEditor.warn;
 public class GuiEditorScreen extends Screen implements EditorUtil {
 
     public static final int EDITOR_LAYERS_START = 512;
-    public final ArrayList<GuiElement> toAdd = new ArrayList<>();
-    public final HashMap<GuiElement, ParentableWidgetBase> toAddToChild = new HashMap<>();
+    public final ArrayList<SealedGuiElement> toAdd = new ArrayList<>();
+    public final HashMap<SealedGuiElement, GuiElement> toAddToChild = new HashMap<>();
     private boolean didInit = false;
     private final Screen parent;
     private final HashMap<String, Integer> usedNames = new HashMap<>();
     public ButtonWidget button1;
-    public GuiElement element;
+    public SealedGuiElement element;
     public ButtonWidget dragged_button;
     public TextureButtonWidget layer_editing;
     public TextureButtonWidget showContainers;
@@ -53,7 +53,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     private TextButtonWidget file;
     private TextButtonWidget save;
     private TextButtonWidget color_rect;
-    private GuiElement selected_element = null;
+    private SealedGuiElement selected_element = null;
     private IdentifierWidget w1;
     private PropertyEditor propertyEditor;
     private TextButtonWidget add;
@@ -68,7 +68,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public SaveMenu saveMenu;
 
     private TextButtonWidget contextChildButton;
-    private final ArrayList<GuiElement> elements = new ArrayList<>();
+    private final ArrayList<SealedGuiElement> elements = new ArrayList<>();
 
     public GuiEditorScreen(Screen screen) {
         super(Text.empty());
@@ -91,7 +91,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         }
     }
 
-    public GuiElement getSelectedElement() {
+    public SealedGuiElement getSelectedElement() {
         return selected_element;
     }
 
@@ -141,8 +141,8 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         }
         if (selected_element == null) {
             for (Element element1 : children()) {
-                if (element1 instanceof GuiElement element2) {
-                    if (element2 instanceof ParentableWidgetBase widgetBase) {
+                if (element1 instanceof SealedGuiElement element2) {
+                    if (element2 instanceof GuiElement widgetBase) {
                         AtomicBoolean stop = new AtomicBoolean(false);
 
                         widgetBase.forEachInBranch((element3, parent, d) -> {
@@ -190,8 +190,8 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
                 for (Element element1 : children()) {
 
-                    if (element1 instanceof GuiElement element2) {
-                        if (element2 instanceof ParentableWidgetBase widgetBase) {
+                    if (element1 instanceof SealedGuiElement element2) {
+                        if (element2 instanceof GuiElement widgetBase) {
                             AtomicBoolean stop = new AtomicBoolean(false);
                             widgetBase.forEachInBranch((element3, parent, d) -> {
                                 if (!stop.get()) {
@@ -239,7 +239,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
      * Sets selection to provided element and marks previously selected element (if any) as unselected.
      * @param element Element you want selected.
      */
-    public void selectElement(GuiElement element) {
+    public void selectElement(SealedGuiElement element) {
 
         if (selected_element != null) { // unselect previous if not null
             selected_element.selected = false;
@@ -253,7 +253,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
      * @param element Element you want selected.
      * @param genTree If false keeps the previously generated tree.
      */
-    public void selectElement(GuiElement element, boolean genTree) {
+    public void selectElement(SealedGuiElement element, boolean genTree) {
 
         if (selected_element != null) { // unselect previous if not null
             selected_element.selected = false;
@@ -264,7 +264,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     }
 
 
-    private boolean isElementLayerVisible(GuiElement element) {
+    private boolean isElementLayerVisible(SealedGuiElement element) {
         return !layer_editing.pressed || element.layer == displayed_layer.getInt();
     }
 
@@ -285,7 +285,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     public void deleteSelectedElement(GuiButton button) {
         remove(selected_element);
-        if (!children().contains(selected_element) && selected_element.parent instanceof ParentableWidgetBase p) {
+        if (!children().contains(selected_element) && selected_element.parent instanceof GuiElement p) {
             p.removeElement(selected_element);
         }
         selected_element = null;
@@ -344,7 +344,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
         toAdd.forEach(this::addDrawableChild);
         toAddToChild.forEach((elem, par) -> {
-            if (par instanceof ParentableWidgetBase p) {
+            if (par instanceof GuiElement p) {
                 p.addElement(elem);
             }
         });
@@ -395,7 +395,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
                         continue;
                     }
                     context.fill(c.getGlobalX(), c.getGlobalY(), c.getGlobalX() + c.getWidth(), c.getGlobalY() + c.getHeight(), c.layer + 1, ColorHelper.Argb.getArgb(255,255,255,255));
-                } else if (e instanceof ParentableWidgetBase w) {
+                } else if (e instanceof GuiElement w) {
                     w.forEachInBranch((a, par, d) -> {
                         if ((a instanceof BaseContainer && a.isEditMode() && !a.selected) || !a.selectable) {
                             context.fill(a.getGlobalX(), a.getGlobalY(), a.getGlobalX() + a.getWidth(), a.getGlobalY() + a.getHeight(), a.layer + 1, ColorHelper.Argb.getArgb(255, 255, 255, 255));
@@ -412,7 +412,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         if (didInit) {
             var elements = new ArrayList<>(this.elements);
             this.elements.clear();
-            for (GuiElement e : elements) {
+            for (SealedGuiElement e : elements) {
                 addDrawableChild(e);
             }
 
@@ -421,7 +421,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
             initTopBar();
             initContextMenu();
-            tree.createTreeForElement((ParentableWidgetBase) selected_element);
+            tree.createTreeForElement((GuiElement) selected_element);
 
         } else {
             var editor = new PropertyEditor(0, 32, false);
@@ -437,7 +437,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     @Override
     public <T extends Element & Drawable & Selectable> T addDrawableChild(T drawableElement) {
-        if (drawableElement instanceof GuiElement e && e.isEditMode()) {
+        if (drawableElement instanceof SealedGuiElement e && e.isEditMode()) {
             elements.add(e);
         }
         return super.addDrawableChild(drawableElement);
@@ -504,7 +504,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         this.contextMenu = contextMenu;
         addDrawableChild(contextMenu);
         var edit = new TextButtonWidget(0,0,("Edit"), false);
-        edit.setPressFunction((a) -> {propertyEditor.renderText(true); contextMenu.close(); if (selected_element instanceof ParentableWidgetBase widgetBase) tree.createTreeForElement(widgetBase);});
+        edit.setPressFunction((a) -> {propertyEditor.renderText(true); contextMenu.close(); if (selected_element instanceof GuiElement widgetBase) tree.createTreeForElement(widgetBase);});
         contextMenu.addElement(edit);
         this.contextEditButton = edit;
 //        var center = new TextButtonWidget(0,0,Text.of("Center Element"), false);
@@ -631,7 +631,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         SimpleFileDialogue.save(json, ".json", "Json Files");
     }
 
-    public void removeElement(GuiElement element) {
+    public void removeElement(SealedGuiElement element) {
         remove(element);
     }
 
@@ -666,7 +666,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         usedNames.clear();
 
         for (Element element1 : children()) {
-            if (element1 instanceof GuiElement guiElement) {
+            if (element1 instanceof SealedGuiElement guiElement) {
                 if (guiElement.isEditMode() && guiElement.needsExport) {
                     var actual_name = getSafeName(guiElement, usedNames, true);
 
@@ -683,7 +683,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         return code.build();
     }
 
-    public static String getSafeName(GuiElement guiElement, HashMap<String, Integer> usedNames, boolean add) {
+    public static String getSafeName(SealedGuiElement guiElement, HashMap<String, Integer> usedNames, boolean add) {
         var actual_name = guiElement.name;
         if (usedNames.containsKey(guiElement.name)) {
             if (add) {
@@ -713,7 +713,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     public final void fromJson(JsonObject object) {
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            var element = GuiElement.fromJson(entry.getValue().getAsJsonObject(), entry.getKey(), true);
+            var element = SealedGuiElement.fromJson(entry.getValue().getAsJsonObject(), entry.getKey(), true);
             toAdd.add(element);
         }
     }
@@ -721,7 +721,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     public String toJson() {
         var json = new JsonObject();
         for (Element element1 : children()) {
-            if (element1 instanceof GuiElement guiElement && guiElement.isEditMode() && ((GuiElement) element1).needsExport) {
+            if (element1 instanceof SealedGuiElement guiElement && guiElement.isEditMode() && ((SealedGuiElement) element1).needsExport) {
                 guiElement.writeJson(json);
             }
         }

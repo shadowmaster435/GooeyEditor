@@ -4,9 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
-import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 
-public class TextWidget extends ParentableWidgetBase {
+public class TextWidget extends GuiElement {
 
     public String text = "";
     public boolean draw_shadow = false;

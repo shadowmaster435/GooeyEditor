@@ -2,6 +2,9 @@ package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import org.joml.Vector2i;
 
+/**
+ * Functions identically to {@link CollapsableContainer} but can be instantiated.
+ */
 public class ToggleContainer extends CollapsableContainer {
     public ToggleContainer(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);

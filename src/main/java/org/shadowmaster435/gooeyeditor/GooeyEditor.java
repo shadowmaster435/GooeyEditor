@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.block.TestBlock;
 import org.shadowmaster435.gooeyeditor.block.TestBlockEntity;
 import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
-import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
+import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -27,7 +27,7 @@ public class GooeyEditor implements ModInitializer {
     private static final HashMap<String, Class<? extends HandledGuiScreen>> loadableScreens = new HashMap<>();
     public static ScreenHandlerType<InventoryExampleHandler> TESTHANDLERTYPE;
     private static HashMap<String, Class<?>> classMap = new HashMap<>();
-    private static HashMap<Identifier, Supplier<? extends ParentableWidgetBase>> registeredElements = new HashMap<>();
+    private static HashMap<Identifier, Supplier<? extends GuiElement>> registeredElements = new HashMap<>();
     private static HashMap<Identifier, String> elementDisplayNames = new HashMap<>();
 
     public static final TestBlock TESTBLOCK = register(
@@ -45,7 +45,11 @@ public class GooeyEditor implements ModInitializer {
             BlockEntityType.Builder.create(TestBlockEntity::new, TESTBLOCK).build()
     );
 
-    public static Identifier registerElement(Identifier id, String displayName, Supplier<? extends ParentableWidgetBase> creationFunction) {
+    /**
+     * Registers an element for editor use.
+     * @return Provided id
+     */
+    public static Identifier registerElement(Identifier id, String displayName, Supplier<? extends GuiElement> creationFunction) {
         registeredElements.put(id, creationFunction);
         elementDisplayNames.put(id, displayName);
         return id;
@@ -55,7 +59,7 @@ public class GooeyEditor implements ModInitializer {
         return elementDisplayNames.get(identifier);
     }
 
-    public static HashMap<Identifier, Supplier<? extends ParentableWidgetBase>> getRegisteredElements() {
+    public static HashMap<Identifier, Supplier<? extends GuiElement>> getRegisteredElements() {
         return new HashMap<>(registeredElements);
     }
 

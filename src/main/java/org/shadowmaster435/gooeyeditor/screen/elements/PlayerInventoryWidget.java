@@ -5,7 +5,7 @@ import net.minecraft.screen.slot.Slot;
 
 import java.util.ArrayList;
 
-public class PlayerInventoryWidget extends ParentableWidgetBase {
+public class PlayerInventoryWidget extends GuiElement {
 
     private SlotGridWidget inventory;
     private SlotGridWidget hotbar;
@@ -33,8 +33,8 @@ public class PlayerInventoryWidget extends ParentableWidgetBase {
 
     public SlotWidget getHoveredSlot(int mouseX, int mouseY) {
         SlotWidget result = null;
-        GuiElement inv = inventory.getHoveredChild(mouseX, mouseY);
-        GuiElement hotbar = this.hotbar.getHoveredChild(mouseX, mouseY);
+        SealedGuiElement inv = inventory.getHoveredChild(mouseX, mouseY);
+        SealedGuiElement hotbar = this.hotbar.getHoveredChild(mouseX, mouseY);
 
         if (hotbar instanceof SlotWidget widget) {
             return widget;

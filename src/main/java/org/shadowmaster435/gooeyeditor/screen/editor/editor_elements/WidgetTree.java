@@ -6,22 +6,18 @@ import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.*;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
-import org.shadowmaster435.gooeyeditor.util.InputHelper;
 import org.shadowmaster435.gooeyeditor.util.SimpleTreeMap;
 import oshi.util.tuples.Pair;
 
-import javax.xml.stream.events.DTD;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WidgetTree extends ScrollableListContainer {
 
     public GuiEditorScreen screen;
-    private final SimpleTreeMap<String, Pair<GuiElement, Integer>> tree = new SimpleTreeMap<>();
+    private final SimpleTreeMap<String, Pair<SealedGuiElement, Integer>> tree = new SimpleTreeMap<>();
     public Rect2 editorRect = new Rect2();
-    private ParentableWidgetBase current = null;
+    private GuiElement current = null;
     public DraggableElementReferenceButton hoveredButton = null;
     private DraggableElementReferenceButton clickedButton = null;
 
@@ -41,7 +37,7 @@ public class WidgetTree extends ScrollableListContainer {
         }
     }
 
-    public void createTreeForElement(ParentableWidgetBase rootElement) {
+    public void createTreeForElement(GuiElement rootElement) {
         if (!screen.isPropertyEditorOpen()) {
             return;
         }
@@ -52,7 +48,7 @@ public class WidgetTree extends ScrollableListContainer {
         var genericContainer = new GenericContainer(0,0,0,0,false);
         AtomicInteger y = new AtomicInteger(0);
         rootElement.forEachInBranch(((element, p, d) -> {
-            if (element.parent != null && element.parent.showChildren && !element.name.isEmpty() && element != rootElement && element.parent != element && element.parent != rootElement.parent && element instanceof ParentableWidgetBase e) {
+            if (element.parent != null && element.parent.showChildren && !element.name.isEmpty() && element != rootElement && element.parent != element && element.parent != rootElement.parent && element instanceof GuiElement e) {
                 var button = new DraggableElementReferenceButton(0,0, element.name, e, this, screen, false);
                 var currY = y.getAndAdd(1);
                 button.setY((currY * 10));
@@ -71,7 +67,7 @@ public class WidgetTree extends ScrollableListContainer {
 
 
     public void tryExpandElement(GuiButton textButtonWidget, Object[] data) {
-        if (data[0] instanceof GuiElement element) {
+        if (data[0] instanceof SealedGuiElement element) {
             screen.selectElement(element);
         }
         if (data[1] instanceof DropdownContainer container) {
@@ -83,7 +79,7 @@ public class WidgetTree extends ScrollableListContainer {
         }
     }
 
-    private ArrayList<String> getElementPath(GuiElement element) {
+    private ArrayList<String> getElementPath(SealedGuiElement element) {
         ArrayList<String> path = new ArrayList<>();
         element.forEachParent((parent) -> {
             path.add(parent.name);
@@ -105,10 +101,10 @@ public class WidgetTree extends ScrollableListContainer {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        for (GuiElement element1 : getElements()) {
+        for (SealedGuiElement element1 : getElements()) {
             if (element1 instanceof GenericContainer g) {
                 var found = false;
-                for (GuiElement element : g) {
+                for (SealedGuiElement element : g) {
                     if (element instanceof DraggableElementReferenceButton b && b.getGlobalRect().contains(mouseX, mouseY)) {
                         if (hoveredButton != null) {
                             hoveredButton.hovering = false;
@@ -136,12 +132,12 @@ public class WidgetTree extends ScrollableListContainer {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         mouseClickX = Math.floor(mouseX);
         mouseClickY = Math.floor(mouseY);
-        for (GuiElement element1 : getElements()) {
+        for (SealedGuiElement element1 : getElements()) {
 
             if (element1 instanceof GenericContainer g) {
                 hoveredButton = null;
                 clickedButton = null;
-                for (GuiElement element : g) {
+                for (SealedGuiElement element : g) {
                     if (clickedButton == null && element instanceof DraggableElementReferenceButton a && a.isMouseOver(mouseX, mouseY)) {
                         if (a.referenced.selectable) {
                             clickedButton = a;
@@ -160,9 +156,9 @@ public class WidgetTree extends ScrollableListContainer {
         if (Math.floor(mouseX) == mouseClickX && Math.floor(mouseY) == mouseClickY && clickedButton != null && clickedButton.referenced.selectable) {
             screen.selectElement(clickedButton.referenced, false);
         } else {
-            for (GuiElement element1 : getElements()) {
+            for (SealedGuiElement element1 : getElements()) {
                 if (element1 instanceof GenericContainer g) {
-                    for (GuiElement element : g) {
+                    for (SealedGuiElement element : g) {
                         if (element instanceof DraggableElementReferenceButton) {
                             if (clickedButton != null && hoveredButton != null) {
                                 if (!hoveredButton.referenced.isChildOfElementBranch(clickedButton.referenced) && clickedButton != hoveredButton) {

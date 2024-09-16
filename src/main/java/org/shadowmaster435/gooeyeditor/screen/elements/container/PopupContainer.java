@@ -3,8 +3,12 @@ package org.shadowmaster435.gooeyeditor.screen.elements.container;
 
 import net.minecraft.client.gui.DrawContext;
 import org.joml.Vector2i;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 
+
+/**
+ * A {@link CollapsableContainer} that can be opened at a provided position.
+ */
 public class PopupContainer extends CollapsableContainer {
 
 
@@ -87,7 +91,7 @@ public class PopupContainer extends CollapsableContainer {
     }
 
     @Override
-    public GuiElement getHoveredChild(int mouseX, int mouseY) {
+    public SealedGuiElement getHoveredChild(int mouseX, int mouseY) {
         if (isOpen) {
             return super.getHoveredChild(mouseX, mouseY);
         } else {
@@ -96,7 +100,7 @@ public class PopupContainer extends CollapsableContainer {
     }
 
     @Override
-    public boolean isChildHoverable(int mouseX, int mouseY, GuiElement element) {
+    public boolean isChildHoverable(int mouseX, int mouseY, SealedGuiElement element) {
         if (isOpen) {
             return super.isChildHoverable(mouseX, mouseY, element);
         } else {

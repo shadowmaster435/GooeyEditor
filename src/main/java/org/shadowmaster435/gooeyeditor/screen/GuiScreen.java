@@ -8,7 +8,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
+import org.shadowmaster435.gooeyeditor.screen.elements.SealedGuiElement;
 import org.shadowmaster435.gooeyeditor.screen.elements.PlayerInventoryWidget;
 import org.shadowmaster435.gooeyeditor.screen.elements.SlotGridWidget;
 import org.shadowmaster435.gooeyeditor.screen.elements.SlotWidget;
@@ -16,12 +16,10 @@ import org.shadowmaster435.gooeyeditor.screen.elements.SlotWidget;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class GuiScreen extends Screen {
 
-    private final HashMap<String, GuiElement> elements = new HashMap<>();
+    private final HashMap<String, SealedGuiElement> elements = new HashMap<>();
     private boolean initialized = false;
 
     public GuiScreen() {
@@ -54,26 +52,26 @@ public abstract class GuiScreen extends Screen {
 
     public abstract void initElements();
 
-    public GuiElement[] getElements() {
-        return elements.values().toArray(new GuiElement[]{});
+    public SealedGuiElement[] getElements() {
+        return elements.values().toArray(new SealedGuiElement[]{});
     }
 
-    public GuiElement getElement(String key) {
+    public SealedGuiElement getElement(String key) {
         return elements.getOrDefault(key, null);
     }
 
     public final void refreshElements() {
         elements.clear();
         for (Element element : children()) {
-            if (element instanceof GuiElement guiElement) {
+            if (element instanceof SealedGuiElement guiElement) {
                 elements.put(guiElement.name, guiElement);
             }
         }
     }
 
-    public final ArrayList<GuiElement> getEditableElements() {
+    public final ArrayList<SealedGuiElement> getEditableElements() {
         refreshElements();
-        ArrayList<GuiElement> result = new ArrayList<>();
+        ArrayList<SealedGuiElement> result = new ArrayList<>();
         for (String key : elements.keySet()) {
             var guiElement = elements.get(key);
             guiElement.setEditMode(true);
@@ -82,8 +80,8 @@ public abstract class GuiScreen extends Screen {
         return result;
     }
 
-    public GuiElement getHoveredElement(double mouseX, double mouseY) {
-        for (GuiElement element : elements.values()) {
+    public SealedGuiElement getHoveredElement(double mouseX, double mouseY) {
+        for (SealedGuiElement element : elements.values()) {
             if (element.isMouseOver(mouseX, mouseY)) {
                 return element;
             }
@@ -92,7 +90,7 @@ public abstract class GuiScreen extends Screen {
     }
 
     public SlotWidget getHoveredSlot(double mouseX, double mouseY) {
-        for (GuiElement element : elements.values()) {
+        for (SealedGuiElement element : elements.values()) {
             if (element.isMouseOver(mouseX, mouseY) && element instanceof SlotGridWidget slotWidget) {
                 var child = slotWidget.getHoveredChild((int) mouseX, (int) mouseY);
                 if (child instanceof SlotWidget e) {
@@ -110,6 +108,9 @@ public abstract class GuiScreen extends Screen {
         return null;
     }
 
+    /**
+     * @return All elements as json.
+     */
     public final JsonObject toJson() {
         var result = new JsonObject();
         for (String key : elements.keySet()) {
@@ -120,21 +121,24 @@ public abstract class GuiScreen extends Screen {
         return result;
     }
 
-    public void addElement(GuiElement element) {
+    public void addElement(SealedGuiElement element) {
         addDrawableChild(element);
     }
 
     @Override
     public <E extends Element & Drawable & Selectable> E addDrawableChild(E drawableElement) {
-        if (drawableElement instanceof GuiElement e) {
+        if (drawableElement instanceof SealedGuiElement e) {
             elements.put(e.name, e);
         }
         return super.addDrawableChild(drawableElement);
     }
 
+    /**
+     * Loads all elements from json
+     */
     public final void fromJson(JsonObject object) {
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            var element = GuiElement.fromJson(entry.getValue().getAsJsonObject(), entry.getKey(), false);
+            var element = SealedGuiElement.fromJson(entry.getValue().getAsJsonObject(), entry.getKey(), false);
             addDrawableChild(element);
         }
     }

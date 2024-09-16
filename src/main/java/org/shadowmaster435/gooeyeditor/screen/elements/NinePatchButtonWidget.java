@@ -43,15 +43,15 @@ public class NinePatchButtonWidget extends GuiButton {
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         if (isMouseOver(mouseX, mouseY)) {
             if (pressed) {
-                drawNinePatchTexture(context, getGlobalRect(), on_hovered.texture(), edge_thickness, false, true);
+                drawNinePatchTexture(context, getGlobalRect(), on_hovered.texture(), edge_thickness);
             } else {
-                drawNinePatchTexture(context, getGlobalRect(), off_hovered.texture(), edge_thickness, false, true);
+                drawNinePatchTexture(context, getGlobalRect(), off_hovered.texture(), edge_thickness);
             }
         } else {
             if (pressed) {
-                drawNinePatchTexture(context, getGlobalRect(), on.texture(), edge_thickness, false, true);
+                drawNinePatchTexture(context, getGlobalRect(), on.texture(), edge_thickness);
             } else {
-                drawNinePatchTexture(context, getGlobalRect(), off.texture(), edge_thickness, false, true);
+                drawNinePatchTexture(context, getGlobalRect(), off.texture(), edge_thickness);
             }
         }
         super.preTransform(context, mouseX, mouseY, delta);

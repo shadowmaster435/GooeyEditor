@@ -7,7 +7,7 @@ import org.shadowmaster435.gooeyeditor.screen.editor.util.MiscMath;
 
 import java.util.List;
 
-public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {
+public class SlotGridWidget extends GuiElement implements MiscMath {
 
     private final Table<Integer, Integer, SlotWidget> slotTable = HashBasedTable.create();
     public int xSize = 2;

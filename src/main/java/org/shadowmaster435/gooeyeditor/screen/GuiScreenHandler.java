@@ -56,6 +56,7 @@ public abstract class GuiScreenHandler extends ScreenHandler {
      */
     public ArrayList<Slot> createSlotsForPlayerInventory(PlayerInventory inventory) {
         ArrayList<Slot> result = new ArrayList<>();
+
         for (int i = 9; i < 36; ++i) {
             result.add(new Slot(inventory, i, -1000, -1000));
         }

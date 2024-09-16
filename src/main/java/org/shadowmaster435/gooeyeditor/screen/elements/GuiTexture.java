@@ -17,6 +17,7 @@ public class GuiTexture extends GuiElement implements EditorUtil {
         this.texture = texture;
         this.texture_width = texture_width;
         this.texture_height = texture_height;
+
     }
 
     public GuiTexture(int x, int y, int w, int h, int texture_width, int texture_height, boolean editMode) {
@@ -35,11 +36,14 @@ public class GuiTexture extends GuiElement implements EditorUtil {
         super.preTransform(context, mouseX, mouseY, delta);
     }
 
+
     @Override
     public Property[] getProperties() {
         var texture_width = new Property("Texture Width", "texture_width", "texture_width", Integer.class);
         var texture_height = new Property("Texture Height", "texture_height", "texture_height", Integer.class);
         var texture = new Property("Texture", "texture", "texture", Identifier.class);
+
+
 
         return new Property[]{texture_width, texture_height, texture};
     }

@@ -10,7 +10,6 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
-import org.shadowmaster435.gooeyeditor.InventoryExample;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 
 import java.io.IOException;
@@ -23,14 +22,10 @@ public class GooeyEditorClient implements ClientModInitializer {
     private static ShaderProgram radial_texture;
     private static ShaderProgram nine_patch;
 
-    private static ShaderProgram draw_buffer;
-
 
     @Override
     public void onInitializeClient() {
         register_shaders();
-        GooeyEditor.registerScreenForEditor("InventoryExample", InventoryExample.class);
-        HandledScreens.register(GooeyEditor.TESTHANDLERTYPE, InventoryExample::new);
     }
 
 
@@ -42,9 +37,7 @@ public class GooeyEditorClient implements ClientModInitializer {
         return radial_texture;
     }
 
-    public static ShaderProgram getDrawBuffer() {
-        return draw_buffer;
-    }
+
 
     public static ShaderProgram getNinePatch() {
         return nine_patch;
@@ -53,7 +46,6 @@ public class GooeyEditorClient implements ClientModInitializer {
 
 
     public static void register_shaders() {
-
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
             public Identifier getFabricId() {
@@ -65,8 +57,6 @@ public class GooeyEditorClient implements ClientModInitializer {
                     hue_gradient = new ShaderProgram(manager, "hue_gradient", VertexFormats.POSITION_TEXTURE_COLOR);
                     radial_texture = new ShaderProgram(manager, "radial_texture", VertexFormats.POSITION_TEXTURE_COLOR);
                     nine_patch = new ShaderProgram(manager, "nine_patch", VertexFormats.POSITION_TEXTURE_COLOR);
-
-                  //  draw_buffer = new ShaderProgram(manager, "draw_buffer", VertexFormats.POSITION_TEXTURE_COLOR);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);

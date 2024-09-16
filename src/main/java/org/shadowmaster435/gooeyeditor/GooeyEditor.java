@@ -12,8 +12,6 @@ import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
-import org.shadowmaster435.gooeyeditor.block.TestBlock;
-import org.shadowmaster435.gooeyeditor.block.TestBlockEntity;
 import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
 
@@ -25,25 +23,9 @@ public class GooeyEditor implements ModInitializer {
     public static final String id = "gooeyeditor";
     public static final Logger logger = Logger.getLogger("Gooey Editor");
     private static final HashMap<String, Class<? extends HandledGuiScreen>> loadableScreens = new HashMap<>();
-    public static ScreenHandlerType<InventoryExampleHandler> TESTHANDLERTYPE;
     private static HashMap<String, Class<?>> classMap = new HashMap<>();
     private static HashMap<Identifier, Supplier<? extends GuiElement>> registeredElements = new HashMap<>();
     private static HashMap<Identifier, String> elementDisplayNames = new HashMap<>();
-
-    public static final TestBlock TESTBLOCK = register(
-            new TestBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.GRASS)),
-            "testblock",
-            true
-    );
-
-    public static <T extends BlockEntityType<?>> T registerEnt(String path, T blockEntityType) {
-        return Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of("tutorial", path), blockEntityType);
-    }
-
-    public static final BlockEntityType<TestBlockEntity> TESTBLOCKENT = registerEnt(
-            "testblockent",
-            BlockEntityType.Builder.create(TestBlockEntity::new, TESTBLOCK).build()
-    );
 
     /**
      * Registers an element for editor use.
@@ -63,23 +45,6 @@ public class GooeyEditor implements ModInitializer {
         return new HashMap<>(registeredElements);
     }
 
-    public static <B extends Block> B register(B block, String name, boolean shouldRegisterItem) {
-        // Register the block and its item.
-        Identifier id = Identifier.of(GooeyEditor.id, name);
-
-        // Sometimes, you may not want to register an item for the block.
-        // Eg: if it's a technical block like `minecraft:air` or `minecraft:end_gateway`
-        if (shouldRegisterItem) {
-            BlockItem blockItem = new BlockItem(block, new Item.Settings());
-            Registry.register(Registries.ITEM, id, blockItem);
-        }
-
-        return Registry.register(Registries.BLOCK, id, block);
-    }
-    @Override
-    public void onInitialize() {
-        TESTHANDLERTYPE = Registry.register(Registries.SCREEN_HANDLER, Identifier.of(id, "test"), new ScreenHandlerType<>(InventoryExampleHandler::new, FeatureFlags.DEFAULT_ENABLED_FEATURES));
-    }
     public static void warn(int warning, Object... extra_data) {
         switch (warning) {
             case 0 -> GooeyEditor.logger.warning("Tried to export a " + extra_data[0].getClass().getSimpleName() + " with a blank name. Skipped export of element.");
@@ -100,4 +65,8 @@ public class GooeyEditor implements ModInitializer {
         return classMap.getOrDefault(s, null);
     }
 
+    @Override
+    public void onInitialize() {
+
+    }
 }

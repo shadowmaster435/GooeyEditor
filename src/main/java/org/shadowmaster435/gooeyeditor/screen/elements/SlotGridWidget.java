@@ -2,13 +2,9 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import com.google.common.collect.*;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.slot.Slot;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreenHandler;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.MiscMath;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SlotGridWidget extends ParentableWidgetBase implements MiscMath {

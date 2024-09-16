@@ -1,10 +1,7 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreenHandler;
 
 import java.util.ArrayList;
 

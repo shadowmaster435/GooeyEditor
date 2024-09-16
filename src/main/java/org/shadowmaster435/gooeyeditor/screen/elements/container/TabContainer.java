@@ -161,7 +161,7 @@ public class TabContainer extends BaseContainer {
         var rect = getGlobalRect();
         rect.setRect(getGlobalX(), getGlobalY() + 16, getWidth(), getHeight() - 16);
 
-        drawNinePatchTexture(context, rect, NinePatchTexture.PANEL);
+        drawNinePatchTexture(context, rect, NinePatchTexture.PANEL.texture(), NinePatchTexture.PANEL.edge_thickness(), false, false);
         super.preTransform(context, mouseX, mouseY, delta);
 
     }

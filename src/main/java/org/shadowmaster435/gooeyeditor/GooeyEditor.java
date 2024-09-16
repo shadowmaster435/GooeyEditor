@@ -14,7 +14,7 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.block.TestBlock;
 import org.shadowmaster435.gooeyeditor.block.TestBlockEntity;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
+import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.ParentableWidgetBase;
 
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 public class GooeyEditor implements ModInitializer {
     public static final String id = "gooeyeditor";
     public static final Logger logger = Logger.getLogger("Gooey Editor");
-    private static final HashMap<String, Class<? extends GuiScreen>> loadableScreens = new HashMap<>();
+    private static final HashMap<String, Class<? extends HandledGuiScreen>> loadableScreens = new HashMap<>();
     public static ScreenHandlerType<InventoryExampleHandler> TESTHANDLERTYPE;
     private static HashMap<String, Class<?>> classMap = new HashMap<>();
     private static HashMap<Identifier, Supplier<? extends ParentableWidgetBase>> registeredElements = new HashMap<>();
@@ -83,11 +83,11 @@ public class GooeyEditor implements ModInitializer {
         }
     }
 
-    public static Class<? extends GuiScreen> getClassForDisplayName(String display_name) {
+    public static Class<? extends HandledGuiScreen> getClassForDisplayName(String display_name) {
         return loadableScreens.getOrDefault(display_name, null);
     }
 
-    public static void registerScreenForEditor(String display_name, Class<? extends GuiScreen> screen) {
+    public static void registerScreenForEditor(String display_name, Class<? extends HandledGuiScreen> screen) {
         GooeyEditor.loadableScreens.put(display_name, screen);
     }
 

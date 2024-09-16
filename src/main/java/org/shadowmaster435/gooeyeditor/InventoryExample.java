@@ -4,11 +4,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
+import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.PlayerInventoryWidget;
 import org.shadowmaster435.gooeyeditor.screen.elements.SlotGridWidget;
 
-public class InventoryExample extends GuiScreen<InventoryExampleHandler> {
+public class InventoryExample extends HandledGuiScreen<InventoryExampleHandler> {
     public PlayerInventoryWidget playerInventory;
     public SlotGridWidget slotGrid;
 

@@ -17,7 +17,7 @@ import net.minecraft.util.math.ColorHelper;
 import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
+import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.*;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
@@ -660,7 +660,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
     }
 
     public String getContentsExportString(String className) {
-        var code = new ClassCodeStringBuilder(className, GuiScreen.class);
+        var code = new ClassCodeStringBuilder(className, HandledGuiScreen.class);
         var setVarsMethod = new ClassCodeStringBuilder.MethodStringBuilder("initElements", null, null, false);
         var initMethod = new ClassCodeStringBuilder.MethodStringBuilder(className, null, null, true);
         usedNames.clear();

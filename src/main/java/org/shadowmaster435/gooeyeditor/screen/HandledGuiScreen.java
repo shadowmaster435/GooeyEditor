@@ -6,12 +6,13 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
-import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;
-import org.shadowmaster435.gooeyeditor.screen.elements.PlayerInventoryWidget;
-import org.shadowmaster435.gooeyeditor.screen.elements.SlotGridWidget;
-import org.shadowmaster435.gooeyeditor.screen.elements.SlotWidget;
+import org.shadowmaster435.gooeyeditor.screen.elements.*;
+import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,19 +20,20 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class GuiScreen extends Screen {
+public abstract class HandledGuiScreen<T extends ScreenHandler> extends HandledScreen<T> {
 
     private final HashMap<String, GuiElement> elements = new HashMap<>();
     private boolean initialized = false;
 
-    public GuiScreen() {
-        super(Text.of(""));
+    protected HandledGuiScreen(T handler, PlayerInventory inventory) {
+        super(handler, inventory, Text.of(""));
         init();
+
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    protected void handledScreenTick() {
+        super.handledScreenTick();
         if (client != null && !initialized) {
             refreshElements();
             initElements();
@@ -45,9 +47,72 @@ public abstract class GuiScreen extends Screen {
         super.init();
     }
 
+    private HashMap<Slot,SlotWidget> touchSlots = new HashMap<>();
+    private int touchHoveredSlotCount = 0;
+
+
+    private int pressed_button = -1;
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+        for (SlotWidget widget : touchSlots.values()) {
+            if (cursorDragging) {
+                if (widget != null) {
+                    if (InputHelper.isLeftMouseHeld && pressed_button == 0) {
+                        addMulti(widget);
+                    }
+                    if (InputHelper.isRightMouseHeld && pressed_button == 1) {
+                        addPlusOne(widget);
+                    }
+                    if (InputHelper.isMiddleMouseHeld && pressed_button == 2) {
+                        addClone(widget);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addClone(SlotWidget widget) {
+        var stack = handler.getCursorStack();
+        widget.touchDraggedStack = stack.copyWithCount(stack.getCount());
+    }
+
+    private void addPlusOne(SlotWidget widget) {
+        var cstack = handler.getCursorStack();
+        var stack = widget.displayedSlot.getStack();
+        int amount = (stack.isEmpty()) ? 1 : Math.min(stack.getCount() + 1, stack.getMaxCount());
+        widget.touchDraggedStack = cstack.copyWithCount(amount);
+    }
+
+    private void addMulti(SlotWidget widget) {
+        var stack = handler.getCursorStack();
+        int amount = stack.getCount() / touchSlots.size();
+        var sstack = widget.displayedSlot.getStack();
+        int extra = (stack.isEmpty()) ? 0 : sstack.getCount();
+        widget.touchDraggedStack = stack.copyWithCount(amount + extra);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (getHoveredSlot(mouseX, mouseY) instanceof SlotWidget widget && widget.displayedSlot != null && widget.displayedSlot.canInsert(this.handler.getCursorStack()) && !(touchSlots.containsValue(widget))) {
+            touchSlots.put(widget.displayedSlot, widget);
+        }
+        if (pressed_button == -1) {
+            pressed_button = button;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        for (SlotWidget widget : touchSlots.values()) {
+            widget.touchDraggedStack = null;
+        }
+        pressed_button = -1;
+        touchSlots.clear();
+
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     public abstract void clinit();
@@ -96,7 +161,6 @@ public abstract class GuiScreen extends Screen {
             if (element.isMouseOver(mouseX, mouseY) && element instanceof SlotGridWidget slotWidget) {
                 var child = slotWidget.getHoveredChild((int) mouseX, (int) mouseY);
                 if (child instanceof SlotWidget e) {
-
                     return e;
                 }
             }

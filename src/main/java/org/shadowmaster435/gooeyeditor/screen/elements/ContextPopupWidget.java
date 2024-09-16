@@ -32,7 +32,7 @@ public class ContextPopupWidget extends PopupContainer {
         list.setScissor(getGlobalX() + 2, getGlobalY() + 2, getGlobalX() + getWidth() - 2, getGlobalY() + getHeight() - 2);
         scrollbarWidget.setPosition(getWidth() - 13, 1);
         scrollbarWidget.setSize(12, getHeight() - 2);
-        drawNinePatchTexture(context, getGlobalRect(), border, 1, 16, 16);
+        drawNinePatchTexture(context, getGlobalRect(), border, 1, false, false);
         super.preTransform(context, mouseX, mouseY, delta);
     }
 

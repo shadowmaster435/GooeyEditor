@@ -1,14 +1,27 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.Colors;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.ColorHelper;
+import org.shadowmaster435.gooeyeditor.util.InputHelper;
 
 public class SlotWidget extends ParentableWidgetBase {
 
     public Slot displayedSlot;
     public boolean drawSlot = true;
+    public ItemStack touchDraggedStack = ItemStack.EMPTY;
+
 
     public SlotWidget(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);
@@ -27,22 +40,29 @@ public class SlotWidget extends ParentableWidgetBase {
         this.displayedSlot = slot;
     }
 
+
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
-
         if (drawSlot) {
-            drawNinePatchTexture(context, getGlobalRect(), NinePatchTexture.SLOT.texture(),  2,  NinePatchTexture.SLOT.texture_width(),  NinePatchTexture.SLOT.texture_height());
+            drawNinePatchTexture(context, getGlobalRect(), NinePatchTexture.SLOT.texture(),  2,  false,  false);
         }
         if (displayedSlot == null) {
             if (isMouseOver(mouseX, mouseY) && !isEditMode()) {
-
                 context.fill(getGlobalX() + 1, getGlobalY() + 1, getGlobalX() + (getWidth() - 1), getGlobalY() + (getHeight() - 1), (int) ((layer + 1) + (getSize().length())), ColorHelper.Argb.getArgb(20,255, 255, 255));
-
             }
             super.preTransform(context, mouseX, mouseY, delta);
 
             return;
         }
+        if (touchDraggedStack != null && !touchDraggedStack.isEmpty()) {
+            drawItem(context, touchDraggedStack, getGlobalX() + 1, getGlobalY() + 1, getWidth() - 2, getHeight() - 2);
+            if (displayedSlot != null && !displayedSlot.getStack().isEmpty()) {
+                super.preTransform(context, mouseX, mouseY, delta);
+                return;
+            }
+
+        }
+
 
         try {
             drawItem(context, displayedSlot.getStack(), getGlobalX() + 1, getGlobalY() + 1, getWidth() - 2, getHeight() - 2);
@@ -54,6 +74,8 @@ public class SlotWidget extends ParentableWidgetBase {
         }
         super.preTransform(context, mouseX, mouseY, delta);
     }
+
+
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {

@@ -21,6 +21,8 @@ public class GooeyEditorClient implements ClientModInitializer {
 
     private static ShaderProgram hue_gradient;
     private static ShaderProgram radial_texture;
+    private static ShaderProgram nine_patch;
+
     private static ShaderProgram draw_buffer;
 
 
@@ -44,6 +46,10 @@ public class GooeyEditorClient implements ClientModInitializer {
         return draw_buffer;
     }
 
+    public static ShaderProgram getNinePatch() {
+        return nine_patch;
+    }
+
 
 
     public static void register_shaders() {
@@ -58,6 +64,8 @@ public class GooeyEditorClient implements ClientModInitializer {
                 try {
                     hue_gradient = new ShaderProgram(manager, "hue_gradient", VertexFormats.POSITION_TEXTURE_COLOR);
                     radial_texture = new ShaderProgram(manager, "radial_texture", VertexFormats.POSITION_TEXTURE_COLOR);
+                    nine_patch = new ShaderProgram(manager, "nine_patch", VertexFormats.POSITION_TEXTURE_COLOR);
+
                   //  draw_buffer = new ShaderProgram(manager, "draw_buffer", VertexFormats.POSITION_TEXTURE_COLOR);
 
                 } catch (IOException e) {

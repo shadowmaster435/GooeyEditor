@@ -4,3 +4,8 @@ accessible method net/minecraft/client/gui/screen/Screen addDrawableChild (Lnet/
 accessible method net/minecraft/client/gui/screen/ingame/HandledScreen getSlotAt (DD)Lnet/minecraft/screen/slot/Slot;
 accessible field net/minecraft/client/gui/screen/ingame/HandledScreen quickMovingStack Lnet/minecraft/item/ItemStack;
 accessible method net/minecraft/client/gui/screen/ingame/HandledScreen isPointOverSlot (Lnet/minecraft/screen/slot/Slot;DD)Z
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen touchDragStack Lnet/minecraft/item/ItemStack;
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen touchHoveredSlot Lnet/minecraft/screen/slot/Slot;
+accessible method net/minecraft/client/gui/screen/ingame/HandledScreen drawItem (Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen draggedStackRemainder I
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen touchIsRightClickDrag Z

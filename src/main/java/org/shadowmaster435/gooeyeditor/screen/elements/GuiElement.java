@@ -32,6 +32,7 @@ import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
+import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.VectorWidget;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
@@ -1239,16 +1240,6 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
             matrices.pop();
         }
     }
-    public void drawNinePatchTexture(DrawContext context, Rect2 rect, NinePatchTextureData data, int edge_thickness, int texture_width, int texture_height) {
-        var texture = data.texture();
-        drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
-        drawCenter(context, rect, texture, edge_thickness, texture_width, texture_height);
-        drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
-    }
-
-    public void drawNinePatchTexture(DrawContext context, NinePatchTextureData data) {
-        drawNinePatchTexture(context, this.getGlobalRect(), data);
-    }
 
     public void drawNinePatchTexture(DrawContext context, Rect2 rect, NinePatchTextureData data) {
         var texture = data.texture();
@@ -1260,10 +1251,32 @@ public abstract sealed class GuiElement implements Drawable, Selectable, Element
         drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
     }
 
-    public void drawNinePatchTexture(DrawContext context, Rect2 rect, Identifier texture, int edge_thickness, int texture_width, int texture_height) {
-        drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
-        drawCenter(context, rect, texture, edge_thickness, texture_width, texture_height);
-        drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
+    public void drawNinePatchTexture(DrawContext context, Rect2 rect, Identifier texture, int edge_thickness, boolean tile_edges, boolean tile_center) {
+        var x = rect.x;
+        var y = rect.y;
+        var width = rect.width;
+        var height = rect.height;
+        var shader = GooeyEditorClient.getNinePatch();
+        RenderSystem.setShader(GooeyEditorClient::getNinePatch);
+        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.disableCull();
+        shader.getUniform("quad_size").set(width, height);
+        shader.getUniform("edge_thickness").set(edge_thickness);
+        //shader.getUniform("tile_center").set((tile_center) ? 1 : 0);
+        //shader.getUniform("tile_edges").set((tile_edges) ? 1 : 0);
+
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y, (float) layer).texture(0, 0).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, (float)layer).texture(0, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, (float)layer).texture(1, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, (float)layer).texture(1, 0).color(1f, 1f, 1f, 1f);
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        RenderSystem.disableBlend();
+        //drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
+       // drawCenter(context, rect, texture, edge_thickness, texture_width, texture_height);
+       // drawCorners(context, rect, texture, edge_thickness, texture_width, texture_height);
     }
 
 

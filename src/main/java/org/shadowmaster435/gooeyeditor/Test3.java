@@ -6,10 +6,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
-import org.shadowmaster435.gooeyeditor.screen.GuiScreen;
+import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
 
-public class Test3 extends GuiScreen<InventoryExampleHandler> {
+public class Test3 extends HandledGuiScreen<InventoryExampleHandler> {
 
     //This default init function is required if you want to load this screen in the editor
     //will throw an exception if excluded

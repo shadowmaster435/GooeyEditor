@@ -90,13 +90,6 @@ publishing {
 
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        maven {
-            name = "GooeyEditor"
-            url = uri("https://maven.pkg.github.com/shadowmaster435/GooeyEditor")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
+
     }
 }

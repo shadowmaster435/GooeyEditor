@@ -8,6 +8,8 @@ group = project.maven_group
 
 base {
     archivesName = project.archives_base_name
+
+
 }
 
 repositories {
@@ -78,16 +80,23 @@ jar {
 publishing {
     publications {
         create("mavenJava", MavenPublication) {
+            groupId = project.maven_group
             artifactId = project.archives_base_name
+            version = project.mod_version
             from components.java
         }
+
     }
 
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+        maven {
+            name = "GooeyEditor"
+            url = uri("https://maven.pkg.github.com/shadowmaster435/GooeyEditor")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }

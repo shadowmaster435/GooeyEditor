@@ -1,16 +1,6 @@
 package org.shadowmaster435.gooeyeditor;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.resource.featuretoggle.FeatureFlags;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import org.shadowmaster435.gooeyeditor.screen.HandledGuiScreen;
 import org.shadowmaster435.gooeyeditor.screen.elements.GuiElement;

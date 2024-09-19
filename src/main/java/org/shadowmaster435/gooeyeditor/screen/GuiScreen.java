@@ -40,6 +40,7 @@ public abstract class GuiScreen extends Screen {
 
     @Override
     protected void init() {
+        initialized = false;
         super.init();
     }
 

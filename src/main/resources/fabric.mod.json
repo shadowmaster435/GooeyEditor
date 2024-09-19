@@ -6,11 +6,11 @@
   "description": "",
   "authors": [],
   "contact": {
-    "repo": "https://github.com/shado/GooeyEditor"
+    "repo": "https://github.com/shadowmaster435/GooeyEditor"
   },
   "license": "All-Rights-Reserved",
   "icon": "assets/gooeyeditor/icon.png",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "org.shadowmaster435.gooeyeditor.client.GooeyEditorClient"

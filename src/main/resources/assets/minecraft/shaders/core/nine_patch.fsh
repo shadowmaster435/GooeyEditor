@@ -35,7 +35,6 @@ vec2 getPixelPos(vec2 uv) {
 vec2 getUV(vec2 uv) {
     vec2 uvTexCoord = uv * getPixelSize();
     vec2 uvQuadCoord = uv * quad_size;
-    vec2 quadUV = getQuadPixelPos(uv);
     vec2 texUv = getPixelPos(uv);
     vec2 halfSize = getPixelSize() / 2.0;
     vec2 sub = uvQuadCoord - (quad_size - halfSize);
@@ -60,10 +59,10 @@ vec2 getUV(vec2 uv) {
         return vec2(loopX, subSize.y + (halfSize.y / getPixelSize().y));
     }
     if (inEdgeMinX && !(inEdgeMaxY || inEdgeMinY)) {
-        return vec2(result.x, loopY);
+        return vec2(result.x + (0.5 / getPixelSize().x), loopY);
     }
     if (inEdgeMinY && !(inEdgeMaxX || inEdgeMinX)) {
-        return vec2(loopX, result.y);
+        return vec2(loopX, result.y + (0.5 / getPixelSize().y));
     }
     //center
     if ((!inCenterMaxX && !inEdgeMinX) && (!inCenterMaxY && !inEdgeMinY)) {
@@ -79,7 +78,7 @@ vec2 getUV(vec2 uv) {
     if (sub.y > 0.0 && !(sub.x > 0.0)) {
         return (vec2((uvQuadCoord.x / uvTexCoord.x) - 0.5, 0.5) + vec2(sub.x, sub.y) / getPixelSize());
     }
-    return result;
+    return result + (0.5 / getPixelSize());
 }
 
 void main() {

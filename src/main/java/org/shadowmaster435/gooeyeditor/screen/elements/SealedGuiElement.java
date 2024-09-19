@@ -1300,10 +1300,10 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
         //shader.getUniform("tile_edges").set((tile_edges) ? 1 : 0);
 
         BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-        bufferBuilder.vertex(matrix4f, (float)x, (float)y, (float) layer).texture(0, 0).color(1f, 1f, 1f, 1f);
-        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, (float)layer).texture(0, 1).color(1f, 1f, 1f, 1f);
-        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, (float)layer).texture(1, 1).color(1f, 1f, 1f, 1f);
-        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, (float)layer).texture(1, 0).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y, (float) 0).texture(0, 0).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, (float)0).texture(0, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, (float)0).texture(1, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, (float)0).texture(1, 0).color(1f, 1f, 1f, 1f);
         BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
         RenderSystem.disableBlend();
         //drawEdges(context, rect, texture, edge_thickness, texture_width, texture_height);
@@ -1394,7 +1394,7 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
             var clazz = Class.forName(element.get("class").getAsString());
             result = (E) clazz.getConstructor(int.class, int.class, boolean.class).newInstance(0,0, editMode);
         } catch (Exception e) {
-            if (e instanceof InstantiationException) {
+            if (e instanceof NoSuchMethodException) {
                 try {
                     var clazz = Class.forName(element.get("class").getAsString());
                     var cannonName = ClassCodeStringBuilder.getSimpleCanonicalName(clazz);
@@ -1455,6 +1455,8 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
         element.createLocalInitString(builder, clazz, safeName);
         element.createAssignerSetterString(builder, safeName, usedNames, (par == null));
         builder.line(safeParentName + ".addElement(" + safeName + ");");
+        builder.line("this." + safeName + " = " + safeName);
+
     }
 
     public void createLocalInitString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {

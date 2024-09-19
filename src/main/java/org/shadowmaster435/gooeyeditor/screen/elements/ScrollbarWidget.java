@@ -29,7 +29,7 @@ public class ScrollbarWidget extends NinePatchTexture {
     public double scroll_delta = 1;
 
     public static final NinePatchTextureData DEFAULT_SCROLLBAR_BG = new NinePatchTextureData(16,16,5,Identifier.of(GooeyEditor.id, "textures/gui/slot.png"));
-    public static final ScrollbarWidgetData DEFAULT_SCROLLBAR = new ScrollbarWidgetData(DEFAULT_SCROLLBAR_BG,Identifier.of(GooeyEditor.id, "textures/gui/scroll_grabber.png"),16,16,5, 16);
+    public static final ScrollbarWidgetData DEFAULT_SCROLLBAR = new ScrollbarWidgetData(DEFAULT_SCROLLBAR_BG,Identifier.of(GooeyEditor.id, "textures/gui/scroll_grabber.png"),16,16,3, 16);
 
 
     public Identifier grabber_texture;
@@ -45,7 +45,7 @@ public class ScrollbarWidget extends NinePatchTexture {
         var grabber_length = new Property("Grabber Length", "grabber_length", "grabber_length", Integer.class);
         var horizontal = new Property("Horizontal", "horizontal", "horizontal", Boolean.class);
         var texture = new Property("Grabber Texture", "grabber_texture", "grabber_texture", Identifier.class);
-        return mergeProperties(super.getProperties(), new Property[]{horizontal, texture_width, texture_height, edge_thickness, grabber_length, texture});
+        return mergeProperties(super.getProperties(), horizontal, texture_width, texture_height, edge_thickness, grabber_length, texture);
     }
 
     /**

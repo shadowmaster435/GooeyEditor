@@ -1,5 +1,6 @@
 package org.shadowmaster435.gooeyeditor.mixin;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -24,12 +25,14 @@ public class TitleScreenMixin {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     public void init(CallbackInfo ci) {
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            ButtonWidget button1;
+            button1 = ButtonWidget.builder(Text.literal("Gui Editor"), button -> MinecraftClient.getInstance().setScreen(new GuiEditorScreen(((TitleScreen)(Object) this))))
+                    .dimensions(0, 0, MinecraftClient.getInstance().textRenderer.getWidth("Gui Editor") + 3, 16)
+                    .build();
+            ((TitleScreen)(Object) this).addDrawableChild(button1);
+        }
 
-        ButtonWidget button1;
-                button1 = ButtonWidget.builder(Text.literal("Tst"), button -> MinecraftClient.getInstance().setScreen(new GuiEditorScreen(((TitleScreen)(Object) this))))
-                .dimensions(0, 0, 16, 16)
-                .build();
-        ((TitleScreen)(Object) this).addDrawableChild(button1);
     }
 
 }

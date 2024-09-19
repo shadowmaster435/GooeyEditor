@@ -11,7 +11,9 @@ public class BoxContainer extends BaseContainer{
     public BoxContainer(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);
     }
-
+    public BoxContainer(int x, int y, boolean editMode) {
+        super(x, y, 32, 32, editMode);
+    }
     @Override
     public void arrange() {
         if (vertical) {

@@ -22,6 +22,23 @@ public interface EditorUtil {
         return getScaledWindowCenter().sub(half_size);
     }
 
+    default NinePatchButtonWidget createNinePatchButton() {
+        var tex = new NinePatchButtonWidget(32,32,true);
+        tex.name = "ninePatchButton";
+        return tex;
+    }
+    default TextureButtonWidget createTextureButton() {
+        var tex = new TextureButtonWidget(32,32,true);
+        tex.name = "textureButton";
+        return tex;
+    }
+
+    default TextButtonWidget createTextButton() {
+        var tex = new TextButtonWidget(32,32,true);
+        tex.name = "textButton";
+        return tex;
+    }
+
     default PaginatedListContainer createPaginatedListContainer() {
         var tex = new PaginatedListContainer(32,32, 32, 32,true);
         tex.name = "pageListContainer";
@@ -116,6 +133,17 @@ public interface EditorUtil {
         return display;
     }
 
+    default GenericContainer createGenericContainer() {
+        var text = new GenericContainer(32, 32, true);
+        text.name = "container";
+        return text;
+    }
+
+    default ToggleContainer createToggleContainer() {
+        var text = new ToggleContainer(32, 32, true);
+        text.name = "toggleContainer";
+        return text;
+    }
 
     default TextWidget createText() {
         var text = new TextWidget(32, 32, true);

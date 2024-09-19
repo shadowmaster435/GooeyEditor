@@ -42,6 +42,7 @@ public abstract class HandledGuiScreen<T extends ScreenHandler> extends HandledS
 
     @Override
     protected void init() {
+        initialized = false;
         super.init();
     }
 

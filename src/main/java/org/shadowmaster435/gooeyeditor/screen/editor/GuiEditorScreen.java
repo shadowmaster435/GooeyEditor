@@ -288,6 +288,7 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         if (!children().contains(selected_element) && selected_element.parent instanceof GuiElement p) {
             p.removeElement(selected_element);
         }
+        elements.remove(selected_element);
         selected_element = null;
         propertyEditor.unloadProperties();
     }
@@ -408,7 +409,11 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     @Override
     protected void init() {
-
+        if (saveMenuOpen) {
+            var txt = saveMenu.classNameField.text;
+            openSaveMenu();
+            saveMenu.classNameField.text = txt;
+        }
         if (didInit) {
             var elements = new ArrayList<>(this.elements);
             this.elements.clear();
@@ -544,10 +549,15 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
         elementList.registerElement("Tab Container", this::createTabContainer);
         elementList.registerElement("Page Container", this::createPaginatedContainer);
         elementList.registerElement("Paged List Container", this::createPaginatedListContainer);
-
         elementList.registerElement("Scrollbar", this::createScrollbar);
-        elementList.registerElement("Text Field", this::createTextField);
         elementList.registerElement("Text", this::createText);
+        elementList.registerElement("Text Field", this::createTextField);
+        elementList.registerElement("Text Button", this::createTextButton);
+        elementList.registerElement("Nine Patch Button", this::createNinePatchButton);
+        elementList.registerElement("Texture Button", this::createTextureButton);
+        elementList.registerElement("Toggle Container", this::createToggleContainer);
+        elementList.registerElement("Container", this::createGenericContainer);
+
     }
 
     public void addElements() {
@@ -589,11 +599,9 @@ public class GuiEditorScreen extends Screen implements EditorUtil {
 
     private void openSaveMenu() {
         saveMenuOpen = true;
-        if (saveMenu == null) {
-            var menu = new SaveMenu(this);
-            toAdd.add(menu);
-            this.saveMenu = menu;
-        }
+        var menu = new SaveMenu(this);
+        toAdd.add(menu);
+        this.saveMenu = menu;
 
         saveMenu.open(0,0);
     }

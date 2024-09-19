@@ -25,10 +25,11 @@ public class NinePatchTexture extends GuiElement {
     }
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
+
+        super.preTransform(context, mouseX, mouseY, delta);
         if (!(this instanceof ScrollbarWidget)) { // probably bad idea but i cant be bothered
             drawNinePatchTexture(context, getGlobalRect(), texture, edge_thickness);
         }
-        super.preTransform(context, mouseX, mouseY, delta);
     }
 
     @Override
@@ -59,6 +60,12 @@ public class NinePatchTexture extends GuiElement {
     public static final NinePatchTextureData BEACON_BACKGROUND = new NinePatchTextureData(16, 16, 4, Identifier.of(GooeyEditor.id, "textures/gui/beacon_background.png"));
     public static final NinePatchTextureData WHITE_OUTLINED_GRAY_BOX = new NinePatchTextureData(16, 16, 4, Identifier.of(GooeyEditor.id, "textures/gui/gray_filled_white_box.png"));
     public static final NinePatchTextureData SELECTED_THIN_PANEL = new NinePatchTextureData(16, 16, 4, Identifier.of(GooeyEditor.id, "textures/gui/selected_thin_gui_panel.png"));
+    public static final NinePatchTextureData BUTTON = new NinePatchTextureData(20, 20, 2, Identifier.of(GooeyEditor.id, "textures/gui/button.png"));
+    public static final NinePatchTextureData BUTTON_HOVERED = new NinePatchTextureData(20, 20, 3, Identifier.of(GooeyEditor.id, "textures/gui/button_hovered.png"));
+    public static final NinePatchTextureData BUTTON_OFF = new NinePatchTextureData(20, 20, 3, Identifier.of(GooeyEditor.id, "textures/gui/button_off.png"));
+    public static final NinePatchTextureData BUTTON_OFF_HOVERED = new NinePatchTextureData(20, 20, 3, Identifier.of(GooeyEditor.id, "textures/gui/button_off_hovered.png"));
+    public static final NinePatchTextureData SCROLL_GRABBER = new NinePatchTextureData(16, 16, 3, Identifier.of(GooeyEditor.id, "textures/gui/scroll_grabber.png"));
+
 
 }
 

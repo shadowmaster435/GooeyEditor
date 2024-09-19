@@ -41,6 +41,7 @@ public class WidgetTree extends ScrollableListContainer {
         if (!screen.isPropertyEditorOpen()) {
             return;
         }
+        this.getScrollbar().grabber_length = 15;
         current = rootElement;
         tree.clear();
         clearChildren();

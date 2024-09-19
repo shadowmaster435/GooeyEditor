@@ -9,6 +9,7 @@ public class PlayerInventoryWidget extends GuiElement {
 
     private SlotGridWidget inventory;
     private SlotGridWidget hotbar;
+    private boolean initialized = false;
     public int slotWidth = 18;
     public int slotHeight = 18;
     public PlayerInventoryWidget(int x, int y, boolean editMode) {
@@ -17,9 +18,6 @@ public class PlayerInventoryWidget extends GuiElement {
         SlotGridWidget hotbar = new SlotGridWidget(0,(slotHeight * 3) + 2,9, 1, slotWidth,slotHeight,0,0,editMode);
         hotbar.selectable = false;
         inventory.selectable = false;
-
-
-
         hotbar.showChildren = false;
         inventory.showChildren = false;
         setSize(slotWidth * 9, (slotHeight * 4) + 2);
@@ -29,6 +27,7 @@ public class PlayerInventoryWidget extends GuiElement {
         this.hotbar = hotbar;
         this.hotbar.needsExport = false;
         this.inventory.needsExport = false;
+        initialized = true;
     }
 
     public SlotWidget getHoveredSlot(int mouseX, int mouseY) {

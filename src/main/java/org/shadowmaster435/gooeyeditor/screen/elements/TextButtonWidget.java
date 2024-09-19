@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 public class TextButtonWidget extends GuiButton {
 
-    public String text = "";
+    public String text = "Text";
     public TextButtonWidget(int x, int y, String message, boolean editMode) {
         super(x, y, 0, 0, editMode);
 

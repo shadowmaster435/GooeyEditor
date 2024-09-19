@@ -9,7 +9,9 @@ public class ToggleContainer extends CollapsableContainer {
     public ToggleContainer(int x, int y, int w, int h, boolean editMode) {
         super(x, y, w, h, editMode);
     }
-
+    public ToggleContainer(int x, int y, boolean editMode) {
+        super(x, y, 32, 32, editMode);
+    }
     @Override
     public Vector2i getClosedSize() {
         return new Vector2i(0,0);

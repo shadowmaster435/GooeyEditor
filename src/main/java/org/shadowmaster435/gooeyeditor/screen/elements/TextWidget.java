@@ -26,7 +26,7 @@ public class TextWidget extends GuiElement {
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
         super.preTransform(context, mouseX, mouseY, delta);
-        context.drawText(MinecraftClient.getInstance().textRenderer, Text.of(text), getX(), getY(), ColorHelper.Argb.getArgb(a,r,g,b), draw_shadow);
+        context.drawText(MinecraftClient.getInstance().textRenderer, Text.of(text), getGlobalX(), getGlobalY(), ColorHelper.Argb.getArgb(a,r,g,b), draw_shadow);
         setHeight(Math.max(8, getHeight()));
         setWidth(Math.max(MinecraftClient.getInstance().textRenderer.getWidth(text), getWidth()));
     }

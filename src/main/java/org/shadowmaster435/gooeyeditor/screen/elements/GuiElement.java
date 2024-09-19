@@ -432,10 +432,11 @@ public abstract non-sealed class GuiElement extends SealedGuiElement implements 
             }
             methodStringBuilder.line(getPropertyText(property, className));
         }
+
         if (root) {
             methodStringBuilder.line("addElement(" + className + ");");
             forEachInBranch((element, par, d) -> {
-                if (!needsExport) {
+                if (needsExport) {
                     createChildrenStrings(methodStringBuilder, element, par, usedNames);
                 }
             }, 0);
@@ -448,6 +449,6 @@ public abstract non-sealed class GuiElement extends SealedGuiElement implements 
         if (par instanceof SlotGridWidget && element instanceof SlotWidget || !needsExport) {
             return;
         }
-        element.createChildInitString(methodStringBuilder, element.getClass(), element.name, element, par, usedNames, GuiEditorScreen.getSafeName(this, usedNames, false));
+        element.createChildInitString(methodStringBuilder, element.getClass(), element.name, element, par, usedNames, GuiEditorScreen.getSafeName((par != null) ? par : this, usedNames, false));
     }
 }

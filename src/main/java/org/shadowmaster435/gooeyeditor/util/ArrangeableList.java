@@ -1,6 +1,7 @@
 package org.shadowmaster435.gooeyeditor.util;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Function;
 
 public class ArrangeableList<E> extends ArrayList<E> {
@@ -120,6 +121,13 @@ public class ArrangeableList<E> extends ArrayList<E> {
      */
     public boolean isIndexNull(int index) {
         return !has(index) || has(index) && (get(index)) == null;
+    }
+
+    /**
+     * Removes all null values.
+     */
+    public void clearNullElements() {
+        removeIf(Objects::isNull);
     }
 
     public E getOrDefault(int index, E fallback) {

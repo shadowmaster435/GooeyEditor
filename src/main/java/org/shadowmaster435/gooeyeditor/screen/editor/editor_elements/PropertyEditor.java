@@ -122,9 +122,6 @@ public class PropertyEditor extends GuiElement {
             var element = properties.get(property);
             var clazz = property.aClass();
             if (clazz == Vector2d.class || clazz == Vector2f.class || clazz == Vector2i.class || clazz == Vector3d.class || clazz == Vector3f.class || clazz == Vector3i.class || clazz == Vector4d.class || clazz == Vector4f.class || clazz == Vector4i.class) {
-                if (property.get(source_element) == null) {
-                    System.out.println(property.display_name());
-                }
                 ((VectorWidget) (element)).setText(property.get(source_element));
             } else if (clazz == Identifier.class) {
                 ((IdentifierWidget) (element)).setText(property.get(source_element));

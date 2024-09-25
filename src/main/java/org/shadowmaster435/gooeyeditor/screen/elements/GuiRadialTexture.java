@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
+import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 
 import java.util.Objects;
@@ -21,11 +22,15 @@ public class GuiRadialTexture extends GuiElement {
         super(x, y, w, h, editMode);
         this.texture = texture;
     }
+    public GuiRadialTexture(int x, int y, boolean editMode) {
+        super(x, y, 32,32, editMode);
+        this.texture = Identifier.of(GooeyEditor.id, "textures/gui/progress_circle.png");
+    }
 
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {
-        var x = getX();
-        var y = getY();
+        var x = getGlobalX();
+        var y = getGlobalY();
         var width = getWidth();
         var height = getHeight();
         Objects.requireNonNull(GooeyEditorClient.getRadialTexture().getUniform("Angle")).set(angle);

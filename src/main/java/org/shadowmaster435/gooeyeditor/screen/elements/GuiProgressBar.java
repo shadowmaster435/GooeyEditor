@@ -18,7 +18,7 @@ public class GuiProgressBar extends GuiRangeTexture {
         int progress = MathHelper.lerp(this.delta, 0, texture_width);
         int width_delta_progress = MathHelper.lerp((float) progress / texture_width, 0, getWidth());
 
-        context.drawTexture(empty_texture, getX() + width_delta_progress, getY(), getWidth() - width_delta_progress, getHeight(), 0f, 0f, (int) (texture_width * this.delta), texture_height, texture_width, texture_height);
+        context.drawTexture(empty_texture, getGlobalX() + width_delta_progress, getGlobalY(), getWidth() - width_delta_progress, getHeight(), 0f, 0f, (int) (texture_width * this.delta), texture_height, texture_width, texture_height);
         super.preTransform(context, mouseX, mouseY, delta);
     }
     @Override

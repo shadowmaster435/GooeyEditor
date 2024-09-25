@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.Hash;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
@@ -34,6 +35,7 @@ import org.lwjgl.glfw.GLFW;
 import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.editor_elements.VectorWidget;
+import org.shadowmaster435.gooeyeditor.screen.elements.action.editor.EditorPropertyAction;
 import org.shadowmaster435.gooeyeditor.screen.elements.records.NinePatchTextureData;
 import org.shadowmaster435.gooeyeditor.screen.util.Rect2;
 import org.shadowmaster435.gooeyeditor.util.ClassCodeStringBuilder;
@@ -126,11 +128,17 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
         this.editMode = editMode;
         this.rect.setBounds(x, y, 0, 0);
         this.childWidget = widget;
+        if (editMode) {
+            cacheTransformAction();
+        }
     }
 
     public SealedGuiElement(int x, int y, boolean editMode) {
         this.rect.setBounds(x, y, 0, 0);
         this.editMode = editMode;
+        if (editMode) {
+            cacheTransformAction();
+        }
     }
 
 
@@ -138,6 +146,16 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
     public SealedGuiElement(int x, int y, int w, int h, boolean editMode) {
         this.rect.setBounds(x, y, w, h);
         this.editMode = editMode;
+        if (editMode) {
+            cacheTransformAction();
+        }
+//        cached.put(pre_transform_x, prop);
+//        cached.put(pre_transform_y, prop);
+//        cached.put(pre_transform_size_x, prop);
+//        cached.put(pre_transform_size_y, prop);
+//        cached.put(previous_rotation, prop);
+//
+//
     }
     //endregion
     //region Built In Methods
@@ -672,6 +690,20 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
     //endregion
     //region Editor Property Stuff
 
+    public <E extends SealedGuiElement> boolean propertiesMatch(E element) {
+        var myProps = getProperties();
+        var theirProps = element.getProperties();
+        if (myProps.length != theirProps.length) {
+            return false;
+        } else {
+            for (int i = 0; i < myProps.length; ++i) {
+                if (!Objects.equals(myProps[i].get(this), theirProps[i].get(element))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 
     public HashMap<Property, ?> getCurrentPropertyValueMap() {
         HashMap<Property, ?> result = new HashMap<>();
@@ -773,6 +805,33 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
                 is_method = true;
             }
             return is_method;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Property property) {
+                return Objects.equals(property.display_name, display_name()) &&
+                        Objects.equals(property.setterMethodOrFieldName, setterMethodOrFieldName()) &&
+                        Objects.equals(property.getterMethodOrFieldName, getterMethodOrFieldName) &&
+                        Objects.equals(property.aClass, aClass);
+            }
+            return false;
+        }
+
+        public <E extends SealedGuiElement> boolean hasProperty(E object) {
+            for (Property property : object.getProperties()) {
+                if (property.equals(this)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public <E extends SealedGuiElement> boolean match(E element, Object value) {
+            if (hasProperty(element)) {
+                return Objects.equals(get(element), value);
+            }
+            return false;
         }
 
         public static  <V> Pair<Property, ?> fromJson(JsonObject jsonObject) {
@@ -1191,8 +1250,30 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
             dragging = false;
             resizing = false;
             rotating = false;
+            cacheTransformAction();
         }
     }
+
+    public void cacheTransformAction() {
+        if (GooeyEditorClient.currentEditor == null) {
+            return;
+        }
+        HashMap<Object, Property> cached = new HashMap<>();
+        var x = new Property("", "setX", "getX", Integer.class);
+        cached.put(getX(), x);
+        var y = new Property("", "setY", "getY", Integer.class);
+        cached.put(getY(), y);
+        var w = new Property("", "setWidth", "getWidth", Integer.class);
+        cached.put(getWidth(), w);
+        var h = new Property("", "setHeight", "getHeight", Integer.class);
+        cached.put(getHeight(), h);
+        var rot = new Property("", "rotation", "rotation", Float.class);
+        cached.put(rotation, rot);
+
+        GooeyEditorClient.currentEditor.actionBuffer.cache(new EditorPropertyAction<>(this, cached));
+    }
+
+
 
     public void startTransform(int mouseX, int mouseY) {
         if (editMode && isMouseOver(mouseX, mouseY)) {
@@ -1464,6 +1545,9 @@ public abstract sealed class SealedGuiElement implements Drawable, Selectable, E
     }
 
     public void createAssignerInitInputString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {
+        builder.assign("this." + className, className);
+    }
+    public void createFieldString(ClassCodeStringBuilder.MethodStringBuilder builder, Class<?> clazz, String className) {
         builder.assign("this." + className, className);
     }
 

@@ -7,6 +7,7 @@ import org.joml.Vector2i;
 import org.shadowmaster435.gooeyeditor.screen.editor.GuiEditorScreen;
 import org.shadowmaster435.gooeyeditor.screen.editor.util.EditorUtil;
 import org.shadowmaster435.gooeyeditor.screen.elements.*;
+import org.shadowmaster435.gooeyeditor.screen.elements.action.editor.EditorElementAction;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.GenericContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.PaginatedListContainer;
 import org.shadowmaster435.gooeyeditor.screen.elements.container.PopupContainer;
@@ -63,10 +64,10 @@ public class ElementList extends GenericContainer implements EditorUtil {
         var entry = entries.get(widget).get();
         entry.layer = screen.getCurrentLayer();
         if (childToAddTo != null && screen.hasSelectedElement() && childToAddTo instanceof GuiElement a) {
-
+            screen.actionBuffer.cache(new EditorElementAction<>(entry));
             screen.toAddToChild.put(entry, a);
         } else {
-
+            screen.actionBuffer.cache(new EditorElementAction<>(entry));
             screen.toAdd.add(entry);
         }
     }

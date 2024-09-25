@@ -3,10 +3,11 @@ package org.shadowmaster435.gooeyeditor.screen.elements;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import org.shadowmaster435.gooeyeditor.GooeyEditor;
 
 public class GuiRangeTexture extends GuiElement {
 
-    public Identifier texture;
+    public Identifier texture = Identifier.of(GooeyEditor.id, "textures/gui/progress_arrow.png");
     public float delta = 0;
     public int texture_width = 0;
     public int texture_height = 0;
@@ -21,6 +22,11 @@ public class GuiRangeTexture extends GuiElement {
             delta = 1.0F;
         }
     }
+
+    public GuiRangeTexture(int x, int y, boolean editMode) {
+        super(x, y, editMode);
+    }
+
 
     @Override
     public void preTransform(DrawContext context, int mouseX, int mouseY, float delta) {

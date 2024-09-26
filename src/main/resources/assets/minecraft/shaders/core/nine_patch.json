@@ -1,6 +1,6 @@
 {
   "blend": {
-    "func": "merge",
+    "func": "add",
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },

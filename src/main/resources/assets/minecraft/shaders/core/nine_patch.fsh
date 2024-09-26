@@ -82,7 +82,10 @@ vec2 getUV(vec2 uv) {
 }
 
 void main() {
-
-    fragColor = texture(Sampler0, getUV(texCoord));
+    vec4 col = texture(Sampler0, getUV(texCoord));
+    if (col.a <= 0.00) {
+        discard;
+    }
+    fragColor = col;
 
 }

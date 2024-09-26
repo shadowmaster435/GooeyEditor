@@ -42,6 +42,7 @@ void main() {
     float pixel_delta = angleDeltaToPointFromCenter(vec2(0.5), getPixelPos(texCoord));
     float non_pixel_delta = angleDeltaToPointFromCenter(vec2(0.5), texCoord);
     float delta = 0;
+
     if (Pixelate == 1) {
         delta = pixel_delta;
     } else {
@@ -49,8 +50,7 @@ void main() {
     }
     if (col.a > 0.0) {
         if (Angle == 0.0) {
-            fragColor.a = 0;
-            return;
+            discard;
         }
         if (delta <= Angle / 360.0) {
             if (Pixelate == 1) {
@@ -59,10 +59,10 @@ void main() {
                 fragColor = texture(Sampler0, texCoord);
             }
         } else {
-            fragColor.a = 0;
+            discard;
         }
     } else {
-        fragColor = col;
+        discard;
     }
 
 }

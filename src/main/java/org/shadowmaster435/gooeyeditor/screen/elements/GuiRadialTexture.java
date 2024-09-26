@@ -1,5 +1,6 @@
 package org.shadowmaster435.gooeyeditor.screen.elements;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
@@ -9,6 +10,9 @@ import org.shadowmaster435.gooeyeditor.GooeyEditor;
 import org.shadowmaster435.gooeyeditor.client.GooeyEditorClient;
 
 import java.util.Objects;
+
+import static net.minecraft.client.render.RenderLayer.getGui;
+import static org.lwjgl.opengl.GL14.GL_FUNC_ADD;
 
 public class GuiRadialTexture extends GuiElement {
 
@@ -33,21 +37,18 @@ public class GuiRadialTexture extends GuiElement {
         var y = getGlobalY();
         var width = getWidth();
         var height = getHeight();
+
         Objects.requireNonNull(GooeyEditorClient.getRadialTexture().getUniform("Angle")).set(angle);
         Objects.requireNonNull(GooeyEditorClient.getRadialTexture().getUniform("Pixelate")).set((pixelate) ? 1 : 0);
-
         RenderSystem.setShader(GooeyEditorClient::getRadialTexture);
-
         Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, texture);
-
-        RenderSystem.disableCull();
         BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-        bufferBuilder.vertex(matrix4f, (float)x, (float)y, (float) layer).texture(0, 0).color(1f, 1f, 1f, 1f);
-        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, (float)layer).texture(0, 1).color(1f, 1f, 1f, 1f);
-        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, (float)layer).texture(1, 1).color(1f, 1f, 1f, 1f);
-        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, (float)layer).texture(1, 0).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y, 0).texture(0, 0).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x, (float)y + height, 0).texture(0, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y + height, 0).texture(1, 1).color(1f, 1f, 1f, 1f);
+        bufferBuilder.vertex(matrix4f, (float)x + width, (float)y, 0).texture(1, 0).color(1f, 1f, 1f, 1f);
         BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
         RenderSystem.disableBlend();
         super.preTransform(context, mouseX, mouseY, angle);
